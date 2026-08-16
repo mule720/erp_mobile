@@ -1,0 +1,36 @@
+{
+  "expo": {
+    "name": "Nexora ERP",
+    "slug": "nexora-erp",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "nexoraerp",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "backgroundColor": "#1E3A5F",
+      "resizeMode": "contain"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.nexora.erp",
+      "buildNumber": "1"
+    },
+    "android": {
+      "package": "com.nexora.erp",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "backgroundColor": "#1E3A5F"
+      }
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "extra": {
+      "apiUrl": "https://api.netonerppro.com/graphql/",
+      "webUrl": "https://netonerppro.com",
+      "eas": {
+        "projectId": "nexora-erp"
+      }
+    }
+  }
+}
