@@ -1,4 +1,4 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 
 const API_URL = 'https://api.netonerppro.com/graphql/';
 
@@ -22,7 +22,7 @@ function isTokenExpired(token: string): boolean {
 }
 
 async function refreshAccessToken(): Promise<string | null> {
-  const refreshToken = await AsyncStorage.getItem('erp_refresh_token');
+  const refreshToken = await SecureStore.getItemAsync('erp_refresh_token');
   if (!refreshToken) return null;
   try {
     const res = await fetch(API_URL, {
@@ -33,9 +33,9 @@ async function refreshAccessToken(): Promise<string | null> {
     const json = await res.json();
     const data = json?.data?.refreshToken;
     if (data?.token) {
-      await AsyncStorage.setItem('erp_token', data.token);
+      await SecureStore.setItemAsync('erp_token', data.token);
       if (data.refreshToken) {
-        await AsyncStorage.setItem('erp_refresh_token', data.refreshToken);
+        await SecureStore.setItemAsync('erp_refresh_token', data.refreshToken);
       }
       return data.token;
     }
@@ -47,7 +47,7 @@ export async function gql<T = any>(
   query: string,
   variables?: Record<string, any>,
 ): Promise<T> {
-  let token = await AsyncStorage.getItem('erp_token');
+  let token = await SecureStore.getItemAsync('erp_token');
 
   // Auto-refresh if token is expired or close to expiry
   if (token && isTokenExpired(token)) {
@@ -56,7 +56,7 @@ export async function gql<T = any>(
       token = refreshed;
     } else {
       // Refresh failed — clear token so app redirects to login
-      await AsyncStorage.removeItem('erp_token');
+      await SecureStore.deleteItemAsync('erp_token');
       token = null;
     }
   }

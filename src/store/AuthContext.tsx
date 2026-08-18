@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 
 export interface AuthUser {
   id: string;
@@ -38,7 +39,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     (async () => {
       try {
-        const token = await AsyncStorage.getItem('erp_token');
+        const token = await SecureStore.getItemAsync('erp_token');
         const userRaw = await AsyncStorage.getItem('erp_user');
         const tenantRaw = await AsyncStorage.getItem('erp_tenant');
         const employeeId = await AsyncStorage.getItem('erp_employee_id');
@@ -66,10 +67,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signIn = async (token: string, user: AuthUser, tenant: AuthTenant, refreshToken?: string) => {
-    await AsyncStorage.setItem('erp_token', token);
+    await SecureStore.setItemAsync('erp_token', token);
     await AsyncStorage.setItem('erp_user', JSON.stringify(user));
     await AsyncStorage.setItem('erp_tenant', JSON.stringify(tenant));
-    if (refreshToken) await AsyncStorage.setItem('erp_refresh_token', refreshToken);
+    if (refreshToken) await SecureStore.setItemAsync('erp_refresh_token', refreshToken);
     setState(s => ({ ...s, token, user, tenant }));
   };
 
@@ -79,7 +80,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signOut = async () => {
-    await AsyncStorage.multiRemove(['erp_token', 'erp_refresh_token', 'erp_user', 'erp_tenant', 'erp_employee_id']);
+    await SecureStore.deleteItemAsync('erp_token');
+    await SecureStore.deleteItemAsync('erp_refresh_token');
+    await AsyncStorage.multiRemove(['erp_user', 'erp_tenant', 'erp_employee_id']);
     setState({ token: null, user: null, tenant: null, employeeId: null, ready: true });
   };
 
