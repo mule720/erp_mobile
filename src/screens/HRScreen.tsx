@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import {
   View, Text, ScrollView, ActivityIndicator, StyleSheet,
-  TouchableOpacity, Modal, Alert, TextInput,
+  TouchableOpacity, Modal, Alert, TextInput, RefreshControl,
 } from 'react-native';
 import { gql } from '../api/graphql';
 import { useAuth } from '../store/AuthContext';
@@ -23,9 +23,113 @@ const TABS = [
   { key: 'employees', label: 'Employees' },
   { key: 'leave', label: 'Leave' },
   { key: 'payroll', label: 'Payroll' },
+  { key: 'compliance', label: 'Compliance' },
+  { key: 'payrollreports', label: 'Payroll Reports' },
   { key: 'attendance', label: 'Attendance' },
   { key: 'timesheets', label: 'Timesheets' },
 ];
+
+/* ═══════════════════════ STATUTORY COMPLIANCE TAB ═══════════════════════ */
+function ComplianceTab({ tenantId }: { tenantId: string }) {
+  const [employees, setEmployees] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    gql<any>(`query($t:UUID!){employees(tenantId:$t,limit:200){id status fullName tpin napsaMemberNumber nhimaMemberNumber}}`, { t: tenantId })
+      .then(d => setEmployees(d?.employees || [])).catch(() => {}).finally(() => setLoading(false));
+  }, [tenantId]);
+
+  if (loading) return <Loader />;
+  const active = employees.filter(e => !['terminated', 'inactive'].includes((e.status || '').toLowerCase()));
+  const total = active.length || 1;
+  const score = {
+    paye: Math.round(active.filter(e => e.tpin).length / total * 100),
+    napsa: Math.round(active.filter(e => e.napsaMemberNumber).length / total * 100),
+    nhima: Math.round(active.filter(e => e.nhimaMemberNumber).length / total * 100),
+  };
+  const missing = active.filter(e => !e.tpin || !e.napsaMemberNumber || !e.nhimaMemberNumber);
+
+  return (
+    <ScrollView style={{ flex: 1 }}>
+      <Text style={s.sectionTitle}>Statutory Filing Readiness</Text>
+      <View style={s.kpiRow}>
+        {[
+          { label: 'PAYE / TPIN on file', value: `${score.paye}%`, color: score.paye === 100 ? '#16A34A' : '#DC2626' },
+          { label: 'NAPSA on file', value: `${score.napsa}%`, color: score.napsa === 100 ? '#16A34A' : '#DC2626' },
+          { label: 'NHIMA on file', value: `${score.nhima}%`, color: score.nhima === 100 ? '#16A34A' : '#DC2626' },
+        ].map(k => (
+          <View key={k.label} style={s.kpi}>
+            <Text style={s.kpiLabel}>{k.label}</Text>
+            <Text style={[s.kpiValue, { color: k.color }]}>{k.value}</Text>
+          </View>
+        ))}
+      </View>
+
+      <Text style={s.sectionTitle}>{missing.length === 0 ? 'All employees compliant' : `${missing.length} employee${missing.length !== 1 ? 's' : ''} missing statutory numbers`}</Text>
+      <View style={[s.card, { marginBottom: 32 }]}>
+        {missing.length === 0 ? <Empty msg="Every active employee has TPIN, NAPSA and NHIMA numbers on file." /> : missing.map((e, i) => (
+          <View key={e.id} style={[s.row, i < missing.length - 1 && s.border, { justifyContent: 'space-between' }]}>
+            <Text style={s.main}>{e.fullName}</Text>
+            <Text style={[s.sub2, { color: '#DC2626' }]}>
+              {[!e.tpin && 'TPIN', !e.napsaMemberNumber && 'NAPSA', !e.nhimaMemberNumber && 'NHIMA'].filter(Boolean).join(', ')} missing
+            </Text>
+          </View>
+        ))}
+      </View>
+    </ScrollView>
+  );
+}
+
+/* ═══════════════════════ PAYROLL REPORTS TAB ═══════════════════════ */
+function PayrollReportsTab({ tenantId }: { tenantId: string }) {
+  const [runs, setRuns] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const load = useCallback(async () => {
+    try {
+      // PayrollDeptTrendRow only exposes combined totalNapsa (employee+employer), not a split.
+      const d = await gql<any>(
+        `query($t:UUID!){payrollDeptTrend(tenantId:$t,limit:12){periodLabel totalGross totalNet totalPaye totalNapsa totalNhima employeeCount}}`,
+        { t: tenantId },
+      );
+      setRuns((d?.payrollDeptTrend || []).slice().reverse());
+    } catch {} finally { setLoading(false); setRefreshing(false); }
+  }, [tenantId]);
+  useEffect(() => { load(); }, [load]);
+
+  if (loading) return <Loader />;
+  const totalNet = runs.reduce((sum, r) => sum + Number(r.totalNet || 0), 0);
+
+  return (
+    <ScrollView style={{ flex: 1 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); load(); }} colors={[NAVY]} />}>
+      <View style={[s.card, { marginTop: 12, flexDirection: 'row', paddingVertical: 14 }]}>
+        <View style={{ flex: 1, alignItems: 'center' }}>
+          <Text style={s.kpiLabel}>Periods on Record</Text>
+          <Text style={[s.kpiValue, { color: NAVY }]}>{runs.length}</Text>
+        </View>
+        <View style={{ width: 1, backgroundColor: '#E5E7EB' }} />
+        <View style={{ flex: 1, alignItems: 'center' }}>
+          <Text style={s.kpiLabel}>Total Net Paid</Text>
+          <Text style={[s.kpiValue, { color: GOLD }]}>{fmt(totalNet)}</Text>
+        </View>
+      </View>
+
+      <Text style={s.sectionTitle}>Payroll History</Text>
+      <View style={[s.card, { marginBottom: 32 }]}>
+        {runs.length === 0 ? <Empty msg="No payroll history yet." /> : runs.map((r, i) => (
+          <View key={i} style={[s.row, i < runs.length - 1 && s.border, { flexDirection: 'column', alignItems: 'stretch' }]}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+              <Text style={s.main}>{r.periodLabel}</Text>
+              <Text style={s.amount}>{fmt(r.totalNet)}</Text>
+            </View>
+            <Text style={s.sub}>{r.employeeCount} employees · Gross {fmt(r.totalGross)} · PAYE {fmt(r.totalPaye)} · NAPSA (total) {fmt(r.totalNapsa)}</Text>
+          </View>
+        ))}
+      </View>
+    </ScrollView>
+  );
+}
 
 function Loader() { return <View style={s.center}><ActivityIndicator size="large" color={NAVY} /></View>; }
 function Empty({ msg = 'No records' }: { msg?: string }) { return <Text style={s.empty}>{msg}</Text>; }
@@ -772,6 +876,8 @@ export default function HRScreen() {
       {tab === 'employees' && <EmployeesTab tenantId={tenantId} />}
       {tab === 'leave' && <LeaveTab tenantId={tenantId} employeeId={employeeId} />}
       {tab === 'payroll' && <PayrollTab tenantId={tenantId} employeeId={employeeId} />}
+      {tab === 'compliance' && <ComplianceTab tenantId={tenantId} />}
+      {tab === 'payrollreports' && <PayrollReportsTab tenantId={tenantId} />}
       {tab === 'attendance' && <AttendanceTab tenantId={tenantId} employeeId={employeeId} />}
       {tab === 'timesheets' && <TimesheetsTab tenantId={tenantId} employeeId={employeeId} />}
     </View>
@@ -789,6 +895,10 @@ const s = StyleSheet.create({
   sub2: { fontSize: 11, color: '#9CA3AF', marginTop: 1 },
   amount: { fontSize: 14, fontWeight: '700', color: NAVY },
   sectionTitle: { fontSize: 13, fontWeight: '700', color: NAVY, marginHorizontal: 16, marginTop: 16, marginBottom: 4 },
+  kpiRow: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 12, paddingTop: 12, gap: 8 },
+  kpi: { flex: 1, minWidth: '45%', backgroundColor: '#fff', borderRadius: 12, padding: 14, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 3, elevation: 1 },
+  kpiLabel: { fontSize: 11, color: '#6B7280', fontWeight: '600', textTransform: 'uppercase' },
+  kpiValue: { fontSize: 18, fontWeight: '800', color: NAVY, marginTop: 4 },
   avatar: { width: 40, height: 40, borderRadius: 20, backgroundColor: NAVY + '18', justifyContent: 'center', alignItems: 'center' },
   avatarTxt: { fontSize: 15, fontWeight: '700', color: NAVY },
   modalHeader: { flexDirection: 'row', alignItems: 'center', padding: 16, borderBottomWidth: 1, borderBottomColor: '#E5E7EB', backgroundColor: '#fff' },

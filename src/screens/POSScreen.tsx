@@ -1,10 +1,12 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  TextInput, Alert, ActivityIndicator, Modal,
+  TextInput, Alert, ActivityIndicator, Modal, Platform,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { gql } from '../api/graphql';
 import { useAuth } from '../store/AuthContext';
+import BarcodeScannerModal from '../components/BarcodeScannerModal';
 
 const NAVY = '#1E3A5F';
 const GOLD = '#C9A84C';
@@ -12,7 +14,7 @@ const GREEN = '#16A34A';
 
 const fmt = (n: any) => new Intl.NumberFormat('en-ZM', { style: 'currency', currency: 'ZMW', maximumFractionDigits: 2 }).format(Number(n ?? 0));
 
-interface Product { id: string; name: string; sku: string; unitPrice: number; stockLevel: number; category: string; }
+interface Product { id: string; name: string; sku: string; barcode?: string; unitPrice: number; stockLevel: number; category: string; }
 interface CartItem { product: Product; qty: number; price: number; }
 
 export default function POSScreen() {
@@ -32,6 +34,7 @@ export default function POSScreen() {
   const [reference, setReference] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
   const [lastReceipt, setLastReceipt] = useState<any>(null);
+  const [showScanner, setShowScanner] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -41,6 +44,7 @@ export default function POSScreen() {
         .filter((p: any) => p.is_active !== false && p.isActive !== false)
         .map((p: any) => ({
           id: p.id, name: p.name, sku: p.sku || '',
+          barcode: p.barcode || undefined,
           unitPrice: p.unit_price ?? p.unitPrice ?? p.price ?? 0,
           stockLevel: p.stock ?? p.stock_level ?? p.stockLevel ?? null,
           category: p.category || '',
@@ -56,7 +60,11 @@ export default function POSScreen() {
   useEffect(() => {
     let list = products;
     if (activeCategory !== 'All') list = list.filter(p => p.category === activeCategory);
-    if (search) list = list.filter(p => p.name?.toLowerCase().includes(search.toLowerCase()) || p.sku?.toLowerCase().includes(search.toLowerCase()));
+    if (search) {
+      const q = search.toLowerCase();
+      list = list.filter(p =>
+        p.name?.toLowerCase().includes(q) || p.sku?.toLowerCase().includes(q) || p.barcode?.toLowerCase().includes(q));
+    }
     setFiltered(list);
   }, [search, activeCategory, products]);
 
@@ -67,6 +75,21 @@ export default function POSScreen() {
       return [...c, { product, qty: 1, price: product.unitPrice }];
     });
   };
+
+  // Every active product is already loaded client-side (see load(), no
+  // server pagination for POS), so a scan just needs to find the match
+  // already in memory - no extra round-trip like the web version needs.
+  const handleBarcodeScanned = useCallback((code: string) => {
+    setShowScanner(false);
+    const trimmed = code.trim();
+    const match = products.find(p => p.barcode === trimmed || p.sku === trimmed);
+    if (match) {
+      addToCart(match);
+    } else {
+      setSearch(trimmed);
+      Alert.alert('No exact match', `Showing search results for "${trimmed}"`);
+    }
+  }, [products]);
 
   const removeFromCart = (productId: string) => setCart(c => c.filter(i => i.product.id !== productId));
   const updateQty = (productId: string, qty: number) => {
@@ -161,6 +184,14 @@ export default function POSScreen() {
           placeholder="Search products…"
           placeholderTextColor="#9CA3AF"
         />
+        {/* expo-camera has no barcode-scanning support on web - hide the
+            entry point there rather than open a scanner that can never
+            detect anything (web POS scanning lives in erp_frontend). */}
+        {Platform.OS !== 'web' && (
+          <TouchableOpacity style={s.scanBtn} onPress={() => setShowScanner(true)}>
+            <Ionicons name="scan-outline" size={20} color="#fff" />
+          </TouchableOpacity>
+        )}
         {cart.length > 0 && (
           <TouchableOpacity style={s.cartBtn} onPress={() => setShowCart(true)}>
             <Text style={s.cartBtnTxt}>Cart ({cartCount})</Text>
@@ -313,6 +344,12 @@ export default function POSScreen() {
           <Text style={s.floatingCartAmt}>{fmt(total)}</Text>
         </TouchableOpacity>
       )}
+
+      <BarcodeScannerModal
+        visible={showScanner}
+        onClose={() => setShowScanner(false)}
+        onScanned={handleBarcodeScanned}
+      />
     </View>
   );
 }
@@ -323,6 +360,7 @@ const s = StyleSheet.create({
 
   searchBar: { flexDirection: 'row', paddingHorizontal: 12, paddingVertical: 10, gap: 10, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#E5E7EB' },
   searchInput: { flex: 1, backgroundColor: '#F1F5F9', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 10, fontSize: 14, color: '#111827' },
+  scanBtn: { width: 42, height: 42, borderRadius: 10, backgroundColor: NAVY, alignItems: 'center', justifyContent: 'center' },
   cartBtn: { backgroundColor: NAVY, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 8, alignItems: 'center' },
   cartBtnTxt: { color: '#fff', fontSize: 12, fontWeight: '600' },
   cartBtnAmt: { color: GOLD, fontSize: 13, fontWeight: '800' },

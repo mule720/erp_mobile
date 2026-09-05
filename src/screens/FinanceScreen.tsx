@@ -20,6 +20,9 @@ const fmtK = (n: any) => `K${Number(n ?? 0).toLocaleString()}`;
 
 const TABS = [
   { key: 'overview', label: 'Overview' },
+  { key: 'posting', label: 'Posting Center' },
+  { key: 'ageing', label: 'Ageing' },
+  { key: 'budget', label: 'Budget' },
   { key: 'journals', label: 'Journals' },
   { key: 'payments', label: 'Payments' },
   { key: 'expenses', label: 'Expense Claims' },
@@ -27,6 +30,251 @@ const TABS = [
   { key: 'bankrec', label: 'Bank Rec' },
   { key: 'reports', label: 'Reports' },
 ];
+
+const BUCKET_LABELS = [
+  { key: 'current', label: 'Current' }, { key: 'days30', label: '1–30 Days' },
+  { key: 'days60', label: '31–60 Days' }, { key: 'days90', label: '61–90 Days' },
+  { key: 'over90', label: '90+ Days' },
+];
+
+/* ─────────────────────────── AGEING REPORTS ─────────────────────────── */
+function AgeingTab({ tenantId }: { tenantId: string }) {
+  const [side, setSide] = useState<'receivables' | 'payables'>('receivables');
+  const [ar, setAr] = useState<any>(null);
+  const [ap, setAp] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [bucket, setBucket] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    try {
+      const [arData, apData] = await Promise.all([
+        gql<any>(`query($t:UUID!){agedReceivables(tenantId:$t)}`, { t: tenantId }).catch(() => ({})),
+        gql<any>(`query($t:UUID!){agedPayables(tenantId:$t)}`, { t: tenantId }).catch(() => ({})),
+      ]);
+      setAr(arData?.agedReceivables); setAp(apData?.agedPayables);
+    } catch {} finally { setLoading(false); setRefreshing(false); }
+  }, [tenantId]);
+  useEffect(() => { load(); }, [load]);
+  useEffect(() => { setBucket(null); }, [side]);
+
+  if (loading) return <Loader />;
+  const data = side === 'receivables' ? ar : ap;
+  const rows: any[] = data?.rows || [];
+  const visible = bucket ? rows.filter(r => r.bucket === bucket) : rows;
+
+  return (
+    <ScrollView style={{ flex: 1 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); load(); }} colors={[NAVY]} />}>
+      <View style={{ flexDirection: 'row', margin: 16, marginBottom: 8, backgroundColor: '#E5E7EB', borderRadius: 10, padding: 3 }}>
+        {(['receivables', 'payables'] as const).map(k => (
+          <TouchableOpacity key={k} style={{ flex: 1, paddingVertical: 8, borderRadius: 8, backgroundColor: side === k ? '#fff' : 'transparent', alignItems: 'center' }} onPress={() => setSide(k)}>
+            <Text style={{ fontSize: 13, fontWeight: '700', color: side === k ? NAVY : '#6B7280' }}>{k === 'receivables' ? 'Receivables' : 'Payables'}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      {!data ? <Empty msg={`No ${side} ageing data available.`} /> : (
+        <>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 12, gap: 8 }}>
+            {BUCKET_LABELS.map(b => (
+              <TouchableOpacity key={b.key} style={[s.kpi, { minWidth: '30%' }, bucket === b.key && { borderWidth: 2, borderColor: NAVY }]}
+                onPress={() => setBucket(cur => cur === b.key ? null : b.key)}>
+                <Text style={s.kpiLabel}>{b.label}</Text>
+                <Text style={[s.kpiValue, { fontSize: 14, color: side === 'receivables' ? '#2563EB' : '#DC2626' }]}>{fmtK(data.buckets?.[b.key])}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          <View style={[s.card, { marginTop: 12, flexDirection: 'row', paddingVertical: 14 }]}>
+            <View style={{ flex: 1, alignItems: 'center' }}>
+              <Text style={s.kpiLabel}>Total Outstanding</Text>
+              <Text style={[s.kpiValue, { color: NAVY }]}>{fmtK(data.total)}</Text>
+            </View>
+          </View>
+
+          <Text style={s.sectionTitle}>{visible.length} record{visible.length !== 1 ? 's' : ''}{bucket ? ` · ${BUCKET_LABELS.find(b => b.key === bucket)?.label}` : ''}</Text>
+          <View style={[s.card, { marginBottom: 32 }]}>
+            {visible.length === 0 ? <Empty /> : visible.map((r, i) => (
+              <View key={i} style={[s.row, i < visible.length - 1 && s.border, { justifyContent: 'space-between' }]}>
+                <View style={{ flex: 1 }}>
+                  <Text style={s.main}>{r.customer || r.supplier || '—'}</Text>
+                  <Text style={s.sub}>{r.invoiceNumber || r.billNumber} · due {r.dueDate}</Text>
+                </View>
+                <View style={{ alignItems: 'flex-end' }}>
+                  <Text style={s.amount}>{fmtK(r.outstanding)}</Text>
+                  <Text style={[s.sub2, r.daysOverdue > 90 && { color: '#DC2626', fontWeight: '700' }]}>{r.daysOverdue > 0 ? `${r.daysOverdue}d overdue` : 'Current'}</Text>
+                </View>
+              </View>
+            ))}
+          </View>
+        </>
+      )}
+    </ScrollView>
+  );
+}
+
+/* ─────────────────────────── BUDGET vs ACTUAL ─────────────────────────── */
+function BudgetTab({ tenantId }: { tenantId: string }) {
+  const [budgets, setBudgets] = useState<any[]>([]);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [variance, setVariance] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [loadingVariance, setLoadingVariance] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const load = useCallback(async () => {
+    try {
+      const d = await gql<any>(`query($t:UUID!){budgets(tenantId:$t)}`, { t: tenantId });
+      const list = d?.budgets || [];
+      setBudgets(list);
+      if (list.length && !selectedId) setSelectedId(list[0].id);
+    } catch {} finally { setLoading(false); setRefreshing(false); }
+  }, [tenantId, selectedId]);
+  useEffect(() => { load(); }, [load]);
+
+  useEffect(() => {
+    if (!selectedId) return;
+    setLoadingVariance(true);
+    gql<any>(`query($id:UUID!){budgetVariance(budgetId:$id)}`, { id: selectedId })
+      .then(d => setVariance(d?.budgetVariance)).catch(() => {}).finally(() => setLoadingVariance(false));
+  }, [selectedId]);
+
+  if (loading) return <Loader />;
+  const lines: any[] = variance?.lines || [];
+
+  return (
+    <ScrollView style={{ flex: 1 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); load(); }} colors={[NAVY]} />}>
+      {budgets.length === 0 ? <Empty msg="No budgets set up yet." /> : (
+        <>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 12 }} contentContainerStyle={{ paddingHorizontal: 12, gap: 8 }}>
+            {budgets.map(b => (
+              <TouchableOpacity key={b.id} onPress={() => setSelectedId(b.id)}
+                style={[s.chip, selectedId === b.id && { backgroundColor: NAVY }]}>
+                <Text style={[s.chipTxt, selectedId === b.id && { color: '#fff' }]}>{b.name}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+
+          {loadingVariance ? <Loader /> : !variance ? <Empty /> : (
+            <>
+              <Text style={s.sectionTitle}>{variance.budgetName} · {variance.startDate} → {variance.endDate}</Text>
+              <View style={[s.card, { marginBottom: 32 }]}>
+                {lines.length === 0 ? <Empty /> : lines.map((l, i) => {
+                  const over = Number(l.variancePct) < -10;
+                  return (
+                    <View key={i} style={[s.row, i < lines.length - 1 && s.border, { flexDirection: 'column', alignItems: 'stretch' }]}>
+                      <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                        <Text style={s.main}>{l.accountName} ({l.accountCode})</Text>
+                        <Text style={[s.sub2, { color: over ? '#DC2626' : '#16A34A', fontWeight: '700' }]}>{Number(l.variancePct).toFixed(1)}%</Text>
+                      </View>
+                      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 }}>
+                        <Text style={s.sub}>Budgeted {fmtK(l.budgeted)}</Text>
+                        <Text style={s.sub}>Actual {fmtK(l.actual)}</Text>
+                      </View>
+                    </View>
+                  );
+                })}
+              </View>
+            </>
+          )}
+        </>
+      )}
+    </ScrollView>
+  );
+}
+
+/* ─────────────────────────── POSTING CENTER ─────────────────────────── */
+// Same aggregated queue as the web app's Posting Center — draft journals,
+// unposted invoices/bills, payroll not yet on the GL, depreciation batches
+// pending approval, submitted expense claims, migration data awaiting
+// review. Every "Post" call here hits the exact same mutation the web
+// page uses — this never invents a shortcut posting path.
+const POSTING_MUTATIONS: Record<string, { query: string; field: string }> = {
+  postJournalEntry: { field: 'postJournalEntry', query: `mutation($entryId:UUID!){postJournalEntry(entryId:$entryId)}` },
+  postSalesInvoice: { field: 'postSalesInvoice', query: `mutation($invoiceId:UUID!){postSalesInvoice(invoiceId:$invoiceId){ok error approvalPending}}` },
+  approveSupplierBill: { field: 'approveSupplierBill', query: `mutation($billId:UUID!){approveSupplierBill(billId:$billId)}` },
+  postPayrollRunToGl: { field: 'postPayrollRunToGl', query: `mutation($runId:UUID!){postPayrollRunToGl(runId:$runId){ok error accrualPosted disbursementPosted}}` },
+  approveDepreciationBatch: { field: 'approveDepreciationBatch', query: `mutation($batchId:UUID!){approveDepreciationBatch(batchId:$batchId)}` },
+  approveExpenseClaim: { field: 'approveExpenseClaim', query: `mutation($claimId:UUID!){approveExpenseClaim(claimId:$claimId)}` },
+  bulkSetStagingApproval: { field: 'bulkSetStagingApproval', query: `mutation($projectId:UUID!,$entityType:String!,$approved:Boolean!){bulkSetStagingApproval(projectId:$projectId,entityType:$entityType,approved:$approved){ok error affected}}` },
+  postTaxProvision: { field: 'postTaxProvision', query: `mutation($asOfDate:Date!){postTaxProvision(asOfDate:$asOfDate)}` },
+};
+const CATEGORY_LABEL: Record<string, string> = {
+  journal_entry: 'Journal Entry', sales_invoice: 'Sales Invoice', supplier_bill: 'Supplier Bill',
+  payroll_run: 'Payroll Run', depreciation_batch: 'Depreciation Batch', expense_claim: 'Expense Claim',
+  migration_staging: 'Migration Data', tax_provision: 'Tax Provision',
+};
+
+function PostingCenterTab() {
+  const [data, setData] = useState<{ items: any[]; totalCount: number } | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [posting, setPosting] = useState<Record<string, boolean>>({});
+
+  const load = useCallback(async () => {
+    try {
+      const d = await gql<any>(`query{postingCenterQueue}`, {});
+      setData(d?.postingCenterQueue || { items: [], totalCount: 0 });
+    } catch {} finally { setLoading(false); setRefreshing(false); }
+  }, []);
+  useEffect(() => { load(); }, [load]);
+
+  const post = async (item: any) => {
+    const m = POSTING_MUTATIONS[item.mutation];
+    if (!m) { Alert.alert('Not supported', 'Open this item on the web app to post it.'); return; }
+    setPosting(p => ({ ...p, [item.id]: true }));
+    try {
+      const d = await gql<any>(m.query, item.mutationArgs);
+      const res = d?.[m.field];
+      if (res?.requiresApproval || res?.approvalPending) {
+        Alert.alert('Sent for approval', 'This item needs sign-off before it can post.');
+      } else if (res && res.ok === false) {
+        throw new Error(res.error || 'Failed to post');
+      } else if (res && res.journalPosted === false) {
+        Alert.alert('Approved, but not posted', res.glError || 'The GL entry could not be created — check the period and accounts.');
+      } else {
+        Alert.alert('Posted', item.description);
+      }
+      await load();
+    } catch (e: any) {
+      Alert.alert('Failed to post', e.message || 'Something went wrong');
+    } finally {
+      setPosting(p => { const n = { ...p }; delete n[item.id]; return n; });
+    }
+  };
+
+  if (loading) return <Loader />;
+  const items = data?.items || [];
+
+  return (
+    <ScrollView style={{ flex: 1 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); load(); }} colors={[NAVY]} />}>
+      <View style={[s.card, { marginTop: 12, flexDirection: 'row', alignItems: 'center', paddingVertical: 14 }]}>
+        <Text style={{ fontSize: 28, marginRight: 10 }}>{items.length === 0 ? '✅' : '📥'}</Text>
+        <View style={{ flex: 1 }}>
+          <Text style={s.main}>{items.length === 0 ? 'Nothing pending' : `${items.length} item${items.length !== 1 ? 's' : ''} pending`}</Text>
+          <Text style={s.sub}>{items.length === 0 ? 'Everything across the app has been posted or approved.' : 'Every draft, unposted document and pending approval, in one place.'}</Text>
+        </View>
+      </View>
+
+      {items.map((item: any) => (
+        <View key={item.id} style={[s.card, { marginTop: 8, paddingVertical: 12 }]}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <View style={{ flex: 1, marginRight: 10 }}>
+              <Text style={s.sub2}>{CATEGORY_LABEL[item.category] || item.category}</Text>
+              <Text style={s.main}>{item.description}</Text>
+              <Text style={s.sub}>
+                {item.date ? new Date(item.date).toLocaleDateString('en-ZM', { day: '2-digit', month: 'short', year: 'numeric' }) : ''}
+                {item.amount != null ? `  ·  K${Number(item.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}` : ''}
+              </Text>
+            </View>
+            <ActionBtn label={posting[item.id] ? 'Posting…' : 'Post'} onPress={() => post(item)} />
+          </View>
+        </View>
+      ))}
+      <View style={{ height: 32 }} />
+    </ScrollView>
+  );
+}
 
 function Loader() { return <View style={s.center}><ActivityIndicator size="large" color={NAVY} /></View>; }
 function Empty({ msg = 'No records' }: { msg?: string }) { return <Text style={s.empty}>{msg}</Text>; }
@@ -894,6 +1142,9 @@ export default function FinanceScreen() {
     <View style={{ flex: 1, backgroundColor: '#F1F5F9' }}>
       <ModuleTabs tabs={TABS} active={tab} onChange={setTab} />
       {tab === 'overview' && <OverviewTab tenantId={tenantId} />}
+      {tab === 'posting' && <PostingCenterTab />}
+      {tab === 'ageing' && <AgeingTab tenantId={tenantId} />}
+      {tab === 'budget' && <BudgetTab tenantId={tenantId} />}
       {tab === 'journals' && <JournalsTab tenantId={tenantId} />}
       {tab === 'payments' && <PaymentsTab tenantId={tenantId} />}
       {tab === 'expenses' && <ExpenseClaimsTab tenantId={tenantId} />}

@@ -3,11 +3,12 @@ import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
   RefreshControl, ActivityIndicator,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../store/AuthContext';
 import { gql } from '../api/graphql';
+import { COLORS, FONT, RADIUS, SHADOW } from '../theme';
 
-const NAVY = '#1E3A5F';
-const GOLD = '#C9A84C';
+const NAVY = COLORS.navy;
 
 const fmt = (n: any) =>
   new Intl.NumberFormat('en-ZM', { style: 'currency', currency: 'ZMW', maximumFractionDigits: 0 }).format(Number(n ?? 0));
@@ -36,13 +37,13 @@ const ACTIVITY_COLORS: Record<string, string> = {
   journal_entry: '#6B7280',
 };
 
-const ACTIVITY_ICONS: Record<string, string> = {
-  invoice: '🧾',
-  payment: '💳',
-  purchase: '📦',
-  payroll: '👥',
-  expense: '💸',
-  journal_entry: '📒',
+const ACTIVITY_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
+  invoice: 'receipt-outline',
+  payment: 'card-outline',
+  purchase: 'cube-outline',
+  payroll: 'people-outline',
+  expense: 'trending-down-outline',
+  journal_entry: 'book-outline',
 };
 
 interface Props { onNavigate?: (key: string) => void }
@@ -82,38 +83,38 @@ export default function HomeScreen({ onNavigate }: Props) {
     {
       label: 'Total Revenue',
       value: accounting ? fmt(accounting.totalRevenue) : '—',
-      icon: '💰',
-      color: '#10B981',
-      bg: '#ECFDF5',
+      icon: 'trending-up-outline' as const,
+      color: COLORS.success,
+      bg: COLORS.successBg,
     },
     {
       label: 'Active Employees',
       value: payroll ? String(payroll.activeEmployees ?? 0) : '—',
-      icon: '👥',
-      color: '#3B82F6',
-      bg: '#EFF6FF',
+      icon: 'people-outline' as const,
+      color: COLORS.info,
+      bg: COLORS.infoBg,
     },
     {
       label: 'Total Invoices',
       value: summary ? String(summary.total ?? 0) : '—',
-      icon: '🧾',
-      color: '#8B5CF6',
-      bg: '#F5F3FF',
+      icon: 'receipt-outline' as const,
+      color: COLORS.violet,
+      bg: COLORS.violetBg,
     },
     {
       label: 'Overdue',
       value: summary ? String(summary.overdue ?? 0) : '—',
-      icon: '⚠️',
-      color: '#EF4444',
-      bg: '#FEF2F2',
+      icon: 'alert-circle-outline' as const,
+      color: COLORS.danger,
+      bg: COLORS.dangerBg,
     },
   ];
 
   const quickActions = [
-    { label: 'New Invoice', icon: '🧾', key: 'sales' },
-    { label: 'Purchasing', icon: '📦', key: 'purchasing' },
-    { label: 'Finance', icon: '📊', key: 'finance' },
-    { label: 'People (HR)', icon: '👥', key: 'people' },
+    { label: 'New Invoice', icon: 'receipt-outline' as const, key: 'sales' },
+    { label: 'Purchasing', icon: 'cube-outline' as const, key: 'purchasing' },
+    { label: 'Finance', icon: 'bar-chart-outline' as const, key: 'finance' },
+    { label: 'People (HR)', icon: 'people-outline' as const, key: 'people' },
   ];
 
   return (
@@ -123,7 +124,7 @@ export default function HomeScreen({ onNavigate }: Props) {
     >
       {/* ── Greeting ── */}
       <View style={s.greeting}>
-        <Text style={s.greetingText}>{greeting()}, <Text style={{ fontWeight: '700' }}>{user?.firstName || 'there'}</Text></Text>
+        <Text style={s.greetingText}>{greeting()}, <Text style={{ fontFamily: FONT.displaySemibold }}>{user?.firstName || 'there'}</Text></Text>
         <Text style={s.org}>{tenant?.name}</Text>
       </View>
 
@@ -132,10 +133,12 @@ export default function HomeScreen({ onNavigate }: Props) {
         {loading
           ? [0, 1, 2, 3].map(i => <View key={i} style={[s.statCard, { backgroundColor: '#F1F5F9' }]}><ActivityIndicator color={NAVY} /></View>)
           : statCards.map((c) => (
-            <View key={c.label} style={[s.statCard, { backgroundColor: c.bg }]}>
+            <View key={c.label} style={s.statCard}>
               <View style={s.statTop}>
                 <Text style={s.statLabel}>{c.label}</Text>
-                <Text style={s.statIcon}>{c.icon}</Text>
+                <View style={[s.statIconWrap, { backgroundColor: c.bg }]}>
+                  <Ionicons name={c.icon} size={15} color={c.color} />
+                </View>
               </View>
               <Text style={[s.statValue, { color: c.color }]}>{c.value}</Text>
             </View>
@@ -156,7 +159,7 @@ export default function HomeScreen({ onNavigate }: Props) {
         {/* ── Recent Activity ── */}
         <View style={s.section}>
           <View style={s.sectionHeader}>
-            <Text style={s.sectionIcon}>🕐</Text>
+            <Ionicons name="time-outline" size={16} color={NAVY} style={s.sectionIcon} />
             <Text style={s.sectionTitle}>Recent Activity</Text>
           </View>
           <View style={s.card}>
@@ -167,7 +170,7 @@ export default function HomeScreen({ onNavigate }: Props) {
                 : activities.map((a: any, i: number) => (
                   <View key={i} style={[s.actRow, i < activities.length - 1 && s.border]}>
                     <View style={[s.actDot, { backgroundColor: ACTIVITY_COLORS[a.activityType] || '#6B7280' }]}>
-                      <Text style={{ fontSize: 10 }}>{ACTIVITY_ICONS[a.activityType] || '•'}</Text>
+                      <Ionicons name={ACTIVITY_ICONS[a.activityType] || 'ellipse'} size={13} color="#fff" />
                     </View>
                     <View style={{ flex: 1 }}>
                       <Text style={s.actDesc} numberOfLines={1}>{a.description}</Text>
@@ -185,7 +188,7 @@ export default function HomeScreen({ onNavigate }: Props) {
         {/* ── Quick Actions ── */}
         <View style={s.section}>
           <View style={s.sectionHeader}>
-            <Text style={s.sectionIcon}>⚡</Text>
+            <Ionicons name="flash-outline" size={16} color={COLORS.amber} style={s.sectionIcon} />
             <Text style={s.sectionTitle}>Quick Actions</Text>
           </View>
           <View style={s.qaGrid}>
@@ -196,7 +199,9 @@ export default function HomeScreen({ onNavigate }: Props) {
                 onPress={() => onNavigate?.(a.key)}
                 activeOpacity={0.7}
               >
-                <Text style={s.qaIcon}>{a.icon}</Text>
+                <View style={s.qaIconWrap}>
+                  <Ionicons name={a.icon} size={20} color={NAVY} />
+                </View>
                 <Text style={s.qaLabel}>{a.label}</Text>
               </TouchableOpacity>
             ))}
@@ -208,7 +213,7 @@ export default function HomeScreen({ onNavigate }: Props) {
       {!loading && payroll && (
         <View style={s.section}>
           <View style={s.sectionHeader}>
-            <Text style={s.sectionIcon}>📋</Text>
+            <Ionicons name="clipboard-outline" size={16} color={NAVY} style={s.sectionIcon} />
             <Text style={s.sectionTitle}>Payroll Snapshot</Text>
           </View>
           <View style={[s.card, { flexDirection: 'row' }]}>
@@ -247,67 +252,71 @@ function PayrollStat({ label, value, accent }: { label: string; value: any; acce
 }
 
 const s = StyleSheet.create({
-  root: { flex: 1, backgroundColor: '#F1F5F9' },
+  root: { flex: 1, backgroundColor: COLORS.surfaceMuted },
 
   greeting: { paddingHorizontal: 16, paddingTop: 16, paddingBottom: 8 },
-  greetingText: { fontSize: 20, color: '#111827' },
-  org: { fontSize: 12, color: '#9CA3AF', marginTop: 2 },
+  greetingText: { fontSize: 20, color: COLORS.ink, fontFamily: FONT.bodyRegular },
+  org: { fontSize: 12, color: COLORS.faint, marginTop: 2, fontFamily: FONT.bodyRegular },
 
   cardGrid: {
     flexDirection: 'row', flexWrap: 'wrap',
     paddingHorizontal: 12, gap: 8, marginTop: 4,
   },
   statCard: {
-    width: '47.5%', borderRadius: 14, padding: 14,
-    shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 4, elevation: 2,
+    width: '47.5%', borderRadius: RADIUS.lg, padding: 14,
+    backgroundColor: COLORS.surface, borderWidth: 1, borderColor: COLORS.border,
+    ...SHADOW.card,
   },
-  statTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
-  statLabel: { fontSize: 11, color: '#6B7280', fontWeight: '600', flex: 1 },
-  statIcon: { fontSize: 18 },
-  statValue: { fontSize: 20, fontWeight: '800' },
+  statTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
+  statLabel: { fontSize: 11, color: COLORS.subtle, fontFamily: FONT.heading, flex: 1 },
+  statIconWrap: { width: 26, height: 26, borderRadius: RADIUS.sm, alignItems: 'center', justifyContent: 'center' },
+  statValue: { fontSize: 20, fontFamily: FONT.display },
 
   breakdownRow: {
     flexDirection: 'row', gap: 8, paddingHorizontal: 16, marginTop: 8,
   },
   pill: {
-    flex: 1, borderRadius: 10, borderWidth: 1.5, paddingVertical: 8,
-    alignItems: 'center', backgroundColor: '#fff',
+    flex: 1, borderRadius: RADIUS.sm, borderWidth: 1.5, paddingVertical: 8,
+    alignItems: 'center', backgroundColor: COLORS.surface,
   },
-  pillVal: { fontSize: 16, fontWeight: '800' },
-  pillLbl: { fontSize: 10, color: '#6B7280', marginTop: 2 },
+  pillVal: { fontSize: 16, fontFamily: FONT.display },
+  pillLbl: { fontSize: 10, color: COLORS.subtle, marginTop: 2, fontFamily: FONT.bodyRegular },
 
   twoCol: { marginTop: 4 },
 
   section: { marginHorizontal: 16, marginTop: 16 },
   sectionHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
-  sectionIcon: { fontSize: 16, marginRight: 6 },
-  sectionTitle: { fontSize: 15, fontWeight: '700', color: NAVY },
+  sectionIcon: { marginRight: 6 },
+  sectionTitle: { fontSize: 15, fontFamily: FONT.heading, color: NAVY },
 
   card: {
-    backgroundColor: '#fff', borderRadius: 14,
-    paddingHorizontal: 16,
-    shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 4, elevation: 2,
+    backgroundColor: COLORS.surface, borderRadius: RADIUS.lg,
+    paddingHorizontal: 16, borderWidth: 1, borderColor: COLORS.border,
+    ...SHADOW.card,
   },
 
   actRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 11 },
   border: { borderBottomWidth: 1, borderBottomColor: '#F1F5F9' },
   actDot: { width: 28, height: 28, borderRadius: 14, marginRight: 10, justifyContent: 'center', alignItems: 'center' },
-  actDesc: { fontSize: 13, fontWeight: '600', color: '#111827' },
-  actRef: { fontSize: 11, color: '#9CA3AF', marginTop: 2 },
-  actAmt: { fontSize: 13, fontWeight: '700', color: NAVY, marginLeft: 8 },
+  actDesc: { fontSize: 13, fontFamily: FONT.heading, color: COLORS.ink },
+  actRef: { fontSize: 11, color: COLORS.faint, marginTop: 2, fontFamily: FONT.bodyRegular },
+  actAmt: { fontSize: 13, fontFamily: FONT.heading, color: NAVY, marginLeft: 8 },
 
-  empty: { color: '#9CA3AF', textAlign: 'center', paddingVertical: 20, fontSize: 13 },
+  empty: { color: COLORS.faint, textAlign: 'center', paddingVertical: 20, fontSize: 13, fontFamily: FONT.bodyRegular },
 
   qaGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   qaBtn: {
-    width: '47.5%', backgroundColor: '#fff', borderRadius: 14, padding: 16,
-    borderWidth: 1, borderColor: '#E5E7EB',
-    shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 3, elevation: 1,
+    width: '47.5%', backgroundColor: COLORS.surface, borderRadius: RADIUS.lg, padding: 16,
+    borderWidth: 1, borderColor: COLORS.border,
+    ...SHADOW.card,
   },
-  qaIcon: { fontSize: 24, marginBottom: 8 },
-  qaLabel: { fontSize: 13, fontWeight: '600', color: '#1F2937' },
+  qaIconWrap: {
+    width: 36, height: 36, borderRadius: RADIUS.sm, backgroundColor: COLORS.surfaceMuted,
+    alignItems: 'center', justifyContent: 'center', marginBottom: 10,
+  },
+  qaLabel: { fontSize: 13, fontFamily: FONT.heading, color: COLORS.ink },
 
   divider: { width: 1, backgroundColor: '#F1F5F9', marginVertical: 8 },
-  payVal: { fontSize: 16, fontWeight: '800', color: NAVY },
-  payLbl: { fontSize: 10, color: '#6B7280', marginTop: 2, textAlign: 'center' },
+  payVal: { fontSize: 16, fontFamily: FONT.display, color: NAVY },
+  payLbl: { fontSize: 10, color: COLORS.subtle, marginTop: 2, textAlign: 'center', fontFamily: FONT.bodyRegular },
 });

@@ -21,7 +21,11 @@ const fmt = (n: any, cur = 'ZMW') =>
 
 const TABS = [
   { key: 'po', label: 'Purchase Orders' },
+  { key: 'goodsreceipt', label: 'Goods Receipt' },
+  { key: 'threewaymatch', label: 'Three-Way Match' },
   { key: 'suppliers', label: 'Suppliers' },
+  { key: 'evaluation', label: 'Supplier Evaluation' },
+  { key: 'forecast', label: 'Forecast' },
   { key: 'products', label: 'Products' },
   { key: 'inventory', label: 'Inventory' },
   { key: 'stockcount', label: 'Stock Count' },
@@ -198,9 +202,19 @@ function SuppliersTab({ tenantId }: { tenantId: string }) {
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<any>(null);
+  const [detail, setDetail] = useState<any>(null);
+  const [detailLoading, setDetailLoading] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({ name: '', email: '', phone: '', address: '', taxNumber: '', paymentTerms: '30', currency: 'ZMW' });
+
+  const openSupplier = async (sup: any) => {
+    setSelected(sup); setDetail(null); setDetailLoading(true);
+    try {
+      const d = await gql<any>(`query($id:UUID!){supplyChainSupplier(supplierId:$id)}`, { id: sup.id });
+      setDetail(d?.supplyChainSupplier);
+    } catch {} finally { setDetailLoading(false); }
+  };
 
   const load = useCallback(async () => {
     try {
@@ -232,7 +246,7 @@ function SuppliersTab({ tenantId }: { tenantId: string }) {
       <ScrollView style={{ flex: 1 }}>
         <View style={[s.card, { marginBottom: 100 }]}>
           {filtered.length === 0 ? <Empty msg="No suppliers" /> : filtered.map((sup, i) => (
-            <TouchableOpacity key={sup.id} style={[s.row, i < filtered.length - 1 && s.border]} onPress={() => setSelected(sup)} activeOpacity={0.7}>
+            <TouchableOpacity key={sup.id} style={[s.row, i < filtered.length - 1 && s.border]} onPress={() => openSupplier(sup)} activeOpacity={0.7}>
               <View style={[s.avatar, { backgroundColor: '#EEF2FF' }]}>
                 <Text style={[s.avatarTxt, { color: '#4F46E5' }]}>{sup.name?.[0]?.toUpperCase()}</Text>
               </View>
@@ -262,6 +276,24 @@ function SuppliersTab({ tenantId }: { tenantId: string }) {
                 </View>
               ))}
             </View>
+
+            <Text style={s.sectionTitle}>Purchase Order History</Text>
+            {detailLoading ? <Loader /> : (
+              <View style={[s.card, { marginBottom: 32 }]}>
+                {!detail?.pos || detail.pos.length === 0 ? <Empty msg="No purchase orders with this supplier yet." /> : detail.pos.map((po: any, i: number) => (
+                  <View key={po.id} style={[s.row, i < detail.pos.length - 1 && s.border, { justifyContent: 'space-between' }]}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={s.main}>{po.poNumber}</Text>
+                      <Text style={s.sub}>{po.poDate} · {po.lineCount} line{po.lineCount === 1 ? '' : 's'}</Text>
+                    </View>
+                    <View style={{ alignItems: 'flex-end' }}>
+                      <Text style={s.amount}>{fmt(po.total)}</Text>
+                      <StatusBadge status={po.status} />
+                    </View>
+                  </View>
+                ))}
+              </View>
+            )}
           </ScrollView>
         )}
       </Modal>
@@ -575,6 +607,293 @@ function StockCountTab({ tenantId }: { tenantId: string }) {
   );
 }
 
+/* ─────────────────────────── GOODS RECEIPT ─────────────────────────── */
+function GoodsReceiptTab({ tenantId }: { tenantId: string }) {
+  const [grns, setGrns] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [selected, setSelected] = useState<any>(null);
+  const [detail, setDetail] = useState<any>(null);
+  const [detailLoading, setDetailLoading] = useState(false);
+
+  const load = useCallback(async () => {
+    try {
+      const d = await gql<any>(`query{supplyChainGoodsReceipts(limit:50)}`, {});
+      setGrns(d?.supplyChainGoodsReceipts || []);
+    } catch {} finally { setLoading(false); setRefreshing(false); }
+  }, []);
+  useEffect(() => { load(); }, [load]);
+
+  const open = async (grn: any) => {
+    setSelected(grn); setDetailLoading(true);
+    try {
+      const d = await gql<any>(`query($id:UUID!){supplyChainGrnDetail(grnId:$id)}`, { id: grn.id });
+      setDetail(d?.supplyChainGrnDetail);
+    } catch {} finally { setDetailLoading(false); }
+  };
+
+  if (loading) return <Loader />;
+  return (
+    <ScrollView style={{ flex: 1 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); load(); }} colors={[NAVY]} />}>
+      <Text style={s.sectionTitle}>{grns.length} goods receipt{grns.length !== 1 ? 's' : ''}</Text>
+      <View style={[s.card, { marginBottom: 32 }]}>
+        {grns.length === 0 ? <Empty msg="No goods received yet." /> : grns.map((g, i) => (
+          <TouchableOpacity key={g.id} onPress={() => open(g)} style={[s.row, i < grns.length - 1 && s.border, { justifyContent: 'space-between' }]}>
+            <View style={{ flex: 1 }}>
+              <Text style={s.main}>{g.grnNumber}</Text>
+              <Text style={s.sub}>PO {g.purchaseOrderNumber || '—'} · {g.grnDate}</Text>
+            </View>
+            <StatusBadge status={g.status} />
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      <Modal visible={!!selected} animationType="slide" onRequestClose={() => { setSelected(null); setDetail(null); }}>
+        <View style={{ flex: 1, backgroundColor: '#F1F5F9' }}>
+          <View style={s.modalHeader}>
+            <Text style={s.modalTitle}>{selected?.grnNumber}</Text>
+            <TouchableOpacity onPress={() => { setSelected(null); setDetail(null); }}><Text style={s.modalClose}>✕</Text></TouchableOpacity>
+          </View>
+          {detailLoading ? <Loader /> : !detail ? <Empty /> : (
+            <ScrollView>
+              <View style={[s.card, { marginTop: 12 }]}>
+                <View style={[s.detailRow, s.border]}><Text style={s.detailLabel}>Purchase Order</Text><Text style={s.detailValue}>{detail.purchaseOrderNumber}</Text></View>
+                <View style={[s.detailRow, s.border]}><Text style={s.detailLabel}>Warehouse</Text><Text style={s.detailValue}>{detail.warehouseName || '—'}</Text></View>
+                <View style={s.detailRow}><Text style={s.detailLabel}>Received By</Text><Text style={s.detailValue}>{detail.receivedByName || '—'}</Text></View>
+              </View>
+              <Text style={s.sectionTitle}>Lines</Text>
+              <View style={[s.card, { marginBottom: 32 }]}>
+                {(detail.lines || []).map((l: any, i: number) => (
+                  <View key={i} style={[s.row, i < (detail.lines || []).length - 1 && s.border, { justifyContent: 'space-between' }]}>
+                    <Text style={s.main}>{l.product || l.description}</Text>
+                    <Text style={s.amount}>{l.quantityReceived} recv'd</Text>
+                  </View>
+                ))}
+              </View>
+            </ScrollView>
+          )}
+        </View>
+      </Modal>
+    </ScrollView>
+  );
+}
+
+/* ─────────────────────────── THREE-WAY MATCH ─────────────────────────── */
+function ThreeWayMatchTab({ tenantId }: { tenantId: string }) {
+  const [bills, setBills] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [result, setResult] = useState<any>(null);
+  const [running, setRunning] = useState(false);
+
+  useEffect(() => {
+    gql<any>(`query($t:UUID!,$s:String){supplierBills(tenantId:$t,status:$s)}`, { t: tenantId, s: null })
+      .then(d => setBills(d?.supplierBills || [])).catch(() => {}).finally(() => setLoading(false));
+  }, [tenantId]);
+
+  const run = async () => {
+    if (!selectedId) return;
+    setRunning(true); setResult(null);
+    try {
+      const d = await gql<any>(`query($id:UUID!){runThreeWayMatch(billId:$id)}`, { id: selectedId });
+      const r = d?.runThreeWayMatch;
+      if (!r?.ok) throw new Error(r?.error || 'Match failed');
+      setResult(r);
+    } catch (e: any) {
+      Alert.alert('Match failed', e.message);
+    } finally { setRunning(false); }
+  };
+
+  if (loading) return <Loader />;
+  const CheckRow = ({ label, ok }: { label: string; ok: boolean | null }) => (
+    <View style={[s.detailRow, s.border]}>
+      <Text style={s.detailLabel}>{label}</Text>
+      <Text style={[s.detailValue, { color: ok === null ? '#9CA3AF' : ok ? '#16A34A' : '#DC2626' }]}>
+        {ok === null ? 'Skipped' : ok ? '✓ Matched' : '✕ Discrepancy'}
+      </Text>
+    </View>
+  );
+
+  return (
+    <ScrollView style={{ flex: 1 }}>
+      <Text style={s.sectionTitle}>Select a supplier bill to match against its PO and GRN</Text>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 12, gap: 8 }}>
+        {bills.map(b => (
+          <TouchableOpacity key={b.id} onPress={() => { setSelectedId(b.id); setResult(null); }}
+            style={[s.chip, selectedId === b.id && { backgroundColor: NAVY }]}>
+            <Text style={[s.chipTxt, selectedId === b.id && { color: '#fff' }]}>{b.billNumber} · {fmt(b.totalAmount)}</Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+      {bills.length === 0 && <Empty msg="No supplier bills to match." />}
+
+      {selectedId && (
+        <View style={{ marginHorizontal: 16, marginTop: 16 }}>
+          <ActionBtn label={running ? 'Matching…' : 'Run Three-Way Match'} onPress={run} />
+        </View>
+      )}
+
+      {result && (
+        <>
+          <Text style={s.sectionTitle}>Result: {result.status === 'matched' ? '✓ Matched' : '⚠ Exception'}</Text>
+          <View style={[s.card, { marginBottom: 16 }]}>
+            <CheckRow label="PO vs Invoice" ok={result.matchPoOk} />
+            <CheckRow label="GRN vs Invoice" ok={result.matchGrnOk} />
+            <CheckRow label="Price Match" ok={result.matchPriceOk} />
+          </View>
+          {(result.notes || []).length > 0 && (
+            <View style={[s.card, { marginBottom: 32 }]}>
+              {result.notes.map((n: string, i: number) => (
+                <Text key={i} style={[s.sub, { paddingVertical: 6 }]}>• {n}</Text>
+              ))}
+            </View>
+          )}
+        </>
+      )}
+    </ScrollView>
+  );
+}
+
+/* ─────────────────────────── SUPPLIER EVALUATION ─────────────────────────── */
+const EVAL_CRITERIA = [
+  { key: 'price', label: 'Price Competitiveness' },
+  { key: 'delivery', label: 'Delivery Speed' },
+  { key: 'quality', label: 'Quality & Warranty' },
+  { key: 'terms', label: 'Payment Terms' },
+];
+
+function ScoreRow({ label, value, onChange }: { label: string; value: number; onChange: (v: number) => void }) {
+  return (
+    <View style={{ marginBottom: 10 }}>
+      <Text style={[s.sub, { marginBottom: 6 }]}>{label}</Text>
+      <View style={{ flexDirection: 'row', gap: 6 }}>
+        {[1, 2, 3, 4, 5].map(n => (
+          <TouchableOpacity key={n} onPress={() => onChange(n)}
+            style={{ width: 30, height: 30, borderRadius: 6, justifyContent: 'center', alignItems: 'center', backgroundColor: value >= n ? GOLD : '#E5E7EB' }}>
+            <Text style={{ fontSize: 12, fontWeight: '700', color: value >= n ? '#fff' : '#6B7280' }}>{n}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+    </View>
+  );
+}
+
+function SupplierEvaluationTab({ tenantId }: { tenantId: string }) {
+  const [rfqs, setRfqs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedRfqId, setSelectedRfqId] = useState<string | null>(null);
+  const [rfqDetail, setRfqDetail] = useState<any>(null);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [selectedQuotationId, setSelectedQuotationId] = useState<string | null>(null);
+  const [scores, setScores] = useState<Record<string, Record<string, number>>>({});
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    gql<any>(`query($t:UUID!){rfqs(tenantId:$t)}`, { t: tenantId })
+      .then(d => setRfqs(d?.rfqs || [])).catch(() => {}).finally(() => setLoading(false));
+  }, [tenantId]);
+
+  const openRfq = async (id: string) => {
+    setSelectedRfqId(id); setDetailLoading(true); setSelectedQuotationId(null); setScores({});
+    try {
+      const d = await gql<any>(`query($id:UUID!){rfq(id:$id)}`, { id });
+      setRfqDetail(d?.rfq);
+    } catch {} finally { setDetailLoading(false); }
+  };
+
+  const setScore = (qId: string, key: string, v: number) =>
+    setScores(s => ({ ...s, [qId]: { ...(s[qId] || {}), [key]: v } }));
+
+  const submit = async () => {
+    if (!selectedQuotationId || !selectedRfqId) { Alert.alert('Select a recommended supplier first'); return; }
+    setSubmitting(true);
+    try {
+      const d = await gql<any>(
+        `mutation($rfqId:UUID!,$qId:UUID!,$scores:GenericScalar){evaluateBids(rfqId:$rfqId,selectedQuotationId:$qId,criteriaScores:$scores)}`,
+        { rfqId: selectedRfqId, qId: selectedQuotationId, scores },
+      );
+      if (!d?.evaluateBids?.ok) throw new Error(d?.evaluateBids?.error || 'Failed');
+      Alert.alert('Evaluation submitted', `${d.evaluateBids.evaluation?.selectedSupplier || 'Supplier'} selected`);
+      setSelectedRfqId(null); setRfqDetail(null); setSelectedQuotationId(null); setScores({});
+    } catch (e: any) {
+      Alert.alert('Failed', e.message);
+    } finally { setSubmitting(false); }
+  };
+
+  if (loading) return <Loader />;
+  return (
+    <ScrollView style={{ flex: 1 }}>
+      <Text style={s.sectionTitle}>{rfqs.length} request{rfqs.length !== 1 ? 's' : ''} for quotation</Text>
+      <View style={[s.card, { marginBottom: 16 }]}>
+        {rfqs.length === 0 ? <Empty msg="No RFQs to evaluate." /> : rfqs.map((r, i) => (
+          <TouchableOpacity key={r.id} onPress={() => openRfq(r.id)} style={[s.row, i < rfqs.length - 1 && s.border, { justifyContent: 'space-between' }]}>
+            <View style={{ flex: 1 }}>
+              <Text style={s.main}>{r.title || r.rfqNumber}</Text>
+              <Text style={s.sub}>{r.quotationCount || 0} quotation{r.quotationCount === 1 ? '' : 's'} · deadline {r.deadline}</Text>
+            </View>
+            <StatusBadge status={r.status} />
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      {detailLoading ? <Loader /> : rfqDetail && (
+        <>
+          <Text style={s.sectionTitle}>Score each quotation</Text>
+          {(rfqDetail.quotations || []).map((q: any) => (
+            <View key={q.id} style={[s.card, { marginBottom: 12, paddingVertical: 14 }]}>
+              <TouchableOpacity onPress={() => setSelectedQuotationId(q.id)} style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 }}>
+                <Text style={[s.main, selectedQuotationId === q.id && { color: NAVY }]}>{q.supplier?.name}{selectedQuotationId === q.id ? '  ★ recommended' : ''}</Text>
+                <Text style={s.amount}>{fmt(q.totalAmount)}</Text>
+              </TouchableOpacity>
+              <Text style={[s.sub, { marginBottom: 10 }]}>{q.deliveryDays} days delivery · {q.paymentTerms || '—'}</Text>
+              {EVAL_CRITERIA.map(c => (
+                <ScoreRow key={c.key} label={c.label} value={scores[q.id]?.[c.key] || 0} onChange={v => setScore(q.id, c.key, v)} />
+              ))}
+            </View>
+          ))}
+          <View style={{ marginHorizontal: 16, marginBottom: 32 }}>
+            <ActionBtn label={submitting ? 'Submitting…' : 'Submit Evaluation'} color={GOLD} onPress={submit} />
+          </View>
+        </>
+      )}
+    </ScrollView>
+  );
+}
+
+/* ─────────────────────────── DEMAND FORECAST ─────────────────────────── */
+function ForecastTab() {
+  const [rows, setRows] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const load = useCallback(async () => {
+    try {
+      const d = await gql<any>(`query{supplyChainForecasts(limit:30)}`, {});
+      setRows(d?.supplyChainForecasts || []);
+    } catch {} finally { setLoading(false); setRefreshing(false); }
+  }, []);
+  useEffect(() => { load(); }, [load]);
+
+  if (loading) return <Loader />;
+  const STATUS_COLOR: Record<string, string> = { critical: '#DC2626', overstocked: '#D97706', adequate: '#16A34A' };
+  return (
+    <ScrollView style={{ flex: 1 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); load(); }} colors={[NAVY]} />}>
+      <Text style={s.sectionTitle}>{rows.length} product{rows.length !== 1 ? 's' : ''} forecast</Text>
+      <View style={[s.card, { marginBottom: 32 }]}>
+        {rows.length === 0 ? <Empty msg="No forecast data available." /> : rows.map((r, i) => (
+          <View key={i} style={[s.row, i < rows.length - 1 && s.border, { justifyContent: 'space-between' }]}>
+            <View style={{ flex: 1 }}>
+              <Text style={s.main}>{r.product}</Text>
+              <Text style={s.sub}>{r.currentStock} on hand · {r.predictedDemand} predicted · {Math.round((r.confidence || 0) * 100)}% confidence</Text>
+            </View>
+            <Text style={{ fontSize: 11, fontWeight: '700', color: STATUS_COLOR[r.status] || '#6B7280', textTransform: 'uppercase' }}>{r.status}</Text>
+          </View>
+        ))}
+      </View>
+    </ScrollView>
+  );
+}
+
 export default function SupplyChainScreen() {
   const { tenant } = useAuth();
   const tenantId = tenant?.id || '';
@@ -583,7 +902,11 @@ export default function SupplyChainScreen() {
     <View style={{ flex: 1, backgroundColor: '#F1F5F9' }}>
       <ModuleTabs tabs={TABS} active={tab} onChange={setTab} />
       {tab === 'po' && <PurchaseOrdersTab tenantId={tenantId} />}
+      {tab === 'goodsreceipt' && <GoodsReceiptTab tenantId={tenantId} />}
+      {tab === 'threewaymatch' && <ThreeWayMatchTab tenantId={tenantId} />}
       {tab === 'suppliers' && <SuppliersTab tenantId={tenantId} />}
+      {tab === 'evaluation' && <SupplierEvaluationTab tenantId={tenantId} />}
+      {tab === 'forecast' && <ForecastTab />}
       {tab === 'products' && <ProductsTab tenantId={tenantId} />}
       {tab === 'inventory' && <InventoryTab tenantId={tenantId} />}
       {tab === 'stockcount' && <StockCountTab tenantId={tenantId} />}
@@ -616,6 +939,8 @@ const s = StyleSheet.create({
   lineItem: { backgroundColor: '#F8FAFC', borderRadius: 10, padding: 12, marginBottom: 10, borderWidth: 1, borderColor: '#E5E7EB' },
   addLineBtn: { borderStyle: 'dashed', borderWidth: 1, borderColor: '#CBD5E1', borderRadius: 10, padding: 12, alignItems: 'center', marginBottom: 14 },
   addLineTxt: { color: NAVY, fontSize: 13, fontWeight: '600' },
+  chip: { paddingHorizontal: 14, paddingVertical: 7, borderRadius: 20, backgroundColor: '#E5E7EB' },
+  chipTxt: { fontSize: 13, fontWeight: '600', color: '#374151' },
   searchWrap: { paddingHorizontal: 16, paddingVertical: 10 },
   searchInput: { backgroundColor: '#fff', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 10, fontSize: 14, color: '#111827', borderWidth: 1, borderColor: '#E5E7EB' },
   progressBg: { height: 6, backgroundColor: '#E5E7EB', borderRadius: 3, width: '100%', marginTop: 8 },

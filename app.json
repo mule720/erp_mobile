@@ -31,6 +31,15 @@
       "eas": {
         "projectId": "nexora-erp"
       }
-    }
+    },
+    "plugins": [
+      "expo-font",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Nexora ERP uses the camera to scan product barcodes and QR codes at the till."
+        }
+      ]
+    ]
   }
 }

@@ -5,6 +5,7 @@ import { View, Text } from 'react-native';
 
 import { useAuth } from '../store/AuthContext';
 import LoginScreen from '../screens/LoginScreen';
+import RegisterScreen from '../screens/RegisterScreen';
 import SidebarLayout from './SidebarLayout';
 
 const Stack = createNativeStackNavigator();
@@ -23,7 +24,15 @@ export default function AppNavigator() {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {token
           ? <Stack.Screen name="Main" component={SidebarLayout} />
-          : <Stack.Screen name="Login" component={LoginScreen} />
+          : (
+            <>
+              <Stack.Screen name="Login" component={LoginScreen} />
+              {/* Self-serve sign-up — mobile only. Pre-selects the cheapest
+                  "Retail" plan (mobile_only=True on the backend), which the
+                  web app never queries or shows. */}
+              <Stack.Screen name="Register" component={RegisterScreen} />
+            </>
+          )
         }
       </Stack.Navigator>
     </NavigationContainer>

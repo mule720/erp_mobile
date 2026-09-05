@@ -20,6 +20,9 @@ const TABS = [
   { key: 'leads', label: 'Leads' },
 ];
 
+const TYPE_LABELS: Record<string, string> = { invoice: 'Invoice', payment: 'Payment', credit_note: 'Credit Note' };
+const TYPE_COLOR: Record<string, string> = { invoice: '#DC2626', payment: '#16A34A', credit_note: '#3B82F6' };
+
 function Loader() { return <View style={s.center}><ActivityIndicator size="large" color={NAVY} /></View>; }
 function Empty({ msg = 'No records' }: { msg?: string }) { return <Text style={s.empty}>{msg}</Text>; }
 
@@ -36,6 +39,17 @@ function CustomersTab({ tenantId }: { tenantId: string }) {
     name: '', email: '', phone: '', address: '', taxNumber: '',
     creditLimit: '', currency: 'ZMW', paymentTerms: '30',
   });
+  const [statement, setStatement] = useState<any>(null);
+  const [statementLoading, setStatementLoading] = useState(false);
+  const [showStatement, setShowStatement] = useState(false);
+
+  const openStatement = async (customer: any) => {
+    setShowStatement(true); setStatement(null); setStatementLoading(true);
+    try {
+      const d = await gql<any>(`query($id:UUID!){customerStatement(customerId:$id)}`, { id: customer.id });
+      setStatement(d?.customerStatement);
+    } catch {} finally { setStatementLoading(false); }
+  };
 
   const load = useCallback(async () => {
     try {
@@ -112,8 +126,47 @@ function CustomersTab({ tenantId }: { tenantId: string }) {
                 </View>
               ))}
             </View>
+            <View style={{ marginHorizontal: 16, marginTop: 16 }}>
+              <TouchableOpacity style={s.statementBtn} onPress={() => openStatement(selected)}>
+                <Text style={s.statementBtnTxt}>View Statement of Account</Text>
+              </TouchableOpacity>
+            </View>
           </ScrollView>
         )}
+      </Modal>
+
+      <Modal visible={showStatement} animationType="slide" onRequestClose={() => setShowStatement(false)}>
+        <View style={s.modalHeader}>
+          <Text style={s.modalTitle}>Statement — {selected?.name}</Text>
+          <TouchableOpacity onPress={() => setShowStatement(false)}><Text style={s.modalClose}>✕</Text></TouchableOpacity>
+        </View>
+        <View style={{ flex: 1, backgroundColor: '#F1F5F9' }}>
+          {statementLoading ? <Loader /> : !statement ? <Empty msg="No statement available." /> : (
+            <ScrollView>
+              <View style={[s.card, { marginTop: 12, paddingVertical: 14, alignItems: 'center' }]}>
+                <Text style={s.sub}>Closing Balance</Text>
+                <Text style={[s.customerName, { color: statement.closingBalance < 0 ? '#DC2626' : NAVY }]}>{fmt(statement.closingBalance)}</Text>
+              </View>
+              <Text style={s.sectionTitle}>{(statement.entries || []).length} transaction{(statement.entries || []).length !== 1 ? 's' : ''}</Text>
+              <View style={[s.card, { marginBottom: 32 }]}>
+                {(statement.entries || []).length === 0 ? <Empty /> : statement.entries.map((e: any, i: number) => (
+                  <View key={i} style={[s.row, i < statement.entries.length - 1 && s.border, { justifyContent: 'space-between' }]}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={s.main}>{TYPE_LABELS[e.type] || e.type} — {e.ref}</Text>
+                      <Text style={s.sub}>{e.date}</Text>
+                    </View>
+                    <View style={{ alignItems: 'flex-end' }}>
+                      <Text style={[s.amount, { color: TYPE_COLOR[e.type] || '#1F2937' }]}>
+                        {e.debit > 0 ? `+${fmt(e.debit)}` : e.credit > 0 ? `−${fmt(e.credit)}` : fmt(0)}
+                      </Text>
+                      <Text style={s.sub2}>Bal. {fmt(e.balance)}</Text>
+                    </View>
+                  </View>
+                ))}
+              </View>
+            </ScrollView>
+          )}
+        </View>
       </Modal>
 
       <FormModal visible={showCreate} title="New Customer" onClose={() => setShowCreate(false)} onSubmit={create} submitting={saving}>
@@ -306,4 +359,6 @@ const s = StyleSheet.create({
   leadDot: { width: 10, height: 10, borderRadius: 5, marginRight: 12 },
   statusBtn: { paddingHorizontal: 16, paddingVertical: 9, borderRadius: 10 },
   statusBtnTxt: { color: '#fff', fontSize: 14, fontWeight: '700' },
+  statementBtn: { backgroundColor: NAVY, paddingVertical: 13, borderRadius: 10, alignItems: 'center' },
+  statementBtnTxt: { color: '#fff', fontSize: 14, fontWeight: '700' },
 });

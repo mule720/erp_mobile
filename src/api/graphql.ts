@@ -1,6 +1,10 @@
-import * as SecureStore from 'expo-secure-store';
+import * as SecureStore from './secureStorage';
 
-const API_URL = 'https://api.netonerppro.com/graphql/';
+// EXPO_PUBLIC_API_URL lets a local dev run (`expo start --web` against a
+// local Django backend) point somewhere other than production without
+// touching this file - unset, it falls back to the real production API.
+const API_URL = (process.env as Record<string, string | undefined>).EXPO_PUBLIC_API_URL
+  || 'https://api.netonerppro.com/graphql/';
 
 const REFRESH_MUTATION = `
   mutation RefreshToken($refreshToken: String!) {
