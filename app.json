@@ -1,9 +1,10 @@
 {
   "expo": {
-    "name": "Nexora ERP",
+    "name": "NetOn ERP Pro",
     "slug": "nexora-erp",
     "version": "1.0.0",
     "orientation": "portrait",
+    "icon": "./assets/icon.png",
     "scheme": "nexoraerp",
     "userInterfaceStyle": "light",
     "splash": {
