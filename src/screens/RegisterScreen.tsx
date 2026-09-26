@@ -136,7 +136,7 @@ export default function RegisterScreen({ navigation }: any) {
         <ScrollView contentContainerStyle={s.container} keyboardShouldPersistTaps="handled">
           <View style={s.header}>
             <View style={s.logo}><Ionicons name="layers" size={26} color={COLORS.navy} /></View>
-            <Text style={s.brand}>Nexora ERP</Text>
+            <Text style={s.brand}>NetOn ERP Pro</Text>
             <Text style={s.tagline}>Set up your shop in minutes</Text>
           </View>
 

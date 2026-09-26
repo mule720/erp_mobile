@@ -24,7 +24,7 @@ export default function WebModuleScreen({ path, title }: Props) {
     <View style={s.fallback}>
       <Text style={s.icon}>🌐</Text>
       <Text style={s.heading}>{title}</Text>
-      <Text style={s.body}>Open the Nexora ERP web app at{'\n'}netonerppro.com{path}{'\n'}for full access to this module.</Text>
+      <Text style={s.body}>Open the NetOn ERP Pro web app at{'\n'}netonerppro.com{path}{'\n'}for full access to this module.</Text>
     </View>
   );
 }

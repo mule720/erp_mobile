@@ -112,7 +112,7 @@ export default function SidebarLayout() {
             <View style={s.line} />
           </View>
         </TouchableOpacity>
-        <Text style={s.pageTitle} numberOfLines={1}>{activeItem?.label || 'Nexora ERP'}</Text>
+        <Text style={s.pageTitle} numberOfLines={1}>{activeItem?.label || 'NetOn ERP Pro'}</Text>
         <TouchableOpacity onPress={() => setProfileOpen(true)} style={s.avatarBtn} activeOpacity={0.8}>
           <View style={s.avCircle}>
             <Text style={s.avText}>{user?.firstName?.[0]?.toUpperCase() || 'U'}</Text>
@@ -138,7 +138,7 @@ export default function SidebarLayout() {
         <View style={[s.brand, { paddingTop: PT + 16 }]}>
           <View style={s.logo}><Ionicons name="layers" size={17} color={NAVY} /></View>
           <View style={{ flex: 1, marginLeft: 12 }}>
-            <Text style={s.brandName}>Nexora ERP</Text>
+            <Text style={s.brandName}>NetOn ERP Pro</Text>
             <Text style={s.brandOrg} numberOfLines={1}>{tenant?.name}</Text>
           </View>
           <TouchableOpacity onPress={closeDrawer} style={{ padding: 6 }}>

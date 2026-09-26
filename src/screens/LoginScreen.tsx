@@ -84,7 +84,7 @@ export default function LoginScreen({ navigation }: any) {
             <View style={s.logo}>
               <Ionicons name="layers" size={30} color={COLORS.navy} />
             </View>
-            <Text style={s.brand}>Nexora ERP</Text>
+            <Text style={s.brand}>NetOn ERP Pro</Text>
             <Text style={s.tagline}>Your business, in your pocket</Text>
           </View>
 
