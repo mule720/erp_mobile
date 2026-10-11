@@ -7,6 +7,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { gql } from '../api/graphql';
 import { useAuth } from '../store/AuthContext';
 import { COLORS, FONT, RADIUS, SHADOW } from '../theme';
+import { registerForPushNotificationsAsync } from '../lib/pushNotifications';
+import { registerSoftPosDevice } from '../lib/softPosApi';
 
 const LOGIN = `
   mutation($email: String!, $password: String!) {
@@ -56,11 +58,30 @@ export default function LoginScreen({ navigation }: any) {
         refreshToken,
       );
 
+      let resolvedEmployeeId: string | undefined;
       try {
         const empData = await gql(FIND_EMPLOYEE, { tenantId: tenant.id, email: user.email });
         const emp = empData?.employees?.[0];
-        if (emp?.id) await setEmployeeId(emp.id);
+        if (emp?.id) {
+          await setEmployeeId(emp.id);
+          resolvedEmployeeId = emp.id;
+        }
       } catch {}
+
+      // Register device for Soft-POS push notifications (fire-and-forget)
+      const staffRef = resolvedEmployeeId ?? user.id;
+      registerForPushNotificationsAsync()
+        .then(expoToken => {
+          if (!expoToken) return;
+          const deviceType = Platform.OS === 'ios' ? 'ios' : 'android';
+          return registerSoftPosDevice({
+            staffRef,
+            expoToken,
+            deviceType,
+            label: `ERP Pro — ${Platform.OS}`,
+          });
+        })
+        .catch(() => {});
     } catch (e: any) {
       Alert.alert('Login failed', e.message || 'Check your credentials and try again.');
     } finally {

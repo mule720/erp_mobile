@@ -40,6 +40,13 @@
         {
           "cameraPermission": "Nexora ERP uses the camera to scan product barcodes and QR codes at the till."
         }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#1E3A5F"
+        }
       ]
     ]
   }
