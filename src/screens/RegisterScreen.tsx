@@ -17,7 +17,7 @@ import { COLORS, FONT, RADIUS, SHADOW } from '../theme';
 // subscriptions.SubscriptionPlan.mobile_only.
 const MOBILE_PLANS = `{
   mobilePlans {
-    code name description basePrice currency billingCycle trialDays
+    code name description basePrice monthlyPrice currency billingCycle trialDays
   }
 }`;
 
@@ -30,8 +30,8 @@ const SIMPLE_REGISTER = `
 `;
 
 const SETUP_COMPANY = `
-  mutation($companyName: String!, $plan: String, $startTrial: Boolean) {
-    setupCompany(companyName: $companyName, plan: $plan, startTrial: $startTrial) {
+  mutation($companyName: String!, $plan: String, $startTrial: Boolean, $cycle: String) {
+    setupCompany(companyName: $companyName, plan: $plan, startTrial: $startTrial, billingCycle: $cycle) {
       ok error
       auth {
         token refreshToken
@@ -44,7 +44,7 @@ const SETUP_COMPANY = `
 
 interface MobilePlan {
   code: string; name: string; description: string;
-  basePrice: string; currency: string; billingCycle: string; trialDays: number;
+  basePrice: string; monthlyPrice?: string | null; currency: string; billingCycle: string; trialDays: number;
 }
 
 const FIELDS: Array<{ key: string; label: string; placeholder: string; icon: keyof typeof Ionicons.glyphMap; keyboardType?: any; secure?: boolean; autoCapitalize?: any }> = [
@@ -61,6 +61,8 @@ export default function RegisterScreen({ navigation }: any) {
   const { signIn } = useAuth();
   const [plan, setPlan] = useState<MobilePlan | null>(null);
   const [planLoading, setPlanLoading] = useState(true);
+  // yearly (the plan's own price) or monthly, when the plan offers both
+  const [cycle, setCycle] = useState<'yearly' | 'monthly'>('yearly');
   const [loading, setLoading] = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
 
@@ -102,7 +104,7 @@ export default function RegisterScreen({ navigation }: any) {
       await SecureStore.setItemAsync('erp_token', regResult.auth.token);
 
       const setup = await gql(SETUP_COMPANY, {
-        companyName: form.companyName.trim(), plan: plan.code, startTrial: true,
+        companyName: form.companyName.trim(), plan: plan.code, startTrial: true, cycle,
       });
       const setupResult = setup?.setupCompany;
       if (!setupResult?.ok) throw new Error(setupResult?.error || 'Could not set up your shop. Please try again.');
@@ -146,8 +148,25 @@ export default function RegisterScreen({ navigation }: any) {
             <View style={s.planCard}>
               <View style={s.planRow}>
                 <Text style={s.planName}>{plan.name} plan</Text>
-                <Text style={s.planPrice}>K{Number(plan.basePrice).toLocaleString()}/mo</Text>
+                <Text style={s.planPrice}>
+                  {plan.billingCycle?.toUpperCase() === 'YEARLY' && plan.monthlyPrice && cycle === 'monthly'
+                    ? `K${Number(plan.monthlyPrice).toLocaleString()}/mo`
+                    : `K${Number(plan.basePrice).toLocaleString()}/${plan.billingCycle?.toUpperCase() === 'YEARLY' ? 'year' : 'mo'}`}
+                </Text>
               </View>
+              {plan.billingCycle?.toUpperCase() === 'YEARLY' && !!plan.monthlyPrice && (
+                <View style={s.cycleRow}>
+                  {(['yearly', 'monthly'] as const).map((c) => (
+                    <TouchableOpacity key={c} onPress={() => setCycle(c)} activeOpacity={0.8}
+                      style={[s.cycleBtn, cycle === c && s.cycleBtnOn]}>
+                      <Text style={[s.cycleText, cycle === c && s.cycleTextOn]}>{c === 'yearly' ? 'Pay yearly' : 'Pay monthly'}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+              {plan.billingCycle?.toUpperCase() === 'YEARLY' && cycle === 'yearly' && (
+                <Text style={s.planDesc}>That is K{Math.round(Number(plan.basePrice) / 12).toLocaleString()} a month, paid once a year.</Text>
+              )}
               <Text style={s.planDesc}>{plan.description}</Text>
               <View style={s.planTrialRow}>
                 <Ionicons name="checkmark-circle" size={13} color={COLORS.amberLight} />
@@ -224,6 +243,11 @@ const s = StyleSheet.create({
   planRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' },
   planName: { color: '#fff', fontSize: 15, fontFamily: FONT.heading },
   planPrice: { color: COLORS.amberLight, fontSize: 16, fontFamily: FONT.displaySemibold },
+  cycleRow: { flexDirection: 'row', gap: 8, marginTop: 10 },
+  cycleBtn: { flex: 1, paddingVertical: 8, borderRadius: 999, borderWidth: 1, borderColor: 'rgba(255,255,255,0.25)', alignItems: 'center' },
+  cycleBtnOn: { backgroundColor: COLORS.amberLight, borderColor: COLORS.amberLight },
+  cycleText: { color: '#fff', fontSize: 12, fontFamily: FONT.heading },
+  cycleTextOn: { color: '#0B1733' },
   planDesc: { color: '#CBD5E1', fontSize: 12, marginTop: 8, lineHeight: 17, fontFamily: FONT.bodyRegular },
   planTrialRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 10 },
   planTrial: { color: '#93C5FD', fontSize: 11, fontFamily: FONT.heading },
