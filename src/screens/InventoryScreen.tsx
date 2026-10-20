@@ -54,6 +54,7 @@ function ProductsTab({ tenantId }: { tenantId: string }) {
   const [search, setSearch] = useState('');
   const [catFilter, setCatFilter] = useState('All');
   const [loading, setLoading] = useState(true);
+  const [expanded, setExpanded] = useState<string | null>(null);
   const [selected, setSelected] = useState<any>(null);
   const [showCreate, setShowCreate] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
@@ -118,17 +119,20 @@ function ProductsTab({ tenantId }: { tenantId: string }) {
     } catch (e: any) { Alert.alert('Error', e.message); } finally { setSaving(false); }
   };
 
-  const openEdit = () => {
+  const openEdit = (p?: any) => {
+    const prod = p ?? selected;
+    if (!prod) return;
+    if (p) setSelected(p);
     setForm({
-      name: selected.name || '',
-      sku: selected.sku || '',
-      description: selected.description || '',
-      unitPrice: String(selected.price ?? selected.unit_price ?? ''),
-      costPrice: String(selected.cost ?? ''),
-      unit: selected.unit || 'pcs',
-      reorderPoint: String(selected.reorderPoint ?? '10'),
-      category: selected.category || '',
-      trackStock: selected.trackStock === false ? 'false' : 'true',
+      name: prod.name || '',
+      sku: prod.sku || '',
+      description: prod.description || '',
+      unitPrice: String(prod.price ?? prod.unit_price ?? ''),
+      costPrice: String(prod.cost ?? ''),
+      unit: prod.unit || 'pcs',
+      reorderPoint: String(prod.reorderPoint ?? '10'),
+      category: prod.category || '',
+      trackStock: prod.trackStock === false ? 'false' : 'true',
     });
     setShowEdit(true);
   };
@@ -167,57 +171,59 @@ function ProductsTab({ tenantId }: { tenantId: string }) {
         <View style={[s.card, { marginBottom: 100 }]}>
           {filtered.length === 0 ? <Empty msg="No products" /> : filtered.map((p, i) => {
             const lowStock = p.stock != null && p.reorderPoint != null && p.stock <= p.reorderPoint;
+            const isOpen = expanded === p.id;
             return (
-              <TouchableOpacity key={p.id} style={[s.row, i < filtered.length - 1 && s.border]} onPress={() => setSelected(p)} activeOpacity={0.7}>
-                <View style={{ flex: 1 }}>
-                  <Text style={s.main}>{p.name}</Text>
-                  {p.sku ? <Text style={s.sub}>SKU: {p.sku}</Text> : null}
-                  {p.category ? <Text style={s.sub2}>{p.category}</Text> : null}
-                </View>
-                <View style={{ alignItems: 'flex-end' }}>
-                  <Text style={s.amount}>{fmt(p.price ?? p.unit_price)}</Text>
-                  <Text style={[s.sub, { marginTop: 3, color: lowStock ? '#DC2626' : '#6B7280' }]}>Stock: {p.stock ?? '–'}</Text>
-                  {lowStock && <Text style={{ fontSize: 10, color: '#DC2626', fontWeight: '700' }}>LOW</Text>}
-                </View>
-              </TouchableOpacity>
+              <View key={p.id}>
+                <TouchableOpacity
+                  style={[s.row, (i < filtered.length - 1 || isOpen) && s.border]}
+                  onPress={() => { setExpanded(isOpen ? null : p.id); setSelected(p); }}
+                  activeOpacity={0.7}
+                >
+                  <View style={{ flex: 1 }}>
+                    <Text style={s.main}>{p.name}</Text>
+                    {p.sku ? <Text style={s.sub}>SKU: {p.sku}</Text> : null}
+                    {p.category ? <Text style={s.sub2}>{p.category}</Text> : null}
+                  </View>
+                  <View style={{ alignItems: 'flex-end', flexDirection: 'row', gap: 8, alignSelf: 'center' }}>
+                    <View style={{ alignItems: 'flex-end' }}>
+                      <Text style={s.amount}>{fmt(p.price ?? p.unit_price)}</Text>
+                      <Text style={[s.sub, { marginTop: 3, color: lowStock ? '#DC2626' : '#6B7280' }]}>Stock: {p.stock ?? '–'}</Text>
+                      {lowStock && <Text style={{ fontSize: 10, color: '#DC2626', fontWeight: '700' }}>LOW</Text>}
+                    </View>
+                    <Text style={{ color: '#94A3B8', fontSize: 16, marginRight: 2 }}>{isOpen ? '▲' : '▼'}</Text>
+                  </View>
+                </TouchableOpacity>
+
+                {/* Inline expanded details */}
+                {isOpen && (
+                  <View style={{ backgroundColor: '#F8FAFC', paddingHorizontal: 16, paddingBottom: 14, borderBottomWidth: i < filtered.length - 1 ? 1 : 0, borderBottomColor: '#E5E7EB' }}>
+                    {([
+                      ['SKU', p.sku],
+                      ['Category', p.category],
+                      ['Unit Price', fmt(p.price ?? p.unit_price)],
+                      ['Cost Price', p.cost ? fmt(p.cost) : null],
+                      ['Stock Level', String(p.stock ?? '–')],
+                      ['Reorder Point', p.reorderPoint != null ? String(p.reorderPoint) : null],
+                      ['Unit', p.unit],
+                      ['Description', p.description],
+                    ] as [string, any][]).filter(([, v]) => v && v !== 'undefined' && v !== 'null').map(([l, v]) => (
+                      <View key={l} style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6, borderBottomWidth: 1, borderBottomColor: '#EEF2F7' }}>
+                        <Text style={{ fontSize: 12, color: '#6B7280', fontWeight: '600' }}>{l}</Text>
+                        <Text style={{ fontSize: 12, color: '#1E293B', flexShrink: 1, marginLeft: 12, textAlign: 'right' }}>{v}</Text>
+                      </View>
+                    ))}
+                    <View style={[s.actionRow, { marginTop: 10, paddingHorizontal: 0 }]}>
+                      <ActionBtn label="Edit" color={GOLD} onPress={() => openEdit(p)} />
+                      <ActionBtn label="Adjust Stock" onPress={() => { setSelected(p); setShowAdjust(true); }} />
+                    </View>
+                  </View>
+                )}
+              </View>
             );
           })}
         </View>
       </ScrollView>
       <FAB onPress={() => { setForm(blankForm); setShowCreate(true); }} />
-
-      {/* Detail modal */}
-      <Modal visible={!!selected && !showEdit && !showAdjust} animationType="slide" onRequestClose={() => setSelected(null)}>
-        <View style={s.modalHeader}>
-          <Text style={s.modalTitle}>{selected?.name}</Text>
-          <TouchableOpacity onPress={() => setSelected(null)}><Text style={s.modalClose}>✕</Text></TouchableOpacity>
-        </View>
-        {selected && (
-          <ScrollView style={{ flex: 1, backgroundColor: '#F1F5F9' }}>
-            <View style={[s.card, { marginTop: 12 }]}>
-              {([
-                ['SKU', selected.sku],
-                ['Category', selected.category],
-                ['Unit Price', fmt(selected.price ?? selected.unit_price)],
-                ['Cost Price', fmt(selected.cost)],
-                ['Stock Level', String(selected.stock ?? '–')],
-                ['Reorder Point', String(selected.reorderPoint ?? '–')],
-                ['Unit', selected.unit],
-                ['Description', selected.description],
-              ] as [string, any][]).filter(([, v]) => v && v !== 'undefined').map(([l, v]) => (
-                <View key={l} style={[s.detailRow, { borderBottomWidth: 1, borderBottomColor: '#F1F5F9' }]}>
-                  <Text style={s.detailLabel}>{l}</Text>
-                  <Text style={s.detailValue}>{v}</Text>
-                </View>
-              ))}
-            </View>
-            <View style={s.actionRow}>
-              <ActionBtn label="Edit" color={GOLD} onPress={openEdit} />
-              <ActionBtn label="Adjust Stock" onPress={() => setShowAdjust(true)} />
-            </View>
-          </ScrollView>
-        )}
-      </Modal>
 
       <FormModal visible={showCreate} title="New Product" onClose={() => setShowCreate(false)} onSubmit={() => save(false)} submitting={saving}>
         {productForm}
