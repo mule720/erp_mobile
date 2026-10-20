@@ -21,7 +21,8 @@ import SetupScreen from '../screens/SetupScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import POSScreen from '../screens/POSScreen';
 import SubscriptionAdminScreen from '../screens/SubscriptionAdminScreen';
-// WebModuleScreen kept as fallback for future use
+import ProjectsScreen from '../screens/ProjectsScreen';
+import AIAssistantScreen from '../screens/AIAssistantScreen';
 
 const NAVY = COLORS.navy;
 const GOLD = COLORS.amberLight;
@@ -47,6 +48,8 @@ const NAV: NavItem[] = [
   { key: 'people',       label: 'People (HR)',    icon: 'people-outline',      component: HRScreen },
   { key: 'fixed_assets', label: 'Fixed Assets',   icon: 'construct-outline',   component: FixedAssetsScreen, roleCheck: r => r.isAdmin || r.isAccountant },
   { key: 'tax_hub',      label: 'Tax Hub',        icon: 'receipt-outline',     component: TaxHubScreen,      roleCheck: r => r.isAdmin || r.isAccountant },
+  { key: 'projects',     label: 'Projects',       icon: 'briefcase-outline',   component: ProjectsScreen,    roleCheck: r => r.isAdmin || r.hasPermission('business_modules.manage_projects') },
+  { key: 'ai_assistant', label: 'NetOn AI',       icon: 'sparkles-outline',    component: AIAssistantScreen },
   { key: 'setup',        label: 'Setup & Import', icon: 'settings-outline',    component: SetupScreen,       roleCheck: r => r.isAdmin },
   { key: 'settings',     label: 'Settings',       icon: 'options-outline',     component: SettingsScreen },
   { key: 'sub_admin',    label: 'Subscriptions',  icon: 'card-outline',        component: SubscriptionAdminScreen, roleCheck: r => r.isStaff },

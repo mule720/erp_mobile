@@ -23,6 +23,8 @@ const TABS = [
   { key: 'employees', label: 'Employees' },
   { key: 'leave', label: 'Leave' },
   { key: 'payroll', label: 'Payroll' },
+  { key: 'loans', label: 'Loans' },
+  { key: 'overtime', label: 'Overtime' },
   { key: 'compliance', label: 'Compliance' },
   { key: 'payrollreports', label: 'Payroll Reports' },
   { key: 'attendance', label: 'Attendance' },
@@ -863,6 +865,122 @@ function TimesheetsTab({ tenantId, employeeId }: { tenantId: string; employeeId:
   );
 }
 
+/* ═══════════════════════ LOANS TAB ═══════════════════════ */
+function LoansTab({ tenantId }: { tenantId: string }) {
+  const [loans, setLoans] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    gql<any>(`query($t:UUID!){ employeeLoans(tenantId:$t) }`, { t: tenantId })
+      .then(d => {
+        const raw = d?.employeeLoans;
+        setLoans(typeof raw === 'string' ? (() => { try { return JSON.parse(raw); } catch { return []; } })() : (Array.isArray(raw) ? raw : []));
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [tenantId]);
+
+  const STATUS_COLOR: Record<string, string> = { active: '#16A34A', pending: '#F59E0B', closed: '#6B7280', overdue: '#DC2626' };
+
+  if (loading) return <View style={s.center}><ActivityIndicator size="large" color={NAVY} /></View>;
+  if (!loans.length) return <Text style={s.empty}>No employee loans</Text>;
+
+  return (
+    <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
+      {loans.map((loan: any, i: number) => (
+        <View key={loan.id || i} style={[s.card, { margin: 8 }]}>
+          <View style={[s.row, s.border]}>
+            <View style={{ flex: 1 }}>
+              <Text style={s.main}>{loan.employeeName || loan.employee?.name || `Loan #${loan.loanNumber || i + 1}`}</Text>
+              {loan.loanNumber && <Text style={s.sub}>Ref: {loan.loanNumber}</Text>}
+            </View>
+            {loan.status && (
+              <View style={{ paddingHorizontal: 8, paddingVertical: 3, borderRadius: 12, backgroundColor: (STATUS_COLOR[loan.status] || '#6B7280') + '22' }}>
+                <Text style={{ fontSize: 11, fontWeight: '600', color: STATUS_COLOR[loan.status] || '#6B7280' }}>{loan.status}</Text>
+              </View>
+            )}
+          </View>
+          <View style={[s.row, { justifyContent: 'space-between' }]}>
+            <View>
+              <Text style={s.sub}>Principal</Text>
+              <Text style={s.amount}>{fmt(loan.principalAmount ?? loan.principal)}</Text>
+            </View>
+            <View style={{ alignItems: 'flex-end' }}>
+              <Text style={s.sub}>Balance</Text>
+              <Text style={[s.amount, { color: '#DC2626' }]}>{fmt(loan.outstandingBalance ?? loan.balance)}</Text>
+            </View>
+            <View style={{ alignItems: 'flex-end' }}>
+              <Text style={s.sub}>Installment</Text>
+              <Text style={s.amount}>{fmt(loan.monthlyInstallment ?? loan.installment)}</Text>
+            </View>
+          </View>
+          {loan.startDate && <Text style={[s.sub, { marginTop: 4 }]}>Started: {loan.startDate}</Text>}
+        </View>
+      ))}
+    </ScrollView>
+  );
+}
+
+/* ═══════════════════════ OVERTIME TAB ═══════════════════════ */
+function OvertimeTab({ tenantId }: { tenantId: string }) {
+  const [items, setItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    gql<any>(`query($t:UUID!){ overtimeAuthorizations(tenantId:$t) }`, { t: tenantId })
+      .then(d => {
+        const raw = d?.overtimeAuthorizations;
+        setItems(typeof raw === 'string' ? (() => { try { return JSON.parse(raw); } catch { return []; } })() : (Array.isArray(raw) ? raw : []));
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [tenantId]);
+
+  const STATUS_COLOR: Record<string, string> = { pending: '#F59E0B', approved: '#16A34A', rejected: '#DC2626', paid: '#6B7280' };
+
+  if (loading) return <View style={s.center}><ActivityIndicator size="large" color={NAVY} /></View>;
+  if (!items.length) return <Text style={s.empty}>No overtime authorizations</Text>;
+
+  return (
+    <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
+      {items.map((ot: any, i: number) => (
+        <View key={ot.id || i} style={[s.card, { margin: 8 }]}>
+          <View style={[s.row, s.border]}>
+            <View style={{ flex: 1 }}>
+              <Text style={s.main}>{ot.employeeName || `Employee OT`}</Text>
+              {ot.workDate && <Text style={s.sub}>{ot.workDate}</Text>}
+            </View>
+            {ot.status && (
+              <View style={{ paddingHorizontal: 8, paddingVertical: 3, borderRadius: 12, backgroundColor: (STATUS_COLOR[ot.status] || '#6B7280') + '22' }}>
+                <Text style={{ fontSize: 11, fontWeight: '600', color: STATUS_COLOR[ot.status] || '#6B7280' }}>{ot.status}</Text>
+              </View>
+            )}
+          </View>
+          <View style={[s.row, { justifyContent: 'space-between' }]}>
+            <View>
+              <Text style={s.sub}>Hours</Text>
+              <Text style={s.amount}>{ot.hoursRequested ?? ot.hours ?? '—'}</Text>
+            </View>
+            {(ot.rateMultiplier ?? ot.multiplier) && (
+              <View>
+                <Text style={s.sub}>Rate</Text>
+                <Text style={s.amount}>×{ot.rateMultiplier ?? ot.multiplier}</Text>
+              </View>
+            )}
+            {(ot.grossAmount ?? ot.amount) && (
+              <View style={{ alignItems: 'flex-end' }}>
+                <Text style={s.sub}>Amount</Text>
+                <Text style={s.amount}>{fmt(ot.grossAmount ?? ot.amount)}</Text>
+              </View>
+            )}
+          </View>
+          {ot.reason && <Text style={[s.sub, { marginTop: 4 }]}>Reason: {ot.reason}</Text>}
+        </View>
+      ))}
+    </ScrollView>
+  );
+}
+
 /* ═══════════════════════ MAIN SCREEN ═══════════════════════ */
 export default function HRScreen() {
   const { tenant, employeeId } = useAuth();
@@ -876,6 +994,8 @@ export default function HRScreen() {
       {tab === 'employees' && <EmployeesTab tenantId={tenantId} />}
       {tab === 'leave' && <LeaveTab tenantId={tenantId} employeeId={employeeId} />}
       {tab === 'payroll' && <PayrollTab tenantId={tenantId} employeeId={employeeId} />}
+      {tab === 'loans' && <LoansTab tenantId={tenantId} />}
+      {tab === 'overtime' && <OvertimeTab tenantId={tenantId} />}
       {tab === 'compliance' && <ComplianceTab tenantId={tenantId} />}
       {tab === 'payrollreports' && <PayrollReportsTab tenantId={tenantId} />}
       {tab === 'attendance' && <AttendanceTab tenantId={tenantId} employeeId={employeeId} />}

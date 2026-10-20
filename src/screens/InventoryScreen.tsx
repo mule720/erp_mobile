@@ -22,6 +22,7 @@ const TABS = [
   { key: 'products', label: 'Products' },
   { key: 'categories', label: 'Categories' },
   { key: 'stock', label: 'Stock' },
+  { key: 'expiry', label: 'Expiry' },
   { key: 'wastage', label: 'Wastage' },
   { key: 'warehouses', label: 'Warehouses' },
 ];
@@ -552,6 +553,70 @@ function WarehousesTab({ tenantId }: { tenantId: string }) {
   );
 }
 
+/* ─────────────────────────── EXPIRY ─────────────────────────── */
+function ExpiryTab({ tenantId }: { tenantId: string }) {
+  const [batches, setBatches] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [withinDays, setWithinDays] = useState(30);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const d = await gql<any>(
+        `query($t:UUID!,$d:Int){ expiringStock(tenantId:$t, withinDays:$d) }`,
+        { t: tenantId, d: withinDays }
+      );
+      const raw = d?.expiringStock;
+      const parsed = typeof raw === 'string' ? (() => { try { return JSON.parse(raw); } catch { return {}; } })() : raw;
+      const items = parsed?.batches || parsed?.items || (Array.isArray(parsed) ? parsed : []);
+      setBatches(items);
+    } catch {} finally { setLoading(false); }
+  }, [tenantId, withinDays]);
+
+  useEffect(() => { load(); }, [load]);
+
+  const STATUS_COLOR: Record<string, string> = { expired: '#DC2626', soon: '#F59E0B', ok: '#16A34A' };
+
+  return (
+    <View style={{ flex: 1 }}>
+      <View style={{ flexDirection: 'row', padding: 12, gap: 8 }}>
+        {[30, 60, 90].map(d => (
+          <TouchableOpacity key={d} style={[s.chip, withinDays === d && s.chipActive]} onPress={() => setWithinDays(d)}>
+            <Text style={[s.chipTxt, withinDays === d && s.chipTxtActive]}>{d}d</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+      {loading ? <Loader /> : batches.length === 0 ? <Empty msg="No expiring stock" /> : (
+        <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
+          {batches.map((b: any, i: number) => (
+            <View key={i} style={[s.card, { margin: 8 }]}>
+              <View style={[s.row, s.border]}>
+                <View style={{ flex: 1 }}>
+                  <Text style={s.main}>{b.product || b.productName}</Text>
+                  {b.sku && <Text style={s.sub}>SKU: {b.sku}</Text>}
+                  {b.batchNumber && <Text style={s.sub}>Batch: {b.batchNumber}</Text>}
+                </View>
+                <View style={{ alignItems: 'flex-end' }}>
+                  <View style={[s.chip, { borderColor: STATUS_COLOR[b.status] || '#6B7280', paddingHorizontal: 8, paddingVertical: 2 }]}>
+                    <Text style={{ fontSize: 11, color: STATUS_COLOR[b.status] || '#6B7280', fontWeight: '600' }}>
+                      {b.status === 'expired' ? 'Expired' : `${b.daysLeft}d left`}
+                    </Text>
+                  </View>
+                  <Text style={[s.sub, { marginTop: 4 }]}>Qty: {b.quantity}</Text>
+                </View>
+              </View>
+              <View style={s.row}>
+                {b.expiryDate && <Text style={s.sub}>Expires: {b.expiryDate}</Text>}
+                {b.warehouse && <Text style={[s.sub, { marginLeft: 12 }]}>📍 {b.warehouse}</Text>}
+              </View>
+            </View>
+          ))}
+        </ScrollView>
+      )}
+    </View>
+  );
+}
+
 /* ─────────────────────────── MAIN SCREEN ─────────────────────────── */
 export default function InventoryScreen() {
   const { tenant } = useAuth();
@@ -563,6 +628,7 @@ export default function InventoryScreen() {
       {tab === 'products' && <ProductsTab tenantId={tenantId} />}
       {tab === 'categories' && <CategoriesTab tenantId={tenantId} />}
       {tab === 'stock' && <StockTab tenantId={tenantId} />}
+      {tab === 'expiry' && <ExpiryTab tenantId={tenantId} />}
       {tab === 'wastage' && <WastageTab tenantId={tenantId} />}
       {tab === 'warehouses' && <WarehousesTab tenantId={tenantId} />}
     </View>
