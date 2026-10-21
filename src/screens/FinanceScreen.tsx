@@ -29,6 +29,9 @@ const TABS = [
   { key: 'petty', label: 'Petty Cash' },
   { key: 'bankrec', label: 'Bank Rec' },
   { key: 'reports', label: 'Reports' },
+  { key: 'treasury', label: 'Treasury' },
+  { key: 'finmgr', label: 'Finance Mgr' },
+  { key: 'costing', label: 'Costing' },
 ];
 
 const BUCKET_LABELS = [
@@ -1132,6 +1135,134 @@ function ReportsTab({ tenantId }: { tenantId: string }) {
   );
 }
 
+/* ─────────────────────────── TREASURY ─────────────────────────── */
+function TreasuryTab({ tenantId }: { tenantId: string }) {
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const load = useCallback(async () => {
+    try {
+      const d = await gql<any>(`query($t:UUID!){treasuryDashboard(tenantId:$t){cashBalance bankBalance totalInflow totalOutflow forecastBalance forecastDate}}`, { t: tenantId }).catch(() => ({}));
+      setData(d?.treasuryDashboard);
+    } catch {} finally { setLoading(false); setRefreshing(false); }
+  }, [tenantId]);
+  useEffect(() => { load(); }, [load]);
+
+  if (loading) return <Loader />;
+  return (
+    <ScrollView style={{ flex: 1 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); load(); }} colors={[NAVY]} />}>
+      <Text style={s.sectionTitle}>Treasury Dashboard</Text>
+      {!data ? <Empty msg="No treasury data available." /> : (
+        <>
+          <View style={s.kpiRow}>
+            {[
+              { label: 'Cash Balance', value: fmtK(data.cashBalance) },
+              { label: 'Bank Balance', value: fmtK(data.bankBalance) },
+              { label: 'Total Inflow', value: fmtK(data.totalInflow) },
+              { label: 'Total Outflow', value: fmtK(data.totalOutflow) },
+            ].map(k => (
+              <View key={k.label} style={s.kpi}>
+                <Text style={s.kpiLabel}>{k.label}</Text>
+                <Text style={s.kpiValue}>{k.value}</Text>
+              </View>
+            ))}
+          </View>
+          {data.forecastBalance != null && (
+            <View style={[s.card, { marginTop: 12 }]}>
+              <View style={[s.row, { paddingVertical: 14 }]}>
+                <View style={{ flex: 1 }}>
+                  <Text style={s.main}>Forecast Balance</Text>
+                  {data.forecastDate && <Text style={s.sub}>As of {data.forecastDate}</Text>}
+                </View>
+                <Text style={[s.kpiValue, { color: NAVY }]}>{fmtK(data.forecastBalance)}</Text>
+              </View>
+            </View>
+          )}
+        </>
+      )}
+    </ScrollView>
+  );
+}
+
+/* ─────────────────────────── FINANCE MANAGER ─────────────────────────── */
+function FinanceManagerTab({ tenantId }: { tenantId: string }) {
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const load = useCallback(async () => {
+    try {
+      const d = await gql<any>(`query($t:UUID!){closeCockpit(tenantId:$t){period items{key label status signedOffBy signedOffAt}}}`, { t: tenantId }).catch(() => ({}));
+      setData(d?.closeCockpit);
+    } catch {} finally { setLoading(false); setRefreshing(false); }
+  }, [tenantId]);
+  useEffect(() => { load(); }, [load]);
+
+  if (loading) return <Loader />;
+  const items: any[] = data?.items || [];
+  return (
+    <ScrollView style={{ flex: 1 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); load(); }} colors={[NAVY]} />}>
+      <Text style={s.sectionTitle}>Close Cockpit{data?.period ? ` — ${data.period}` : ''}</Text>
+      {items.length === 0 ? <Empty msg="No close checklist available." /> : (
+        <View style={[s.card, { marginBottom: 32 }]}>
+          {items.map((item, i) => (
+            <View key={item.key} style={[{ paddingVertical: 12 }, i < items.length - 1 && s.border]}>
+              <View style={s.row}>
+                <View style={{ flex: 1 }}>
+                  <Text style={s.main}>{item.label}</Text>
+                  {item.signedOffBy && <Text style={s.sub}>Signed off by {item.signedOffBy}</Text>}
+                </View>
+                <StatusBadge status={item.status || (item.signedOffAt ? 'done' : 'pending')} />
+              </View>
+            </View>
+          ))}
+        </View>
+      )}
+    </ScrollView>
+  );
+}
+
+/* ─────────────────────────── COSTING ─────────────────────────── */
+function CostingTab({ tenantId }: { tenantId: string }) {
+  const [centres, setCentres] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const load = useCallback(async () => {
+    try {
+      const d = await gql<any>(`query($t:UUID!){costCentres(tenantId:$t){id name code totalActual totalBudget variance}}`, { t: tenantId }).catch(() => ({}));
+      setCentres(d?.costCentres || []);
+    } catch {} finally { setLoading(false); setRefreshing(false); }
+  }, [tenantId]);
+  useEffect(() => { load(); }, [load]);
+
+  if (loading) return <Loader />;
+  return (
+    <ScrollView style={{ flex: 1 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); load(); }} colors={[NAVY]} />}>
+      <Text style={s.sectionTitle}>Cost Centres ({centres.length})</Text>
+      {centres.length === 0 ? <Empty msg="No cost centres configured." /> : (
+        <View style={[s.card, { marginBottom: 32 }]}>
+          {centres.map((c, i) => (
+            <View key={c.id} style={[{ paddingVertical: 12 }, i < centres.length - 1 && s.border]}>
+              <View style={s.row}>
+                <View style={{ flex: 1 }}>
+                  <Text style={s.main}>{c.name}</Text>
+                  {c.code && <Text style={s.sub}>{c.code}</Text>}
+                  <Text style={s.sub2}>Actual: {fmtK(c.totalActual)} · Budget: {fmtK(c.totalBudget)}</Text>
+                </View>
+                <Text style={{ fontSize: 13, fontWeight: '700', color: Number(c.variance ?? 0) < 0 ? '#DC2626' : '#16A34A' }}>
+                  {Number(c.variance ?? 0) >= 0 ? '+' : ''}{fmtK(c.variance)}
+                </Text>
+              </View>
+            </View>
+          ))}
+        </View>
+      )}
+    </ScrollView>
+  );
+}
+
 /* ─────────────────────────── MAIN SCREEN ─────────────────────────── */
 export default function FinanceScreen() {
   const { tenant } = useAuth();
@@ -1151,6 +1282,9 @@ export default function FinanceScreen() {
       {tab === 'petty' && <PettyCashTab tenantId={tenantId} />}
       {tab === 'bankrec' && <BankRecTab tenantId={tenantId} />}
       {tab === 'reports' && <ReportsTab tenantId={tenantId} />}
+      {tab === 'treasury' && <TreasuryTab tenantId={tenantId} />}
+      {tab === 'finmgr' && <FinanceManagerTab tenantId={tenantId} />}
+      {tab === 'costing' && <CostingTab tenantId={tenantId} />}
     </View>
   );
 }

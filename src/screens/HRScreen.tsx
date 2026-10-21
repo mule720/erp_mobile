@@ -603,6 +603,13 @@ function PayrollTab({ tenantId, employeeId }: { tenantId: string; employeeId: st
     } catch (e: any) { Alert.alert('Error', e.message); }
   };
 
+  const reopenRun = async (run: any) => {
+    try {
+      await gql<any>(`mutation($id:UUID!,$r:String){reopenPayrollRun(runId:$id,reason:$r){ok error}}`, { id: run.id, r: 'Reopened from mobile' });
+      load();
+    } catch (e: any) { Alert.alert('Error', e.message); }
+  };
+
   if (loading) return <Loader />;
   return (
     <View style={{ flex: 1 }}>
@@ -631,6 +638,7 @@ function PayrollTab({ tenantId, employeeId }: { tenantId: string; employeeId: st
                     <View style={[s.actionRow, { paddingHorizontal: 0, paddingTop: 8, paddingBottom: 0 }]}>
                       {r.status === 'draft' && <ActionBtn label="Calculate" color={GOLD} onPress={() => calcRun(r)} />}
                       {r.status === 'calculated' && <ActionBtn label="Approve" color="#16A34A" onPress={() => approveRun(r)} />}
+                      {(r.status === 'approved' || r.status === 'paid') && <ActionBtn label="Reopen" color="#DC2626" onPress={() => reopenRun(r)} />}
                     </View>
                   )}
                 </View>
