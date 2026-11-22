@@ -25,13 +25,15 @@ export default function InfinityMenu({ items, activeKey, onSelect, onUseDashboar
     }).catch(() => {});
   }, []);
   const pan = useRef(PanResponder.create({
-    onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dx) > 6 || Math.abs(g.dy) > 6,
+    onStartShouldSetPanResponder: () => true,
+    onMoveShouldSetPanResponder: () => true,
     onPanResponderGrant: () => { moved.current = false; },
     onPanResponderMove: (_, g) => {
       moved.current = true;
       pos.setValue({ x: last.current.x + g.dx, y: last.current.y + g.dy });
     },
     onPanResponderRelease: (_, g) => {
+      if (Math.abs(g.dx) < 8 && Math.abs(g.dy) < 8) { setOpen(true); return; }   // a tap opens the menu
       const x0 = last.current.x + g.dx, y0 = last.current.y + g.dy;
       const y = Math.min(Math.max(y0, 40), H - SIZE - 40);
       const x = x0 + SIZE / 2 < W / 2 ? 10 : W - SIZE - 10;
@@ -43,9 +45,9 @@ export default function InfinityMenu({ items, activeKey, onSelect, onUseDashboar
   return (
     <>
       <Animated.View style={[s.fab, { left: 0, bottom: undefined, top: 0, transform: pos.getTranslateTransform() }]} {...pan.panHandlers}>
-        <TouchableOpacity style={s.fabInner} onPress={() => { if (!moved.current) setOpen(true); }} activeOpacity={0.85} accessibilityLabel="Open the Infinity menu. Drag to move it.">
+        <View style={s.fabInner} accessibilityRole="button" accessibilityLabel="Open the Infinity menu. Drag to move it.">
           <Ionicons name="infinite" size={28} color="#fff" />
-        </TouchableOpacity>
+        </View>
       </Animated.View>
       <Modal visible={open} transparent animationType="fade" onRequestClose={() => setOpen(false)}>
         <View style={s.backdrop}>
