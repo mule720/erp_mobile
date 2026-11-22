@@ -31,6 +31,8 @@ import CaptureDocumentScreen from '../screens/CaptureDocumentScreen';
 import ManufacturingScreen from '../screens/ManufacturingScreen';
 import AllFeaturesScreen from '../screens/AllFeaturesScreen';
 import WebPageView from '../components/WebPageView';
+import ModulePagesSheet from '../components/ModulePagesSheet';
+import { MODULE_GROUPS } from '../lib/webPages';
 
 const NAVY = COLORS.navy;
 const GOLD = COLORS.amberLight;
@@ -82,6 +84,7 @@ export default function SidebarLayout() {
   const [profileOpen, setProfileOpen] = useState(false);
   // a web page shown inside the app (the long tail of the web app that has no native screen)
   const [webPage, setWebPage] = useState<{ path: string; title: string } | null>(null);
+  const [morePages, setMorePages] = useState(false);
   const slideX = useRef(new Animated.Value(-SIDEBAR_W)).current;
   const overlayO = useRef(new Animated.Value(0)).current;
 
@@ -141,6 +144,11 @@ export default function SidebarLayout() {
           <View style={s.iconBtn}><Ionicons name="infinite" size={22} color="#374151" /></View>
         )}
         <Text style={s.pageTitle} numberOfLines={1}>{activeItem?.label || 'NetOn ERP Pro'}</Text>
+        {!!MODULE_GROUPS[activeItem?.key || ''] && (
+          <TouchableOpacity onPress={() => setMorePages(true)} style={s.iconBtn} activeOpacity={0.7} accessibilityLabel="All pages in this module">
+            <Ionicons name="apps-outline" size={22} color="#374151" />
+          </TouchableOpacity>
+        )}
         {visible.some(n => n.key === 'capture') && (
           <TouchableOpacity onPress={() => navigate('capture')} style={s.iconBtn} activeOpacity={0.7} accessibilityLabel="Capture a document">
             <Ionicons name="scan-outline" size={22} color="#fff" />
@@ -157,6 +165,11 @@ export default function SidebarLayout() {
       <View style={{ flex: 1 }}>
         <ActiveScreen onNavigate={navigate} onOpenWeb={(path: string, title: string) => setWebPage({ path, title })} />
       </View>
+
+      {!!MODULE_GROUPS[activeItem?.key || ''] && (
+        <ModulePagesSheet moduleKey={activeItem!.key} title={activeItem!.label} visible={morePages} onClose={() => setMorePages(false)}
+          onNavigate={navigate} onOpenWeb={(path, title) => setWebPage({ path, title })} />
+      )}
 
       {webPage && <WebPageView path={webPage.path} title={webPage.title} onClose={() => setWebPage(null)} />}
 

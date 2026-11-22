@@ -823,3 +823,12 @@ export const WEB_PAGES: WebPage[] = [
     "staffOnly": true
   }
 ];
+
+/** Which web menu groups belong to each module's screen in the app, so a module can offer all of its pages. */
+export const MODULE_GROUPS: Record<string, string[]> = {
+  sales: ['Sales'], crm: ['Sales'], pos: ['Sales'],
+  purchasing: ['Purchasing'], inventory: ['Inventory'], manufacturing: ['Manufacturing'],
+  finance: ['Accounting', 'Treasury', 'Financial Management', 'Costing', 'Finance Reports & Analysis'],
+  people: ['People (HR)'], fixed_assets: ['Fixed Assets'], tax_hub: ['Tax Hub'], projects: ['Business suite'],
+  setup: ['Setup & Import', 'Settings'], settings: ['Settings'],
+};
