@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../store/AuthContext';
 import { gql } from '../api/graphql';
 import { COLORS, FONT, RADIUS, SHADOW } from '../theme';
+import { executiveSummary, type ExecSummary } from '../api/aiApi';
 
 const NAVY = COLORS.navy;
 
@@ -49,6 +50,7 @@ const ACTIVITY_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
 interface Props { onNavigate?: (key: string) => void }
 
 export default function HomeScreen({ onNavigate }: Props) {
+  const [aiSummary, setAiSummary] = useState<ExecSummary | null>(null);
   const { user, tenant } = useAuth();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -65,6 +67,9 @@ export default function HomeScreen({ onNavigate }: Props) {
   };
 
   useEffect(() => { load(); }, []);
+  useEffect(() => {
+    if (tenant?.id) executiveSummary(tenant.id, 'this_month', false).then(setAiSummary).catch(() => setAiSummary(null));
+  }, [tenant?.id]);
 
   const greeting = () => {
     const h = new Date().getHours();
@@ -127,6 +132,21 @@ export default function HomeScreen({ onNavigate }: Props) {
         <Text style={s.greetingText}>{greeting()}, <Text style={{ fontFamily: FONT.displaySemibold }}>{user?.firstName || 'there'}</Text></Text>
         <Text style={s.org}>{tenant?.name}</Text>
       </View>
+
+      {/* ── AI summary: a few plain sentences; the full picture is in the AI Centre ── */}
+      {aiSummary && aiSummary.headlines.length > 0 && (
+        <TouchableOpacity style={s.aiCard} activeOpacity={0.85} onPress={() => onNavigate?.('ai_centre')}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+            <Ionicons name="bulb-outline" size={15} color={COLORS.amber} />
+            <Text style={s.aiTitle}>This month, in plain words</Text>
+            <View style={{ flex: 1 }} />
+            <Text style={s.aiMore}>AI Centre ›</Text>
+          </View>
+          {aiSummary.headlines.slice(0, 3).map((h, i) => (
+            <Text key={i} style={s.aiLine} numberOfLines={2}>• {h.text}</Text>
+          ))}
+        </TouchableOpacity>
+      )}
 
       {/* ── Stat Cards ── */}
       <View style={s.cardGrid}>
@@ -252,6 +272,10 @@ function PayrollStat({ label, value, accent }: { label: string; value: any; acce
 }
 
 const s = StyleSheet.create({
+  aiCard: { backgroundColor: COLORS.navy, borderRadius: RADIUS.lg, padding: 14, marginHorizontal: 16, marginBottom: 14, ...SHADOW.card },
+  aiTitle: { color: '#fff', fontSize: 13, fontWeight: '800' },
+  aiMore: { color: COLORS.amberLight, fontSize: 12, fontWeight: '700' },
+  aiLine: { color: 'rgba(255,255,255,0.85)', fontSize: 12.5, lineHeight: 18, marginTop: 3 },
   root: { flex: 1, backgroundColor: COLORS.surfaceMuted },
 
   greeting: { paddingHorizontal: 16, paddingTop: 16, paddingBottom: 8 },

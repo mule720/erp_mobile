@@ -23,6 +23,9 @@ import POSScreen from '../screens/POSScreen';
 import SubscriptionAdminScreen from '../screens/SubscriptionAdminScreen';
 import ProjectsScreen from '../screens/ProjectsScreen';
 import AIAssistantScreen from '../screens/AIAssistantScreen';
+import AICentreScreen from '../screens/AICentreScreen';
+import CaptureDocumentScreen from '../screens/CaptureDocumentScreen';
+import ManufacturingScreen from '../screens/ManufacturingScreen';
 
 const NAVY = COLORS.navy;
 const GOLD = COLORS.amberLight;
@@ -49,6 +52,9 @@ const NAV: NavItem[] = [
   { key: 'fixed_assets', label: 'Fixed Assets',   icon: 'construct-outline',   component: FixedAssetsScreen, roleCheck: r => r.isAdmin || r.isAccountant },
   { key: 'tax_hub',      label: 'Tax Hub',        icon: 'receipt-outline',     component: TaxHubScreen,      roleCheck: r => r.isAdmin || r.isAccountant },
   { key: 'projects',     label: 'Projects',       icon: 'briefcase-outline',   component: ProjectsScreen,    roleCheck: r => r.isAdmin || r.hasPermission('business_modules.manage_projects') },
+  { key: 'manufacturing', label: 'Manufacturing', icon: 'hammer-outline',      component: ManufacturingScreen, roleCheck: r => r.isAdmin || r.isAccountant },
+  { key: 'ai_centre',    label: 'AI Centre',      icon: 'bulb-outline',        component: AICentreScreen },
+  { key: 'capture',      label: 'Capture a document', icon: 'scan-outline',    component: CaptureDocumentScreen, roleCheck: r => r.isAdmin || r.isAccountant || r.hasPermission('supply_chain.view_purchase_orders') },
   { key: 'ai_assistant', label: 'NetOn AI',       icon: 'sparkles-outline',    component: AIAssistantScreen },
   { key: 'setup',        label: 'Setup & Import', icon: 'settings-outline',    component: SetupScreen,       roleCheck: r => r.isAdmin },
   { key: 'settings',     label: 'Settings',       icon: 'options-outline',     component: SettingsScreen },
@@ -116,6 +122,11 @@ export default function SidebarLayout() {
           </View>
         </TouchableOpacity>
         <Text style={s.pageTitle} numberOfLines={1}>{activeItem?.label || 'NetOn ERP Pro'}</Text>
+        {visible.some(n => n.key === 'capture') && (
+          <TouchableOpacity onPress={() => navigate('capture')} style={s.iconBtn} activeOpacity={0.7} accessibilityLabel="Capture a document">
+            <Ionicons name="scan-outline" size={22} color="#fff" />
+          </TouchableOpacity>
+        )}
         <TouchableOpacity onPress={() => setProfileOpen(true)} style={s.avatarBtn} activeOpacity={0.8}>
           <View style={s.avCircle}>
             <Text style={s.avText}>{user?.firstName?.[0]?.toUpperCase() || 'U'}</Text>
