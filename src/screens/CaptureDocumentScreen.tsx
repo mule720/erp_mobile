@@ -3,6 +3,9 @@ import {
   View, Text, ScrollView, TouchableOpacity, TextInput, ActivityIndicator, StyleSheet, Modal, Platform, Alert,
 } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
+import * as ImagePicker from 'expo-image-picker';
+import * as DocumentPicker from 'expo-document-picker';
+import * as FileSystem from 'expo-file-system';
 import { Ionicons } from '@expo/vector-icons';
 import { gql } from '../api/graphql';
 import PickField from '../components/PickField';
@@ -78,6 +81,27 @@ export default function CaptureDocumentScreen({ onNavigate }: { onNavigate?: (ke
   const openCamera = async () => {
     if (!permission?.granted) { const r = await requestPermission(); if (!r.granted) { setError('Allow camera access to photograph documents.'); return; } }
     setCamOpen(true);
+  };
+
+  // phone: a photo already in the gallery, or a PDF
+  const pickGallery = async () => {
+    try {
+      const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!perm.granted) { setError('Allow photo access to choose a picture.'); return; }
+      const r = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, quality: 0.6, base64: true });
+      if (r.canceled || !r.assets?.[0]?.base64) return;
+      await read(`capture-${Date.now()}.jpg`, r.assets[0].base64!, 'image/jpeg');
+    } catch (e: any) { setError(e?.message || 'Could not open the picture'); }
+  };
+  const pickPdf = async () => {
+    try {
+      const r = await DocumentPicker.getDocumentAsync({ type: 'application/pdf', copyToCacheDirectory: true });
+      if (r.canceled || !r.assets?.[0]) return;
+      const a = r.assets[0];
+      if (a.size && a.size > 8 * 1024 * 1024) { setError('That PDF is larger than 8 MB.'); return; }
+      const b64 = await FileSystem.readAsStringAsync(a.uri, { encoding: FileSystem.EncodingType.Base64 });
+      await read(a.name || `document-${Date.now()}.pdf`, b64, 'application/pdf');
+    } catch (e: any) { setError(e?.message || 'Could not open the PDF'); }
   };
 
   // web: pick a file (photo or PDF)
@@ -162,6 +186,12 @@ export default function CaptureDocumentScreen({ onNavigate }: { onNavigate?: (ke
           <Text style={s.p}>Photograph an invoice, receipt, delivery note, order, payment slip or contract. The AI works out what it is and reads it. Nothing is saved until you confirm.</Text>
           {Platform.OS !== 'web' && (
             <TouchableOpacity style={s.primary} onPress={openCamera} disabled={busy}><Ionicons name="camera-outline" size={18} color="#fff" /><Text style={s.primaryTxt}>Take a photo</Text></TouchableOpacity>
+          )}
+          {Platform.OS !== 'web' && (
+            <View style={{ flexDirection: 'row', gap: 8, marginTop: 10 }}>
+              <TouchableOpacity style={s.ghostBtn} onPress={pickGallery} disabled={busy}><Ionicons name="images-outline" size={16} color={COLORS.navy} /><Text style={s.ghostTxt}>From gallery</Text></TouchableOpacity>
+              <TouchableOpacity style={s.ghostBtn} onPress={pickPdf} disabled={busy}><Ionicons name="document-outline" size={16} color={COLORS.navy} /><Text style={s.ghostTxt}>Choose a PDF</Text></TouchableOpacity>
+            </View>
           )}
           {Platform.OS === 'web' && (
             <TouchableOpacity style={s.primary} onPress={pickFile} disabled={busy}><Ionicons name="document-attach-outline" size={18} color="#fff" /><Text style={s.primaryTxt}>Choose a photo or PDF</Text></TouchableOpacity>
@@ -282,6 +312,8 @@ const s = StyleSheet.create({
   input: { backgroundColor: '#fff', borderRadius: 10, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: COLORS.ink, borderWidth: 1, borderColor: COLORS.border, marginBottom: 10 },
   primary: { flexDirection: 'row', gap: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.navy, borderRadius: RADIUS.md, paddingVertical: 13, marginTop: 12 },
   primaryTxt: { color: '#fff', fontWeight: '800', fontSize: 14 },
+  ghostBtn: { flex: 1, flexDirection: 'row', gap: 6, alignItems: 'center', justifyContent: 'center', paddingVertical: 12, borderRadius: RADIUS.md, borderWidth: 1, borderColor: COLORS.border },
+  ghostTxt: { fontSize: 13, fontWeight: '700', color: COLORS.navy },
   reading: { flexDirection: 'row', gap: 10, alignItems: 'center', marginTop: 14 },
   err: { color: COLORS.danger, marginTop: 10, fontSize: 13 },
   warn: { fontSize: 12, color: '#B45309', backgroundColor: '#FFFBEB', padding: 8, borderRadius: 8, marginBottom: 8 },

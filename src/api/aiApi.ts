@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { gql } from './graphql';
 
 /** Typed helpers for the AI and manufacturing features. Each one is the same call the web app makes. */
@@ -179,3 +180,43 @@ export const tenantModules = async (): Promise<string[] | null> => {
     return null;
   } catch { return null; }
 };
+
+// ── recipes: add with AI, import, merge ────────────────────────────────────
+export interface ImportRecipe { name: string; price?: number; code?: string; ingredients: { name: string; qty: number; unit?: string }[]; steps?: { title: string; instructions?: string; minutes?: number | null; settings?: string; checkpoint?: string }[] }
+export interface ImportReport { recipes: { name: string; price: number; lines: number; steps: number }[]; ingredientsCreated: string[]; ingredientsMatched: string[]; recipeItemsCreated: number; recipeItemsMatched: number; recipesSkipped: { name: string; reason: string }[] }
+export interface SimilarGroup { items: { id: string; name: string; sku: string; unit: string; usedIn: number; onHand: number }[]; suggestedKeep: string }
+
+export async function readRecipes(args: { text?: string; fileName?: string; contentBase64?: string }): Promise<ImportRecipe[]> {
+  const t = await tenantId();
+  const d = await gql<any>(`mutation($t:UUID!,$x:String,$f:String,$c:String){ readRecipes(tenantId:$t,text:$x,fileName:$f,contentBase64:$c){ ok error result } }`,
+    { t, x: args.text ?? null, f: args.fileName ?? null, c: args.contentBase64 ?? null });
+  const r = d?.readRecipes;
+  if (!r?.ok) throw new Error(r?.error || 'The recipes could not be read.');
+  return r.result.recipes;
+}
+
+export async function importRecipes(recipes: ImportRecipe[], apply: boolean): Promise<ImportReport> {
+  const t = await tenantId();
+  const d = await gql<any>(`mutation($t:UUID!,$r:GenericScalar!,$a:Boolean){ importRecipes(tenantId:$t,recipes:$r,apply:$a){ ok error report } }`, { t, r: recipes, a: apply });
+  const r = d?.importRecipes;
+  if (!r?.ok) throw new Error(r?.error || 'The import failed.');
+  return r.report;
+}
+
+export async function fetchSimilarMaterials(): Promise<SimilarGroup[]> {
+  const t = await tenantId();
+  return (await gql<any>(`query($t:UUID!){ similarMaterials(tenantId:$t) }`, { t }))?.similarMaterials ?? [];
+}
+
+export async function mergeMaterials(keepId: string, mergeIds: string[]) {
+  const t = await tenantId();
+  const d = await gql<any>(`mutation($t:UUID!,$k:UUID!,$m:[UUID]!){ mergeMaterials(tenantId:$t,keepId:$k,mergeIds:$m){ ok error result } }`, { t, k: keepId, m: mergeIds });
+  const r = d?.mergeMaterials;
+  if (!r?.ok) throw new Error(r?.error || 'The merge failed.');
+  return r.result as { merged: number; recipesChanged: number; hidden: string[]; kept: { name: string; reason: string }[] };
+}
+
+async function tenantId(): Promise<string> {
+  const raw = await AsyncStorage.getItem('erp_tenant');
+  return raw ? JSON.parse(raw).id : '';
+}

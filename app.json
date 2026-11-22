@@ -47,6 +47,13 @@
           "icon": "./assets/icon.png",
           "color": "#1E3A5F"
         }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "NetOn ERP Pro reads photos you choose, such as invoices, receipts and recipes.",
+          "cameraPermission": "NetOn ERP Pro uses the camera to photograph invoices, receipts, recipes and products."
+        }
       ]
     ]
   }

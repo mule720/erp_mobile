@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../store/AuthContext';
 import ModuleTabs from '../components/ModuleTabs';
 import PickField from '../components/PickField';
+import { AddRecipesModal, MergeMaterialsModal } from '../components/RecipeTools';
 import { COLORS, RADIUS, SHADOW } from '../theme';
 import {
   amount, bomDetail, draftPurchaseOrders, money, optimiseRecipe, productionOrders, productionPlan, recipeItems, warehouses,
@@ -118,6 +119,8 @@ function Recipes({ items, onRefresh }: { items: RecipeItem[]; onRefresh: () => P
   const [busy, setBusy] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [q, setQ] = useState('');
+  const [addOpen, setAddOpen] = useState(false);
+  const [mergeOpen, setMergeOpen] = useState(false);
 
   const show = async (r: RecipeItem) => {
     setOpen(r); setBom(null); setAdvice(null);
@@ -134,7 +137,13 @@ function Recipes({ items, onRefresh }: { items: RecipeItem[]; onRefresh: () => P
     <>
       <View style={{ padding: 12, paddingBottom: 0 }}>
         <TextInput style={s.input} placeholder="Search recipes" value={q} onChangeText={setQ} />
+        <View style={{ flexDirection: 'row', gap: 8, marginBottom: 10 }}>
+          <TouchableOpacity style={s.toolBtn} onPress={() => setAddOpen(true)}><Ionicons name="sparkles-outline" size={15} color={COLORS.navy} /><Text style={s.toolTxt}>Add recipes with AI</Text></TouchableOpacity>
+          <TouchableOpacity style={s.toolBtn} onPress={() => setMergeOpen(true)}><Ionicons name="git-merge-outline" size={15} color={COLORS.navy} /><Text style={s.toolTxt}>Merge materials</Text></TouchableOpacity>
+        </View>
       </View>
+      <AddRecipesModal visible={addOpen} onClose={() => setAddOpen(false)} onDone={onRefresh} />
+      <MergeMaterialsModal visible={mergeOpen} onClose={() => setMergeOpen(false)} onDone={onRefresh} />
       <ScrollView contentContainerStyle={{ padding: 12, paddingTop: 0 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={async () => { setRefreshing(true); await onRefresh(); setRefreshing(false); }} />}>
         {list.length === 0 && <Text style={s.empty}>No recipes found.</Text>}
         {list.map(r => (
@@ -255,5 +264,7 @@ const s = StyleSheet.create({
   badge: { fontSize: 11, fontWeight: '800', textTransform: 'capitalize' },
   empty: { textAlign: 'center', color: COLORS.subtle, marginTop: 40 },
   modalHead: { flexDirection: 'row', alignItems: 'center', padding: 16, paddingTop: Platform.OS === 'ios' ? 52 : 20, borderBottomWidth: 1, borderBottomColor: COLORS.border },
+  toolBtn: { flex: 1, flexDirection: 'row', gap: 6, alignItems: 'center', justifyContent: 'center', backgroundColor: '#fff', borderRadius: RADIUS.md, paddingVertical: 10, borderWidth: 1, borderColor: COLORS.border },
+  toolTxt: { fontSize: 12, fontWeight: '700', color: COLORS.navy },
   tip: { padding: 10, borderRadius: 10, backgroundColor: COLORS.surfaceMuted, marginTop: 8 },
 });

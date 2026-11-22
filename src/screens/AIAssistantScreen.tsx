@@ -46,21 +46,12 @@ export default function AIAssistantScreen() {
         `mutation($t:UUID!,$q:String!,$c:UUID){ askNetonAi(tenantId:$t, question:$q, conversationId:$c) }`,
         { t: tenantId, q, c: conversationId ?? undefined }
       );
-      const raw = d?.askNetonAi;
-      let reply = '';
-      let newConvId = conversationId;
-      if (typeof raw === 'string') {
-        try {
-          const parsed = JSON.parse(raw);
-          reply = parsed?.reply || parsed?.message || raw;
-          if (parsed?.conversationId) newConvId = parsed.conversationId;
-        } catch {
-          reply = raw;
-        }
-      } else if (raw?.reply) {
-        reply = raw.reply;
-        if (raw.conversationId) newConvId = raw.conversationId;
-      }
+      // The server answers {answer, conversationId, unavailable}. Older builds read "reply", which is never sent.
+      let raw: any = d?.askNetonAi;
+      if (typeof raw === 'string') { try { raw = JSON.parse(raw); } catch { raw = { answer: raw }; } }
+      let reply = String(raw?.answer ?? raw?.reply ?? raw?.message ?? '');
+      let newConvId = raw?.conversationId || conversationId;
+      if (raw?.unavailable && !reply) reply = 'The AI assistant is not switched on for your company yet.';
       if (newConvId && newConvId !== conversationId) setConversationId(newConvId);
       setMessages(prev => {
         const updated = [...prev];
