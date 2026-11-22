@@ -65,8 +65,15 @@ export interface Match { documentType: string; documentId: string; label: string
 export async function captureDocument(t: string, fileName: string, base64: string) {
   const d = await gql<any>(`mutation($t:UUID!,$f:String!,$c:String!){ captureDocument(tenantId:$t,fileName:$f,contentBase64:$c){ result } }`, { t, f: fileName, c: base64 });
   const r = d?.captureDocument?.result;
-  if (!r?.ok) throw new Error(r?.note || 'Could not read the document');
-  return r as { facts: Facts; matches: Match[]; action: { code: string; label: string } };
+  if (!r?.ok) {
+    // No AI (not switched on, daily limit, or it could not read the picture): the person can still say what it is and file it by hand.
+    if (r?.aiUnavailable || r?.capReached || /could not read/i.test(r?.note || '')) {
+      const blank: Facts = { kind: 'other', confidence: null, party: null, number: null, date: null, currency: null, tax: null, total: null, lines: [], summary: null };
+      return { facts: blank, matches: [], action: { code: 'file', label: 'File it' }, manual: (r?.note as string) || 'The AI could not read this.' };
+    }
+    throw new Error(r?.note || 'Could not read the document');
+  }
+  return r as { facts: Facts; matches: Match[]; action: { code: string; label: string }; manual?: string };
 }
 
 export async function attachDocument(t: string, documentType: string, documentId: string, fileName: string, base64: string, kind: string) {

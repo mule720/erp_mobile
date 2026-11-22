@@ -39,6 +39,7 @@ export default function CaptureDocumentScreen({ onNavigate }: { onNavigate?: (ke
   const [error, setError] = useState('');
   const [proof, setProof] = useState<{ name: string; base64: string; mediaType: string } | null>(null);
   const [facts, setFacts] = useState<Facts | null>(null);
+  const [manualNote, setManualNote] = useState('');
   const [kind, setKind] = useState('other');
   const [matches, setMatches] = useState<Match[]>([]);
   const [target, setTarget] = useState('inbox');
@@ -54,14 +55,14 @@ export default function CaptureDocumentScreen({ onNavigate }: { onNavigate?: (ke
   const [purpose, setPurpose] = useState('');
   const [claimLines, setClaimLines] = useState<{ description: string; amount: string }[]>([]);
 
-  const reset = () => { setProof(null); setFacts(null); setDraft(null); setError(''); setMatches([]); setTarget('inbox'); };
+  const reset = () => { setProof(null); setFacts(null); setDraft(null); setError(''); setMatches([]); setTarget('inbox'); setManualNote(''); };
 
   const read = async (name: string, base64: string, mediaType: string) => {
     setBusy(true); setError('');
     try {
       setProof({ name, base64, mediaType });
       const r = await captureDocument(t, name, base64);
-      setFacts(r.facts); setKind(r.facts.kind); setMatches(r.matches);
+      setFacts(r.facts); setKind(r.facts.kind); setMatches(r.matches); setManualNote(r.manual || '');
       setTarget(r.matches[0] ? `${r.matches[0].documentType}:${r.matches[0].documentId}` : 'inbox');
       setPurpose(r.facts.summary || r.facts.party || '');
       setClaimLines((r.facts.lines.length ? r.facts.lines : [{ description: r.facts.party || 'Receipt', quantity: null, amount: r.facts.total }])
@@ -202,7 +203,8 @@ export default function CaptureDocumentScreen({ onNavigate }: { onNavigate?: (ke
       ) : (
         <View>
           <View style={s.card}>
-            <Text style={s.label}>This looks like</Text>
+            {!!manualNote && <Text style={s.warn}>{manualNote} Choose what this document is below and file it by hand.</Text>}
+            <Text style={s.label}>{manualNote ? 'This is a' : 'This looks like'}</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               {Object.entries(KIND_LABEL).map(([k, v]) => (
                 <TouchableOpacity key={k} style={[s.chip, kind === k && s.chipOn]} onPress={() => { setKind(k); setDraft(null); }}><Text style={[s.chipTxt, kind === k && { color: '#fff' }]}>{v}</Text></TouchableOpacity>
@@ -220,8 +222,8 @@ export default function CaptureDocumentScreen({ onNavigate }: { onNavigate?: (ke
 
           {action === 'bill' && !draft && (
             <View style={s.card}>
-              <Text style={s.p}>A bill from a supplier. Next it is matched to the supplier and your products so you can save it as a draft bill, with the original filed.</Text>
-              <TouchableOpacity style={s.primary} onPress={readBill} disabled={busy}>{busy ? <ActivityIndicator color="#fff" /> : <Text style={s.primaryTxt}>Turn it into a supplier bill</Text>}</TouchableOpacity>
+              <Text style={s.p}>{manualNote ? 'A bill from a supplier cannot be turned into a draft bill without the AI. File the original with the supplier\'s record instead.' : 'A bill from a supplier. Next it is matched to the supplier and your products so you can save it as a draft bill, with the original filed.'}</Text>
+              {!manualNote && <TouchableOpacity style={s.primary} onPress={readBill} disabled={busy}>{busy ? <ActivityIndicator color="#fff" /> : <Text style={s.primaryTxt}>Turn it into a supplier bill</Text>}</TouchableOpacity>}
             </View>
           )}
 

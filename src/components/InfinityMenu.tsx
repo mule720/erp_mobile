@@ -45,7 +45,7 @@ export default function InfinityMenu({ items, activeKey, onSelect, onUseDashboar
 
 const s = StyleSheet.create({
   fab: {
-    position: 'absolute', right: 18, bottom: Platform.OS === 'ios' ? 34 : 22, width: 58, height: 58, borderRadius: 29,
+    position: 'absolute', left: 14, bottom: Platform.OS === 'ios' ? 104 : 92, width: 54, height: 54, borderRadius: 27,
     backgroundColor: COLORS.navy, alignItems: 'center', justifyContent: 'center', zIndex: 40, borderWidth: 2, borderColor: COLORS.amber, ...SHADOW.raised,
   },
   backdrop: { flex: 1, backgroundColor: 'rgba(11,17,32,0.55)', justifyContent: 'flex-end' },
