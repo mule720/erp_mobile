@@ -29,6 +29,8 @@ import AIAssistantScreen from '../screens/AIAssistantScreen';
 import AICentreScreen from '../screens/AICentreScreen';
 import CaptureDocumentScreen from '../screens/CaptureDocumentScreen';
 import ManufacturingScreen from '../screens/ManufacturingScreen';
+import AllFeaturesScreen from '../screens/AllFeaturesScreen';
+import WebPageView from '../components/WebPageView';
 
 const NAVY = COLORS.navy;
 const GOLD = COLORS.amberLight;
@@ -60,6 +62,7 @@ const NAV: NavItem[] = [
   { key: 'ai_centre',    label: 'AI Centre',      icon: 'bulb-outline',        component: AICentreScreen },
   { key: 'capture',      label: 'Capture a document', icon: 'scan-outline',    component: CaptureDocumentScreen, roleCheck: r => r.isAdmin || r.isAccountant || r.hasPermission('supply_chain.view_purchase_orders') },
   { key: 'ai_assistant', label: 'NetOn AI',       icon: 'sparkles-outline',    component: AIAssistantScreen },
+  { key: 'features',     label: 'All features',   icon: 'apps-outline',        component: AllFeaturesScreen },
   { key: 'setup',        label: 'Setup & Import', icon: 'settings-outline',    component: SetupScreen,       roleCheck: r => r.isAdmin },
   { key: 'settings',     label: 'Settings',       icon: 'options-outline',     component: SettingsScreen },
   { key: 'sub_admin',    label: 'Subscriptions',  icon: 'card-outline',        component: SubscriptionAdminScreen, roleCheck: r => r.isStaff },
@@ -77,6 +80,8 @@ export default function SidebarLayout() {
   const [modules, setModules] = useState<string[] | null>(null);   // null until known: nothing is hidden meanwhile
   React.useEffect(() => { tenantModules().then(setModules); }, []);
   const [profileOpen, setProfileOpen] = useState(false);
+  // a web page shown inside the app (the long tail of the web app that has no native screen)
+  const [webPage, setWebPage] = useState<{ path: string; title: string } | null>(null);
   const slideX = useRef(new Animated.Value(-SIDEBAR_W)).current;
   const overlayO = useRef(new Animated.Value(0)).current;
 
@@ -150,8 +155,10 @@ export default function SidebarLayout() {
 
       {/* ─── Active screen ────────────────────────────────────────── */}
       <View style={{ flex: 1 }}>
-        <ActiveScreen onNavigate={navigate} />
+        <ActiveScreen onNavigate={navigate} onOpenWeb={(path: string, title: string) => setWebPage({ path, title })} />
       </View>
+
+      {webPage && <WebPageView path={webPage.path} title={webPage.title} onClose={() => setWebPage(null)} />}
 
       {navMode === 'infinity' && (
         <InfinityMenu items={visible.map(v => ({ key: v.key, label: v.label, icon: v.icon }))} activeKey={activeItem?.key || 'dashboard'}
