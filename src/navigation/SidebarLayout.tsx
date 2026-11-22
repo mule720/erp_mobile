@@ -8,6 +8,8 @@ import { useAuth } from '../store/AuthContext';
 import { useRole } from '../store/RoleContext';
 import { COLORS, FONT, RADIUS, SHADOW } from '../theme';
 import { tenantModules } from '../api/aiApi';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import InfinityMenu from '../components/InfinityMenu';
 
 import HomeScreen from '../screens/HomeScreen';
 import FinanceScreen from '../screens/FinanceScreen';
@@ -68,6 +70,10 @@ export default function SidebarLayout() {
   const role = useRole();
   const [activeKey, setActiveKey] = useState('dashboard');
   const [open, setOpen] = useState(false);
+  // How the person moves around: the 'dashboard' menu (hamburger + drawer) or the floating 'infinity' button. Remembered on the device.
+  const [navMode, setNavMode] = useState<'dashboard' | 'infinity'>('dashboard');
+  React.useEffect(() => { AsyncStorage.getItem('erp_nav_mode').then(v => { if (v === 'infinity') setNavMode('infinity'); }).catch(() => {}); }, []);
+  const chooseMode = (m: 'dashboard' | 'infinity') => { setNavMode(m); AsyncStorage.setItem('erp_nav_mode', m).catch(() => {}); };
   const [modules, setModules] = useState<string[] | null>(null);   // null until known: nothing is hidden meanwhile
   React.useEffect(() => { tenantModules().then(setModules); }, []);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -118,13 +124,17 @@ export default function SidebarLayout() {
 
       {/* ─── Minimal Top Bar ─────────────────────────────────────── */}
       <View style={[s.topBar, { paddingTop: PT + 8 }]}>
-        <TouchableOpacity onPress={openDrawer} style={s.iconBtn} activeOpacity={0.7}>
-          <View style={s.ham}>
-            <View style={s.line} />
-            <View style={[s.line, { width: 18 }]} />
-            <View style={s.line} />
-          </View>
-        </TouchableOpacity>
+        {navMode === 'dashboard' ? (
+          <TouchableOpacity onPress={openDrawer} style={s.iconBtn} activeOpacity={0.7}>
+            <View style={s.ham}>
+              <View style={s.line} />
+              <View style={[s.line, { width: 18 }]} />
+              <View style={s.line} />
+            </View>
+          </TouchableOpacity>
+        ) : (
+          <View style={s.iconBtn}><Ionicons name="infinite" size={22} color="#374151" /></View>
+        )}
         <Text style={s.pageTitle} numberOfLines={1}>{activeItem?.label || 'NetOn ERP Pro'}</Text>
         {visible.some(n => n.key === 'capture') && (
           <TouchableOpacity onPress={() => navigate('capture')} style={s.iconBtn} activeOpacity={0.7} accessibilityLabel="Capture a document">
@@ -142,6 +152,11 @@ export default function SidebarLayout() {
       <View style={{ flex: 1 }}>
         <ActiveScreen onNavigate={navigate} />
       </View>
+
+      {navMode === 'infinity' && (
+        <InfinityMenu items={visible.map(v => ({ key: v.key, label: v.label, icon: v.icon }))} activeKey={activeItem?.key || 'dashboard'}
+          onSelect={navigate} onUseDashboard={() => chooseMode('dashboard')} />
+      )}
 
       {/* ─── Overlay ──────────────────────────────────────────────── */}
       {open && (
@@ -215,6 +230,16 @@ export default function SidebarLayout() {
               </View>
             </View>
             <View style={{ borderTopWidth: 1, borderTopColor: '#F1F5F9', paddingTop: 10 }}>
+              <Text style={{ fontSize: 11, fontWeight: '700', color: '#6B7280', marginBottom: 6 }}>HOW TO MOVE AROUND</Text>
+              <View style={{ flexDirection: 'row', gap: 8, marginBottom: 8 }}>
+                {([['dashboard', 'menu-outline', 'Hamburger button'], ['infinity', 'infinite', 'Infinity button']] as const).map(([m, icon, label]) => (
+                  <TouchableOpacity key={m} onPress={() => { chooseMode(m); setProfileOpen(false); }} activeOpacity={0.8}
+                    style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 9, borderRadius: 10, borderWidth: 1, borderColor: navMode === m ? NAVY : '#E5E7EB', backgroundColor: navMode === m ? NAVY : '#fff' }}>
+                    <Ionicons name={icon} size={15} color={navMode === m ? '#fff' : '#374151'} />
+                    <Text style={{ fontSize: 12, fontWeight: '700', color: navMode === m ? '#fff' : '#374151' }}>{label}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
               <TouchableOpacity style={s.profileAction} onPress={() => { setProfileOpen(false); navigate('settings'); }} activeOpacity={0.7}>
                 <Ionicons name="options-outline" size={16} color="#374151" style={{ marginRight: 10 }} />
                 <Text style={s.profileActionTxt}>Settings</Text>
