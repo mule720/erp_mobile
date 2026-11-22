@@ -220,3 +220,8 @@ async function tenantId(): Promise<string> {
   const raw = await AsyncStorage.getItem('erp_tenant');
   return raw ? JSON.parse(raw).id : '';
 }
+
+export async function manufacturingAlerts(t: string, days = 60) {
+  const d = await gql<any>(`query($t:UUID!,$a:String!,$d:Int){ manufacturingInsights(tenantId:$t,area:$a,days:$d) }`, { t, a: 'alerts', d: days });
+  return d?.manufacturingInsights as { counts: { bad: number; watch: number }; alerts: { level: string; title: string; detail: string; area: string }[] } | null;
+}

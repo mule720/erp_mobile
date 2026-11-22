@@ -9,11 +9,11 @@ import PickField from '../components/PickField';
 import { AddRecipesModal, MergeMaterialsModal } from '../components/RecipeTools';
 import { COLORS, RADIUS, SHADOW } from '../theme';
 import {
-  amount, bomDetail, draftPurchaseOrders, money, optimiseRecipe, productionOrders, productionPlan, recipeItems, warehouses,
+  amount, bomDetail, draftPurchaseOrders, manufacturingAlerts, money, optimiseRecipe, productionOrders, productionPlan, recipeItems, warehouses,
   type Plan, type RecipeItem,
 } from '../api/aiApi';
 
-const TABS = [{ key: 'planner', label: 'Planner' }, { key: 'recipes', label: 'Recipes' }, { key: 'orders', label: 'Work orders' }];
+const TABS = [{ key: 'planner', label: 'Planner' }, { key: 'recipes', label: 'Recipes' }, { key: 'orders', label: 'Work orders' }, { key: 'alerts', label: 'Alerts' }];
 const say = (title: string, msg?: string) => (Platform.OS === 'web' ? window.alert(msg ? `${title}\n${msg}` : title) : Alert.alert(title, msg));
 const STATUS_COLOR: Record<string, string> = { planned: '#3B82F6', released: '#6366F1', in_progress: '#F59E0B', completed: '#16A34A', closed: '#6B7280', cancelled: '#DC2626' };
 
@@ -226,6 +226,36 @@ function Orders({ t }: { t: string }) {
   );
 }
 
+/* ───────────────────────────── Alerts ───────────────────────────── */
+function Alerts({ t }: { t: string }) {
+  const [data, setData] = useState<Awaited<ReturnType<typeof manufacturingAlerts>> | undefined>(undefined);
+  const [refreshing, setRefreshing] = useState(false);
+  const load = useCallback(async () => { try { setData(await manufacturingAlerts(t)); } catch { setData(null); } }, [t]);
+  useEffect(() => { load(); }, [load]);
+  if (data === undefined) return <View style={s.center}><ActivityIndicator /></View>;
+  return (
+    <ScrollView contentContainerStyle={{ padding: 12 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={async () => { setRefreshing(true); await load(); setRefreshing(false); }} />}>
+      {!data ? <Text style={s.empty}>Alerts are not available for your login.</Text> : (
+        <>
+          <View style={{ flexDirection: 'row', gap: 8, marginBottom: 10 }}>
+            <View style={[s.item, { flex: 1, flexDirection: 'column', alignItems: 'flex-start' }]}><Text style={s.hint}>Need attention</Text><Text style={[s.h, { color: data.counts.bad ? COLORS.danger : COLORS.success, marginBottom: 0 }]}>{data.counts.bad}</Text></View>
+            <View style={[s.item, { flex: 1, flexDirection: 'column', alignItems: 'flex-start' }]}><Text style={s.hint}>Worth watching</Text><Text style={[s.h, { color: data.counts.watch ? '#D97706' : COLORS.success, marginBottom: 0 }]}>{data.counts.watch}</Text></View>
+          </View>
+          {data.alerts.length === 0 && <Text style={s.empty}>Nothing is outside your limits right now.</Text>}
+          {data.alerts.map((a, i) => (
+            <View key={i} style={s.item}>
+              <Ionicons name={a.level === 'bad' ? 'warning-outline' : 'eye-outline'} size={18} color={a.level === 'bad' ? COLORS.danger : '#D97706'} />
+              <View style={{ flex: 1 }}><Text style={s.val}>{a.title}</Text><Text style={s.p}>{a.detail}</Text></View>
+              <Text style={s.hint}>{a.area}</Text>
+            </View>
+          ))}
+          <Text style={s.hint}>Alerts are shown here only; nothing is emailed or texted. They cover the last 60 days.</Text>
+        </>
+      )}
+    </ScrollView>
+  );
+}
+
 export default function ManufacturingScreen() {
   const { tenant } = useAuth();
   const t = tenant?.id ?? '';
@@ -240,6 +270,7 @@ export default function ManufacturingScreen() {
       {tab === 'planner' && <Planner t={t} items={items} />}
       {tab === 'recipes' && <Recipes items={items} onRefresh={load} />}
       {tab === 'orders' && <Orders t={t} />}
+      {tab === 'alerts' && <Alerts t={t} />}
     </View>
   );
 }
