@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Modal, ScrollView, StyleSheet, Platform } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { View, Text, TouchableOpacity, Modal, ScrollView, StyleSheet, Platform, PanResponder, Animated, Dimensions } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SHADOW } from '../theme';
 
@@ -10,11 +11,42 @@ export default function InfinityMenu({ items, activeKey, onSelect, onUseDashboar
   items: InfinityItem[]; activeKey: string; onSelect: (key: string) => void; onUseDashboard: () => void;
 }) {
   const [open, setOpen] = useState(false);
+  // The button can be dragged anywhere; on release it snaps to the nearest side and the spot is remembered.
+  const SIZE = 54;
+  const { width: W, height: H } = Dimensions.get('window');
+  const home = { x: 14, y: H - (Platform.OS === 'ios' ? 104 : 92) - SIZE };
+  const pos = useRef(new Animated.ValueXY(home)).current;
+  const last = useRef(home);
+  const moved = useRef(false);
+  useEffect(() => {
+    AsyncStorage.getItem('erp_infinity_pos').then(v => {
+      if (!v) return;
+      try { const p = JSON.parse(v); if (typeof p.x === 'number' && typeof p.y === 'number') { last.current = p; pos.setValue(p); } } catch {}
+    }).catch(() => {});
+  }, []);
+  const pan = useRef(PanResponder.create({
+    onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dx) > 6 || Math.abs(g.dy) > 6,
+    onPanResponderGrant: () => { moved.current = false; },
+    onPanResponderMove: (_, g) => {
+      moved.current = true;
+      pos.setValue({ x: last.current.x + g.dx, y: last.current.y + g.dy });
+    },
+    onPanResponderRelease: (_, g) => {
+      const x0 = last.current.x + g.dx, y0 = last.current.y + g.dy;
+      const y = Math.min(Math.max(y0, 40), H - SIZE - 40);
+      const x = x0 + SIZE / 2 < W / 2 ? 10 : W - SIZE - 10;
+      last.current = { x, y };
+      Animated.spring(pos, { toValue: { x, y }, useNativeDriver: false, friction: 7 }).start();
+      AsyncStorage.setItem('erp_infinity_pos', JSON.stringify({ x, y })).catch(() => {});
+    },
+  })).current;
   return (
     <>
-      <TouchableOpacity style={s.fab} onPress={() => setOpen(true)} activeOpacity={0.85} accessibilityLabel="Open the Infinity menu">
-        <Ionicons name="infinite" size={28} color="#fff" />
-      </TouchableOpacity>
+      <Animated.View style={[s.fab, { left: 0, bottom: undefined, top: 0, transform: pos.getTranslateTransform() }]} {...pan.panHandlers}>
+        <TouchableOpacity style={s.fabInner} onPress={() => { if (!moved.current) setOpen(true); }} activeOpacity={0.85} accessibilityLabel="Open the Infinity menu. Drag to move it.">
+          <Ionicons name="infinite" size={28} color="#fff" />
+        </TouchableOpacity>
+      </Animated.View>
       <Modal visible={open} transparent animationType="fade" onRequestClose={() => setOpen(false)}>
         <View style={s.backdrop}>
           <TouchableOpacity style={StyleSheet.absoluteFill} activeOpacity={1} onPress={() => setOpen(false)} />
@@ -45,9 +77,10 @@ export default function InfinityMenu({ items, activeKey, onSelect, onUseDashboar
 
 const s = StyleSheet.create({
   fab: {
-    position: 'absolute', left: 14, bottom: Platform.OS === 'ios' ? 104 : 92, width: 54, height: 54, borderRadius: 27,
+    position: 'absolute', width: 54, height: 54, borderRadius: 27,
     backgroundColor: COLORS.navy, alignItems: 'center', justifyContent: 'center', zIndex: 40, borderWidth: 2, borderColor: COLORS.amber, ...SHADOW.raised,
   },
+  fabInner: { flex: 1, alignItems: 'center', justifyContent: 'center', borderRadius: 27 },
   backdrop: { flex: 1, backgroundColor: 'rgba(11,17,32,0.55)', justifyContent: 'flex-end' },
   sheet: { backgroundColor: '#fff', borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingBottom: 24, maxHeight: '80%' },
   head: { flexDirection: 'row', alignItems: 'center', gap: 8, padding: 18, paddingBottom: 6 },
