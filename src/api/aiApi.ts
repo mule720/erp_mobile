@@ -161,3 +161,21 @@ export function amount(n: number, unit?: string): string {
   if (u === 'each' || u === 'unit' || u === '') return `${f(n)} each`;
   return `${f(n)} ${u}`;
 }
+
+// ── scanning ───────────────────────────────────────────────────────────────
+export const productByCode = async (t: string, code: string) =>
+  (await gql<any>(`query($t:UUID!,$c:String!){ productByCode(tenantId:$t,code:$c) }`, { t, c: code }))?.productByCode as { id: string; name: string; sku: string; barcode: string | null; sellingPrice: number } | null;
+
+export async function setProductBarcode(t: string, productId: string, barcode: string) {
+  const d = await gql<any>(`mutation($t:UUID!,$p:UUID!,$b:String!){ setProductBarcode(tenantId:$t,productId:$p,barcode:$b){ ok error } }`, { t, p: productId, b: barcode });
+  if (!d?.setProductBarcode?.ok) throw new Error(d?.setProductBarcode?.error || 'Could not remember the code');
+}
+
+export const tenantModules = async (): Promise<string[] | null> => {
+  try {
+    const raw = (await gql<any>(`query{ myTenant { activeModules } }`))?.myTenant?.activeModules;
+    if (Array.isArray(raw)) return raw;
+    if (typeof raw === 'string') return JSON.parse(raw);
+    return null;
+  } catch { return null; }
+};

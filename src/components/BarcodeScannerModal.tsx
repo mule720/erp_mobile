@@ -42,7 +42,7 @@ export default function BarcodeScannerModal({ visible, onClose, onScanned }: Pro
           <CameraView
             style={StyleSheet.absoluteFillObject}
             facing="back"
-            barcodeScannerSettings={{ barcodeTypes: ['qr', 'ean13', 'ean8', 'upc_a', 'upc_e', 'code128', 'code39'] }}
+            barcodeScannerSettings={{ barcodeTypes: ['qr', 'ean13', 'ean8', 'upc_a', 'upc_e', 'code128', 'code39', 'code93', 'itf14', 'codabar', 'datamatrix'] }}
             onBarcodeScanned={locked ? undefined : handleScanned}
           />
         ) : (

@@ -7,6 +7,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { gql } from '../api/graphql';
 import { useAuth } from '../store/AuthContext';
 import BarcodeScannerModal from '../components/BarcodeScannerModal';
+import { matchCode, suggest } from '../lib/productCode';
+import { productByCode, setProductBarcode } from '../api/aiApi';
 
 const NAVY = '#1E3A5F';
 const GOLD = '#C9A84C';
@@ -35,6 +37,8 @@ export default function POSScreen() {
   const [activeCategory, setActiveCategory] = useState('All');
   const [lastReceipt, setLastReceipt] = useState<any>(null);
   const [showScanner, setShowScanner] = useState(false);
+  const [unknownCode, setUnknownCode] = useState<string | null>(null);   // a scanned code no product has yet
+  const [pickText, setPickText] = useState('');
 
   const load = useCallback(async () => {
     try {
@@ -79,17 +83,36 @@ export default function POSScreen() {
   // Every active product is already loaded client-side (see load(), no
   // server pagination for POS), so a scan just needs to find the match
   // already in memory - no extra round-trip like the web version needs.
-  const handleBarcodeScanned = useCallback((code: string) => {
+  const handleBarcodeScanned = useCallback(async (code: string) => {
     setShowScanner(false);
     const trimmed = code.trim();
-    const match = products.find(p => p.barcode === trimmed || p.sku === trimmed);
-    if (match) {
-      addToCart(match);
-    } else {
-      setSearch(trimmed);
-      Alert.alert('No exact match', `Showing search results for "${trimmed}"`);
+    // barcode, SKU, our own label code, id or exact name: no AI involved
+    let match = matchCode(products, trimmed);
+    if (!match) {
+      // the list on screen may be out of date: ask the server before giving up
+      try {
+        const found = await productByCode(tenantId, trimmed);
+        if (found) match = products.find(p => p.id === found.id) || null;
+      } catch { /* offline: fall through */ }
     }
-  }, [products]);
+    if (match) { addToCart(match); return; }
+    // not known yet: let the cashier pick the product, and remember the code against it
+    setPickText('');
+    setUnknownCode(trimmed);
+  }, [products, tenantId]);
+
+  const addScanned = async (product: Product, remember: boolean) => {
+    const code = unknownCode;
+    setUnknownCode(null);
+    addToCart(product);
+    if (remember && code) {
+      try {
+        await setProductBarcode(tenantId, product.id, code);
+        setProducts(ps => ps.map(p => (p.id === product.id ? { ...p, barcode: code } : p)));
+        Alert.alert('Code remembered', `Next time this code is scanned it will add ${product.name}.`);
+      } catch (e: any) { Alert.alert('Added to the cart, but the code was not saved', e?.message); }
+    }
+  };
 
   const removeFromCart = (productId: string) => setCart(c => c.filter(i => i.product.id !== productId));
   const updateQty = (productId: string, qty: number) => {
@@ -345,6 +368,30 @@ export default function POSScreen() {
         </TouchableOpacity>
       )}
 
+      <Modal visible={unknownCode !== null} animationType="slide" onRequestClose={() => setUnknownCode(null)}>
+        <View style={{ flex: 1, backgroundColor: '#fff' }}>
+          <View style={s.unkHead}>
+            <View style={{ flex: 1 }}>
+              <Text style={s.unkTitle}>No product has this code yet</Text>
+              <Text style={s.unkCode}>{unknownCode}</Text>
+            </View>
+            <TouchableOpacity onPress={() => setUnknownCode(null)}><Ionicons name="close" size={24} color="#111827" /></TouchableOpacity>
+          </View>
+          <Text style={s.unkHelp}>Pick the product it is. Choose "Add and remember" and the next scan of this pack finds it at once.</Text>
+          <TextInput style={[s.searchInput, { margin: 12 }]} value={pickText} onChangeText={setPickText} placeholder="Type part of the product name" placeholderTextColor="#9CA3AF" />
+          <ScrollView keyboardShouldPersistTaps="handled">
+            {suggest(products, pickText, 12).map(p => (
+              <View key={p.id} style={s.unkRow}>
+                <View style={{ flex: 1 }}><Text style={s.unkName}>{p.name}</Text><Text style={s.unkSub}>{fmt(p.unitPrice)}{p.sku ? `  ·  ${p.sku}` : ''}</Text></View>
+                <TouchableOpacity style={s.unkBtnGhost} onPress={() => addScanned(p, false)}><Text style={s.unkBtnGhostTxt}>Add</Text></TouchableOpacity>
+                <TouchableOpacity style={s.unkBtn} onPress={() => addScanned(p, true)}><Text style={s.unkBtnTxt}>Add and remember</Text></TouchableOpacity>
+              </View>
+            ))}
+            {pickText.trim().length > 0 && suggest(products, pickText, 12).length === 0 && <Text style={s.empty}>No product matches that.</Text>}
+          </ScrollView>
+        </View>
+      </Modal>
+
       <BarcodeScannerModal
         visible={showScanner}
         onClose={() => setShowScanner(false)}
@@ -355,6 +402,17 @@ export default function POSScreen() {
 }
 
 const s = StyleSheet.create({
+  unkHead: { flexDirection: 'row', alignItems: 'center', padding: 16, paddingTop: Platform.OS === 'ios' ? 52 : 20, borderBottomWidth: 1, borderBottomColor: '#E5E7EB' },
+  unkTitle: { fontSize: 16, fontWeight: '800', color: '#111827' },
+  unkCode: { fontSize: 13, color: '#6B7280', marginTop: 2 },
+  unkHelp: { fontSize: 13, color: '#374151', padding: 14, paddingBottom: 0, lineHeight: 19 },
+  unkRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 14, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#F1F5F9' },
+  unkName: { fontSize: 14, fontWeight: '700', color: '#111827' },
+  unkSub: { fontSize: 12, color: '#6B7280', marginTop: 2 },
+  unkBtnGhost: { paddingHorizontal: 12, paddingVertical: 9, borderRadius: 8, borderWidth: 1, borderColor: '#D1D5DB' },
+  unkBtnGhostTxt: { fontSize: 12, fontWeight: '700', color: '#374151' },
+  unkBtn: { paddingHorizontal: 12, paddingVertical: 9, borderRadius: 8, backgroundColor: NAVY },
+  unkBtnTxt: { fontSize: 12, fontWeight: '700', color: '#fff' },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   empty: { color: '#9CA3AF', textAlign: 'center', padding: 40, fontSize: 14 },
 

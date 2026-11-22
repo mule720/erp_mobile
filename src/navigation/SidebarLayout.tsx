@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../store/AuthContext';
 import { useRole } from '../store/RoleContext';
 import { COLORS, FONT, RADIUS, SHADOW } from '../theme';
+import { tenantModules } from '../api/aiApi';
 
 import HomeScreen from '../screens/HomeScreen';
 import FinanceScreen from '../screens/FinanceScreen';
@@ -37,6 +38,7 @@ interface NavItem {
   icon: keyof typeof Ionicons.glyphMap;
   component: React.ComponentType<any>;
   roleCheck?: (r: ReturnType<typeof useRole>) => boolean;
+  module?: string;      // the tenant must have this module switched on
 }
 
 // Mirror the web app sidebar exactly
@@ -52,7 +54,7 @@ const NAV: NavItem[] = [
   { key: 'fixed_assets', label: 'Fixed Assets',   icon: 'construct-outline',   component: FixedAssetsScreen, roleCheck: r => r.isAdmin || r.isAccountant },
   { key: 'tax_hub',      label: 'Tax Hub',        icon: 'receipt-outline',     component: TaxHubScreen,      roleCheck: r => r.isAdmin || r.isAccountant },
   { key: 'projects',     label: 'Projects',       icon: 'briefcase-outline',   component: ProjectsScreen,    roleCheck: r => r.isAdmin || r.hasPermission('business_modules.manage_projects') },
-  { key: 'manufacturing', label: 'Manufacturing', icon: 'hammer-outline',      component: ManufacturingScreen, roleCheck: r => r.isAdmin || r.isAccountant },
+  { key: 'manufacturing', label: 'Manufacturing', icon: 'hammer-outline',      component: ManufacturingScreen, roleCheck: r => r.isAdmin || r.isAccountant, module: 'manufacturing' },
   { key: 'ai_centre',    label: 'AI Centre',      icon: 'bulb-outline',        component: AICentreScreen },
   { key: 'capture',      label: 'Capture a document', icon: 'scan-outline',    component: CaptureDocumentScreen, roleCheck: r => r.isAdmin || r.isAccountant || r.hasPermission('supply_chain.view_purchase_orders') },
   { key: 'ai_assistant', label: 'NetOn AI',       icon: 'sparkles-outline',    component: AIAssistantScreen },
@@ -66,6 +68,8 @@ export default function SidebarLayout() {
   const role = useRole();
   const [activeKey, setActiveKey] = useState('dashboard');
   const [open, setOpen] = useState(false);
+  const [modules, setModules] = useState<string[] | null>(null);   // null until known: nothing is hidden meanwhile
+  React.useEffect(() => { tenantModules().then(setModules); }, []);
   const [profileOpen, setProfileOpen] = useState(false);
   const slideX = useRef(new Animated.Value(-SIDEBAR_W)).current;
   const overlayO = useRef(new Animated.Value(0)).current;
@@ -87,7 +91,7 @@ export default function SidebarLayout() {
 
   const navigate = (key: string) => { setActiveKey(key); closeDrawer(); };
 
-  const visible = NAV.filter(item => !item.roleCheck || item.roleCheck(role));
+  const visible = NAV.filter(item => (!item.roleCheck || item.roleCheck(role)) && (!item.module || modules === null || modules.includes(item.module)));
   const activeItem = visible.find(n => n.key === activeKey) || visible[0];
   const ActiveScreen = activeItem?.component || HomeScreen;
 
