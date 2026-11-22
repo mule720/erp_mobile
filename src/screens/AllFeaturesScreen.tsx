@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRole } from '../store/RoleContext';
 import { COLORS, RADIUS, SHADOW } from '../theme';
@@ -23,7 +23,12 @@ export default function AllFeaturesScreen({ onNavigate, onOpenWeb }: { onNavigat
     return Object.entries(by);
   }, [q, role.isAdmin, role.isStaff]);
 
-  const go = (p: WebPage) => (p.native && onNavigate ? onNavigate(p.native) : onOpenWeb?.(p.path, p.label));
+  const go = (p: WebPage) => {
+    if (p.native && onNavigate) return onNavigate(p.native);
+    // In a browser the site cannot be shown inside the page (it blocks framing), so it opens in a new tab; on a phone it opens inside the app.
+    if (Platform.OS === 'web') { window.open(`https://netonerppro.com${p.path}`, '_blank'); return; }
+    onOpenWeb?.(p.path, p.label);
+  };
 
   return (
     <View style={{ flex: 1, backgroundColor: '#F1F5F9' }}>
