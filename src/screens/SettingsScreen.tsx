@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, Linking } from 'react-native';
+import { gql } from '../api/graphql';
 import { useAuth } from '../store/AuthContext';
 import { useRole } from '../store/RoleContext';
 
@@ -16,6 +17,21 @@ export default function SettingsScreen() {
     Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
       { text: 'Cancel', style: 'cancel' },
       { text: 'Sign Out', style: 'destructive', onPress: signOut },
+    ]);
+  };
+
+  const WEB = 'https://netonerppro.com';
+  // Asks for the account and personal data to be deleted. The business's legal records are kept; a person replies within 30 days.
+  const askDelete = () => {
+    Alert.alert('Delete my account', 'We will delete or anonymise your personal details and reply to your email within 30 days. Records the business must keep by law, such as invoices and payroll, stay with the business.', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Send request', style: 'destructive', onPress: async () => {
+        try {
+          const d = await gql<any>(`mutation($s:String){ requestAccountDeletion(source:$s){ ok error message } }`, { s: 'mobile' });
+          const r = d?.requestAccountDeletion;
+          Alert.alert(r?.ok ? 'Request received' : 'Could not send', r?.ok ? (r.message || 'We will reply by email within 30 days.') : (r?.error || 'Please try again or open the delete-account page.'));
+        } catch (e: any) { Alert.alert('Could not send', e?.message || 'Please try again.'); }
+      } },
     ]);
   };
 
@@ -87,6 +103,18 @@ export default function SettingsScreen() {
           <Text style={[s.rowLabel, { flex: 1, marginLeft: 12 }]}>API Endpoint</Text>
           <Text style={s.rowValue}>:8004</Text>
         </View>
+        <TouchableOpacity style={[s.row, s.border]} onPress={() => Linking.openURL(`${WEB}/privacy`)} activeOpacity={0.7}>
+          <Text style={s.icon}>🔒</Text>
+          <Text style={[s.rowLabel, { flex: 1, marginLeft: 12 }]}>Privacy policy</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[s.row, s.border]} onPress={() => Linking.openURL(`${WEB}/terms`)} activeOpacity={0.7}>
+          <Text style={s.icon}>📄</Text>
+          <Text style={[s.rowLabel, { flex: 1, marginLeft: 12 }]}>Terms of service</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[s.row, s.border]} onPress={askDelete} activeOpacity={0.7}>
+          <Text style={s.icon}>🗑️</Text>
+          <Text style={[s.rowLabel, { flex: 1, marginLeft: 12, color: '#DC2626' }]}>Delete my account and data</Text>
+        </TouchableOpacity>
         <TouchableOpacity style={s.row} onPress={handleSignOut} activeOpacity={0.7}>
           <Text style={s.icon}>🚪</Text>
           <Text style={[s.rowLabel, { flex: 1, marginLeft: 12, color: '#DC2626' }]}>Sign Out</Text>
