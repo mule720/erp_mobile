@@ -9,9 +9,8 @@ import { gql } from '../api/graphql';
 import { useAuth } from '../store/AuthContext';
 import { COLORS, FONT, RADIUS, SHADOW } from '../theme';
 
-// mobilePlans is a query only this app calls - it returns exactly the
-// plans marked mobile_only=True on the backend (today: the single
-// "Retail" plan for a one-till shop). It is deliberately NOT the same
+// mobilePlans is a query only this app calls - it returns the two base
+// plans, Sell (point of sale and inventory) and Books (accounting). It is deliberately NOT the same
 // query the web frontend uses (subscriptionPlans), so this plan can
 // never appear on the website even by accident - see
 // subscriptions.SubscriptionPlan.mobile_only.
@@ -59,6 +58,7 @@ const FIELDS: Array<{ key: string; label: string; placeholder: string; icon: key
 
 export default function RegisterScreen({ navigation }: any) {
   const { signIn } = useAuth();
+  const [plans, setPlans] = useState<MobilePlan[]>([]);
   const [plan, setPlan] = useState<MobilePlan | null>(null);
   const [planLoading, setPlanLoading] = useState(true);
   // yearly (the plan's own price) or monthly, when the plan offers both
@@ -74,7 +74,7 @@ export default function RegisterScreen({ navigation }: any) {
 
   useEffect(() => {
     gql(MOBILE_PLANS)
-      .then((data) => setPlan(data?.mobilePlans?.[0] ?? null))
+      .then((data) => { const list: MobilePlan[] = data?.mobilePlans ?? []; setPlans(list); setPlan(list[0] ?? null); })
       .catch(() => setPlan(null))
       .finally(() => setPlanLoading(false));
   }, []);
@@ -139,13 +139,22 @@ export default function RegisterScreen({ navigation }: any) {
           <View style={s.header}>
             <View style={s.logo}><Ionicons name="layers" size={26} color={COLORS.navy} /></View>
             <Text style={s.brand}>NetOn ERP Pro</Text>
-            <Text style={s.tagline}>Set up your shop in minutes</Text>
+            <Text style={s.tagline}>Set up your business in minutes</Text>
           </View>
 
           {planLoading ? (
             <ActivityIndicator color={COLORS.amberLight} style={{ marginBottom: 20 }} />
           ) : plan ? (
             <View style={s.planCard}>
+              {plans.length > 1 && (
+                <View style={s.cycleRow}>
+                  {plans.map((p) => (
+                    <TouchableOpacity key={p.code} onPress={() => setPlan(p)} activeOpacity={0.8} style={[s.cycleBtn, plan.code === p.code && s.cycleBtnOn]}>
+                      <Text style={[s.cycleText, plan.code === p.code && s.cycleTextOn]}>{p.name}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
               <View style={s.planRow}>
                 <Text style={s.planName}>{plan.name} plan</Text>
                 <Text style={s.planPrice}>

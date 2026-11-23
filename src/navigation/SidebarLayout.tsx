@@ -7,7 +7,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../store/AuthContext';
 import { useRole } from '../store/RoleContext';
 import { COLORS, FONT, RADIUS, SHADOW } from '../theme';
-import { tenantModules } from '../api/aiApi';
+import { tenantModules, tenantSetup } from '../api/aiApi';
+import SetupAdvisorScreen from '../screens/SetupAdvisorScreen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import InfinityMenu from '../components/InfinityMenu';
 
@@ -47,6 +48,15 @@ interface NavItem {
   module?: string;      // the tenant must have this module switched on
 }
 
+// A business on the two base plans (Sell: point of sale and inventory; Books: accounting) only sees the parts it has. The other plans and
+// older businesses see everything, as before. Each menu item shows when ANY of its module codes is switched on.
+const TWO_PLANS = ['neton_sell', 'neton_books'];
+const NEEDS_MODULE: Record<string, string[]> = {
+  sales: ['sales', 'finance', 'accounting'], pos: ['pos'], purchasing: ['supply_chain'], inventory: ['supply_chain'], finance: ['finance', 'accounting'],
+  crm: ['sales', 'crm_sales_pro', 'crm'], people: ['human_resources', 'hr_self_service', 'payroll', 'hr'], fixed_assets: ['fixed_assets'],
+  tax_hub: ['tax', 'finance'], projects: ['project_operations'], manufacturing: ['manufacturing'],
+};
+
 // Mirror the web app sidebar exactly
 const NAV: NavItem[] = [
   { key: 'dashboard',    label: 'Dashboard',     icon: 'grid-outline',        component: HomeScreen },
@@ -67,6 +77,7 @@ const NAV: NavItem[] = [
   { key: 'features',     label: 'All features',   icon: 'apps-outline',        component: AllFeaturesScreen },
   { key: 'setup',        label: 'Setup & Import', icon: 'settings-outline',    component: SetupScreen,       roleCheck: r => r.isAdmin },
   { key: 'settings',     label: 'Settings',       icon: 'options-outline',     component: SettingsScreen },
+  { key: 'plan_advisor', label: 'Choose a plan',  icon: 'pricetag-outline',    component: SetupAdvisorScreen, roleCheck: r => r.isAdmin },
   { key: 'sub_admin',    label: 'Subscriptions',  icon: 'card-outline',        component: SubscriptionAdminScreen, roleCheck: r => r.isStaff },
 ];
 
@@ -80,7 +91,8 @@ export default function SidebarLayout() {
   React.useEffect(() => { AsyncStorage.getItem('erp_nav_mode').then(v => { if (v === 'infinity') setNavMode('infinity'); }).catch(() => {}); }, []);
   const chooseMode = (m: 'dashboard' | 'infinity') => { setNavMode(m); AsyncStorage.setItem('erp_nav_mode', m).catch(() => {}); };
   const [modules, setModules] = useState<string[] | null>(null);   // null until known: nothing is hidden meanwhile
-  React.useEffect(() => { tenantModules().then(setModules); }, []);
+  const [plan, setPlan] = useState<string | null>(null);
+  React.useEffect(() => { tenantModules().then(setModules); tenantSetup().then(t => setPlan(t?.plan ?? null)); }, []);
   const [profileOpen, setProfileOpen] = useState(false);
   // a web page shown inside the app (the long tail of the web app that has no native screen)
   const [webPage, setWebPage] = useState<{ path: string; title: string } | null>(null);
@@ -105,7 +117,9 @@ export default function SidebarLayout() {
 
   const navigate = (key: string) => { setActiveKey(key); closeDrawer(); };
 
-  const visible = NAV.filter(item => (!item.roleCheck || item.roleCheck(role)) && (!item.module || modules === null || modules.includes(item.module)));
+  const twoPlan = !!plan && TWO_PLANS.includes(plan) && modules !== null;
+  const hasPart = (key: string) => !twoPlan || !NEEDS_MODULE[key] || NEEDS_MODULE[key].some(c => (modules as string[]).includes(c));
+  const visible = NAV.filter(item => (!item.roleCheck || item.roleCheck(role)) && (!item.module || modules === null || modules.includes(item.module)) && hasPart(item.key));
   const activeItem = visible.find(n => n.key === activeKey) || visible[0];
   const ActiveScreen = activeItem?.component || HomeScreen;
 

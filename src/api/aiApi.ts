@@ -179,6 +179,17 @@ export async function setProductBarcode(t: string, productId: string, barcode: s
   if (!d?.setProductBarcode?.ok) throw new Error(d?.setProductBarcode?.error || 'Could not remember the code');
 }
 
+/** The business's plan code and its switched-on modules (null when they cannot be read). */
+export const tenantSetup = async (): Promise<{ plan: string; modules: string[] } | null> => {
+  try {
+    const t = (await gql<any>(`query{ myTenant { plan activeModules } }`))?.myTenant;
+    if (!t) return null;
+    let mods = t.activeModules;
+    if (typeof mods === 'string') mods = JSON.parse(mods);
+    return { plan: String(t.plan || ''), modules: Array.isArray(mods) ? mods : [] };
+  } catch { return null; }
+};
+
 export const tenantModules = async (): Promise<string[] | null> => {
   try {
     const raw = (await gql<any>(`query{ myTenant { activeModules } }`))?.myTenant?.activeModules;
