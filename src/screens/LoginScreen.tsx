@@ -160,7 +160,7 @@ export default function LoginScreen({ navigation }: any) {
 
 const s = StyleSheet.create({
   root: { flex: 1, backgroundColor: COLORS.navy },
-  ruleLayer: { ...StyleSheet.absoluteFillObject, opacity: 0.4 },
+  ruleLayer: { ...StyleSheet.absoluteFill, opacity: 0.4 },
   rule: { height: 1, backgroundColor: '#334155', marginTop: 34 },
   margin: { position: 'absolute', top: 0, bottom: 0, left: 64, width: 1, backgroundColor: 'rgba(245,158,11,0.35)' },
 

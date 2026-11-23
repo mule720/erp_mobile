@@ -86,7 +86,7 @@ export default function WebPageView({ path, title, onClose }: { path: string; ti
 }
 
 const s = StyleSheet.create({
-  root: { ...StyleSheet.absoluteFillObject, backgroundColor: '#F1F5F9', zIndex: 50 },
+  root: { ...StyleSheet.absoluteFill, backgroundColor: '#F1F5F9', zIndex: 50 },
   bar: { flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.navy, paddingHorizontal: 6, paddingBottom: 8 },
   btn: { padding: 8 },
   title: { flex: 1, color: '#fff', fontSize: 15, fontWeight: '700', marginHorizontal: 6 },

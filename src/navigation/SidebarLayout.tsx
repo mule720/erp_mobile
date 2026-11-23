@@ -292,7 +292,7 @@ const s = StyleSheet.create({
   avCircle: { width: 34, height: 34, borderRadius: 17, backgroundColor: NAVY, justifyContent: 'center', alignItems: 'center' },
   avText: { color: '#fff', fontSize: 13, fontFamily: FONT.heading },
 
-  overlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.42)', zIndex: 20 },
+  overlay: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(0,0,0,0.42)', zIndex: 20 },
 
   drawer: {
     position: 'absolute', top: 0, left: 0, bottom: 0, width: SIDEBAR_W,

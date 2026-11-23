@@ -7,10 +7,6 @@
     "icon": "./assets/icon.png",
     "scheme": "nexoraerp",
     "userInterfaceStyle": "light",
-    "splash": {
-      "backgroundColor": "#1E3A5F",
-      "resizeMode": "contain"
-    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.nexora.erp",
@@ -20,8 +16,22 @@
       "package": "com.nexora.erp",
       "versionCode": 1,
       "adaptiveIcon": {
-        "backgroundColor": "#1E3A5F"
-      }
+        "backgroundColor": "#1E3A5F",
+        "foregroundImage": "./assets/icon.png"
+      },
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ],
+      "blockedPermissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.READ_MEDIA_IMAGES",
+        "android.permission.READ_MEDIA_VIDEO",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.SYSTEM_ALERT_WINDOW"
+      ],
+      "predictiveBackGestureEnabled": false
     },
     "web": {
       "bundler": "metro"
@@ -30,15 +40,18 @@
       "apiUrl": "https://api.netonerppro.com/graphql/",
       "webUrl": "https://netonerppro.com",
       "eas": {
-        "projectId": "nexora-erp"
+        "projectId": "a39a77ff-03e7-49fe-9eb8-dde339f5470e"
       }
     },
     "plugins": [
+      "./plugins/withOptionalHardware",
       "expo-font",
       [
         "expo-camera",
         {
-          "cameraPermission": "Nexora ERP uses the camera to scan product barcodes and QR codes at the till."
+          "cameraPermission": "Nexora ERP uses the camera to scan product barcodes and QR codes at the till.",
+          "recordAudioAndroid": false,
+          "barcodeScannerEnabled": true
         }
       ],
       [
@@ -54,7 +67,16 @@
           "photosPermission": "NetOn ERP Pro reads photos you choose, such as invoices, receipts and recipes.",
           "cameraPermission": "NetOn ERP Pro uses the camera to photograph invoices, receipts, recipes and products."
         }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#1E3A5F",
+          "image": "./assets/icon.png",
+          "imageWidth": 200
+        }
       ]
-    ]
+    ],
+    "owner": "chamwi"
   }
 }
