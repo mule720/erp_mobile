@@ -15,6 +15,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthProvider } from './src/store/AuthContext';
 import { RoleProvider } from './src/store/RoleContext';
 import { ThemeProvider, useThemeMode } from './src/store/ThemeContext';
+import { ConfirmProvider } from './src/store/ConfirmContext';
 import AppNavigator from './src/navigation/AppNavigator';
 import { COLORS } from './src/theme';
 
@@ -51,8 +52,10 @@ export default function App() {
       <ThemeProvider>
         <AuthProvider>
           <RoleProvider>
-            <AppNavigator />
-            <ThemedStatusBar />
+            <ConfirmProvider>
+              <AppNavigator />
+              <ThemedStatusBar />
+            </ConfirmProvider>
           </RoleProvider>
         </AuthProvider>
       </ThemeProvider>

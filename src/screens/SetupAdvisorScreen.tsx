@@ -3,6 +3,7 @@ import { View, Text, ScrollView, TextInput, TouchableOpacity, ActivityIndicator,
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../store/AuthContext';
 import { gql } from '../api/graphql';
+import { useConfirm } from '../store/ConfirmContext';
 import { COLORS, RADIUS, SHADOW } from '../theme';
 
 interface Line { code: string; kind: string; name: string; reason: string; addedBecauseNeeded: boolean; perMonth: number; perYear: number }
@@ -45,12 +46,11 @@ export default function SetupAdvisorScreen() {
     finally { setBusy(false); }
   };
 
-  const authorise = () => {
+  const confirm = useConfirm();
+  const authorise = async () => {
     if (!s) return;
     const total = s.billingCycle === 'yearly' ? `${kw(s.totalPerYear)} a year` : `${kw(s.totalPerMonth)} a month`;
-    Alert.alert('Authorise this setup?', `This switches on everything listed and adds ${total} to your next invoice.`, [
-      { text: 'Cancel', style: 'cancel' }, { text: 'Authorise', onPress: doAuthorise },
-    ]);
+    if (await confirm({ title: 'Authorise this setup?', message: `This switches on everything listed and adds ${total} to your next invoice.`, confirmLabel: 'Authorise' })) doAuthorise();
   };
 
   return (

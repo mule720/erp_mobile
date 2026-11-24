@@ -6,6 +6,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useThemeMode } from '../store/ThemeContext';
+import { useConfirm } from '../store/ConfirmContext';
 import { gql } from '../api/graphql';
 import { useAuth } from '../store/AuthContext';
 import { useRole } from '../store/RoleContext';
@@ -135,20 +136,12 @@ export default function SidebarLayout() {
   const activeItem = visible.find(n => n.key === activeKey) || visible[0];
   const ActiveScreen = activeItem?.component || HomeScreen;
 
-  const handleSignOut = () => {
+  const confirm = useConfirm();
+  const handleSignOut = async () => {
     setProfileOpen(false);
-    // Alert.alert's multi-button form doesn't work on web - react-native-web
-    // shows a plain window.alert(title+message) and silently drops every
-    // button/onPress, so "Sign Out" never actually fired there. window.confirm
-    // is the real equivalent on that platform; native keeps the RN dialog.
-    if (Platform.OS === 'web') {
-      if (window.confirm('Are you sure you want to sign out?')) signOut();
-      return;
-    }
-    Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Sign Out', style: 'destructive', onPress: signOut },
-    ]);
+    // the question is asked in the app's own dialog (the system alert does nothing in a browser and can fail to show while a sheet is closing)
+    await new Promise(r => setTimeout(r, 200));
+    if (await confirm({ title: 'Sign out', message: 'Are you sure you want to sign out?', confirmLabel: 'Sign out', destructive: true })) signOut();
   };
 
   const insets = useSafeAreaInsets();

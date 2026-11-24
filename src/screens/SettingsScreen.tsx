@@ -6,6 +6,7 @@ import { COLORS } from '../theme';
 import { useAuth } from '../store/AuthContext';
 import { useRole } from '../store/RoleContext';
 import { useThemeMode } from '../store/ThemeContext';
+import { useConfirm } from '../store/ConfirmContext';
 
 const NAVY = '#2563EB';
 const GOLD = '#0EA5E9';
@@ -17,26 +18,24 @@ export default function SettingsScreen() {
   const { userRoles, isAdmin, isHRAdmin, isAccountant } = useRole();
   const { dark, toggle: toggleTheme } = useThemeMode();
 
-  const handleSignOut = () => {
-    Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Sign Out', style: 'destructive', onPress: signOut },
-    ]);
+  const confirm = useConfirm();
+  const handleSignOut = async () => {
+    if (await confirm({ title: 'Sign out', message: 'Are you sure you want to sign out?', confirmLabel: 'Sign out', destructive: true })) signOut();
   };
 
   const WEB = 'https://netonerppro.com';
   // Asks for the account and personal data to be deleted. The business's legal records are kept; a person replies within 30 days.
-  const askDelete = () => {
-    Alert.alert('Delete my account', 'We will delete or anonymise your personal details and reply to your email within 30 days. Records the business must keep by law, such as invoices and payroll, stay with the business.', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Send request', style: 'destructive', onPress: async () => {
-        try {
-          const d = await gql<any>(`mutation($s:String){ requestAccountDeletion(source:$s){ ok error message } }`, { s: 'mobile' });
-          const r = d?.requestAccountDeletion;
-          Alert.alert(r?.ok ? 'Request received' : 'Could not send', r?.ok ? (r.message || 'We will reply by email within 30 days.') : (r?.error || 'Please try again or open the delete-account page.'));
-        } catch (e: any) { Alert.alert('Could not send', e?.message || 'Please try again.'); }
-      } },
-    ]);
+  const askDelete = async () => {
+    const yes = await confirm({
+      title: 'Delete my account',
+      message: 'We will delete or anonymise your personal details and reply to your email within 30 days. Records the business must keep by law, such as invoices and payroll, stay with the business.',
+      confirmLabel: 'Send request', destructive: true });
+    if (!yes) return;
+    try {
+      const d = await gql<any>(`mutation($s:String){ requestAccountDeletion(source:$s){ ok error message } }`, { s: 'mobile' });
+      const r = d?.requestAccountDeletion;
+      Alert.alert(r?.ok ? 'Request received' : 'Could not send', r?.ok ? (r.message || 'We will reply by email within 30 days.') : (r?.error || 'Please try again or open the delete-account page.'));
+    } catch (e: any) { Alert.alert('Could not send', e?.message || 'Please try again.'); }
   };
 
   const roleNames = userRoles.map(ur => ur.role?.name).filter(Boolean).join(', ') || 'No roles assigned';
