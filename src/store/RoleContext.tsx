@@ -15,6 +15,7 @@ interface RoleContextValue {
   isAccountant: boolean;
   isPayrollManager: boolean;
   isStaff: boolean;
+  branchId: string | null;
   hasPermission: (name: string) => boolean;
   refetch: () => void;
 }
@@ -28,13 +29,14 @@ const RoleContext = createContext<RoleContextValue>({
   isAccountant: false,
   isPayrollManager: false,
   isStaff: false,
+  branchId: null,
   hasPermission: () => false,
   refetch: () => {},
 });
 
 const MY_ROLES_QUERY = `{
   myRoles { id role { id code name permissions { name module } } }
-  me { isStaff }
+  me { isStaff branch { id } }
 }`;
 
 export function RoleProvider({ children }: { children: React.ReactNode }) {
@@ -42,6 +44,7 @@ export function RoleProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [userRoles, setUserRoles] = useState<UserRole[]>([]);
   const [isStaff, setIsStaff] = useState(false);
+  const [branchId, setBranchId] = useState<string | null>(null);
 
   const [fetchFailed, setFetchFailed] = useState(false);
 
@@ -51,6 +54,7 @@ export function RoleProvider({ children }: { children: React.ReactNode }) {
       const d = await gql<any>(MY_ROLES_QUERY);
       setUserRoles(d?.myRoles || []);
       setIsStaff(!!d?.me?.isStaff);
+      setBranchId(d?.me?.branch?.id || null);
       setFetchFailed(false);
     } catch {
       setUserRoles([]);
@@ -80,7 +84,7 @@ export function RoleProvider({ children }: { children: React.ReactNode }) {
   return (
     <RoleContext.Provider value={{
       loading, userRoles, roleCodes,
-      isAdmin, isHRAdmin, isAccountant, isPayrollManager, isStaff,
+      isAdmin, isHRAdmin, isAccountant, isPayrollManager, isStaff, branchId,
       hasPermission, refetch: fetch,
     }}>
       {children}

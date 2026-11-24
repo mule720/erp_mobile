@@ -5,6 +5,8 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useThemeMode } from '../store/ThemeContext';
+import { gql } from '../api/graphql';
 import { useAuth } from '../store/AuthContext';
 import { useRole } from '../store/RoleContext';
 import { COLORS, FONT, RADIUS, SHADOW } from '../theme';
@@ -54,7 +56,7 @@ interface NavItem {
 // older businesses see everything, as before. Each menu item shows when ANY of its module codes is switched on.
 const TWO_PLANS = ['neton_sell', 'neton_books'];
 const NEEDS_MODULE: Record<string, string[]> = {
-  sales: ['sales', 'finance', 'accounting'], pos: ['pos'], purchasing: ['supply_chain'], inventory: ['supply_chain'], finance: ['finance', 'accounting'],
+  sales: ['crm', 'sales', 'finance', 'accounting'], pos: ['pos'], purchasing: ['supply_chain'], inventory: ['supply_chain'], finance: ['finance', 'accounting'],
   crm: ['sales', 'crm_sales_pro', 'crm'], people: ['human_resources', 'hr_self_service', 'payroll', 'hr'], fixed_assets: ['fixed_assets'],
   tax_hub: ['tax', 'finance'], projects: ['project_operations'], manufacturing: ['manufacturing'],
 };
@@ -94,7 +96,14 @@ export default function SidebarLayout() {
   const chooseMode = (m: 'dashboard' | 'infinity') => { setNavMode(m); AsyncStorage.setItem('erp_nav_mode', m).catch(() => {}); };
   const [modules, setModules] = useState<string[] | null>(null);   // null until known: nothing is hidden meanwhile
   const [plan, setPlan] = useState<string | null>(null);
+  const [branchModules, setBranchModules] = useState<string[]>([]);
   React.useEffect(() => { tenantModules().then(setModules); tenantSetup().then(t => setPlan(t?.plan ?? null)); }, []);
+  // a person tied to one branch also gets the modules THEIR branch added (the web sidebar does the same)
+  React.useEffect(() => {
+    if (!role.branchId || !tenant?.id) { setBranchModules([]); return; }
+    gql<any>(`query($t:UUID!,$b:UUID){ moduleSubscriptions(tenantId:$t, branchId:$b){ module{ code } } }`, { t: tenant.id, b: role.branchId })
+      .then(d => setBranchModules((d?.moduleSubscriptions || []).map((m: any) => m?.module?.code).filter(Boolean))).catch(() => setBranchModules([]));
+  }, [role.branchId, tenant?.id]);
   const [profileOpen, setProfileOpen] = useState(false);
   // a web page shown inside the app (the long tail of the web app that has no native screen)
   const [webPage, setWebPage] = useState<{ path: string; title: string } | null>(null);
@@ -121,7 +130,7 @@ export default function SidebarLayout() {
   const navigate = (key: string) => { setActiveKey(key); closeDrawer(); };
 
   const twoPlan = !!plan && TWO_PLANS.includes(plan) && modules !== null;
-  const hasPart = (key: string) => !twoPlan || !NEEDS_MODULE[key] || NEEDS_MODULE[key].some(c => (modules as string[]).includes(c));
+  const hasPart = (key: string) => !twoPlan || !NEEDS_MODULE[key] || NEEDS_MODULE[key].some(c => [...(modules as string[]), ...branchModules].includes(c));
   const visible = NAV.filter(item => (!item.roleCheck || item.roleCheck(role)) && (!item.module || modules === null || modules.includes(item.module)) && hasPart(item.key));
   const activeItem = visible.find(n => n.key === activeKey) || visible[0];
   const ActiveScreen = activeItem?.component || HomeScreen;
@@ -143,6 +152,7 @@ export default function SidebarLayout() {
   };
 
   const insets = useSafeAreaInsets();
+  const { dark, toggle: toggleTheme } = useThemeMode();
   const PT = Math.max(insets.top, Platform.OS === 'android' ? (StatusBar.currentHeight || 0) : 44);
 
   return (
@@ -304,6 +314,10 @@ export default function SidebarLayout() {
                   </TouchableOpacity>
                 ))}
               </View>
+              <TouchableOpacity style={s.profileAction} onPress={() => { setProfileOpen(false); toggleTheme(); }} activeOpacity={0.7} accessibilityRole="button" accessibilityLabel={dark ? 'Switch to light mode' : 'Switch to dark mode'}>
+                <Ionicons name={dark ? 'sunny-outline' : 'moon-outline'} size={16} color="#334155" style={{ marginRight: 10 }} />
+                <Text style={s.profileActionTxt}>{dark ? 'Light mode' : 'Dark mode'}</Text>
+              </TouchableOpacity>
               <TouchableOpacity style={s.profileAction} onPress={() => { setProfileOpen(false); navigate('settings'); }} activeOpacity={0.7}>
                 <Ionicons name="options-outline" size={16} color="#334155" style={{ marginRight: 10 }} />
                 <Text style={s.profileActionTxt}>Settings</Text>

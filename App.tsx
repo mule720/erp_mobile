@@ -14,10 +14,16 @@ import {
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthProvider } from './src/store/AuthContext';
 import { RoleProvider } from './src/store/RoleContext';
+import { ThemeProvider, useThemeMode } from './src/store/ThemeContext';
 import AppNavigator from './src/navigation/AppNavigator';
 import { COLORS } from './src/theme';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
+
+function ThemedStatusBar() {
+  const { dark } = useThemeMode();
+  return <StatusBar style={dark ? 'light' : 'dark'} />;
+}
 
 export default function App() {
   // Inter - the same face erp_frontend uses - loaded
@@ -42,12 +48,14 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <AuthProvider>
-        <RoleProvider>
-          <AppNavigator />
-          <StatusBar style="light" />
-        </RoleProvider>
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <RoleProvider>
+            <AppNavigator />
+            <ThemedStatusBar />
+          </RoleProvider>
+        </AuthProvider>
+      </ThemeProvider>
     </SafeAreaProvider>
   );
 }

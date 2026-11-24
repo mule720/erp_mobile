@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { gql } from '../api/graphql';
 import { useAuth } from '../store/AuthContext';
 import BarcodeScannerModal from '../components/BarcodeScannerModal';
+import PosShiftBar from '../components/PosShiftBar';
 import { matchCode, suggest } from '../lib/productCode';
 import { productByCode, setProductBarcode } from '../api/aiApi';
 
@@ -198,6 +199,7 @@ export default function POSScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#F1F5F9' }}>
+      <PosShiftBar />
       {/* Search Bar */}
       <View style={s.searchBar}>
         <TextInput

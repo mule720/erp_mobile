@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, ActivityIndicator, StyleSheet, Platform, 
 import { WebView } from 'react-native-webview';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useThemeMode } from '../store/ThemeContext';
 import * as SecureStore from '../api/secureStorage';
 import { useAuth } from '../store/AuthContext';
 import { COLORS } from '../theme';
@@ -12,6 +13,7 @@ const WEB_BASE = 'https://netonerppro.com';
 /** A page of the web app shown inside the mobile app: already signed in as the same person, without the web's own header and menus. */
 export default function WebPageView({ path, title, onClose }: { path: string; title: string; onClose: () => void }) {
   const { user, tenant } = useAuth();
+  const { dark } = useThemeMode();
   const ref = useRef<WebView>(null);
   const [canGoBack, setCanGoBack] = useState(false);
   const [boot, setBoot] = useState<string | null>(null);
@@ -26,7 +28,7 @@ export default function WebPageView({ path, title, onClose }: { path: string; ti
       setBoot([
         set('auth_token', token), refresh ? set('refresh_token', refresh) : '', set('erp_tenant_id', tenant?.id || ''),
         set('user_email', user?.email || ''), set('user_name', user?.fullName || ''), set('tenant_name', tenant?.name || ''),
-        "try{sessionStorage.setItem('erp_embed','1');}catch(e){}", 'true;',
+        "try{sessionStorage.setItem('erp_embed','1');}catch(e){}", set('erp_dark_mode', dark ? '1' : '0'), 'true;',
       ].join(''));
     })();
   }, [tenant?.id]);

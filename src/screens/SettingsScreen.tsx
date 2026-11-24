@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '../theme';
 import { useAuth } from '../store/AuthContext';
 import { useRole } from '../store/RoleContext';
+import { useThemeMode } from '../store/ThemeContext';
 
 const NAVY = '#2563EB';
 const GOLD = '#0EA5E9';
@@ -14,6 +15,7 @@ interface SettingRow { label: string; value?: string; icon: keyof typeof Ionicon
 export default function SettingsScreen() {
   const { user, tenant, signOut } = useAuth();
   const { userRoles, isAdmin, isHRAdmin, isAccountant } = useRole();
+  const { dark, toggle: toggleTheme } = useThemeMode();
 
   const handleSignOut = () => {
     Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
@@ -105,6 +107,10 @@ export default function SettingsScreen() {
           <Text style={[s.rowLabel, { flex: 1, marginLeft: 12 }]}>API Endpoint</Text>
           <Text style={s.rowValue}>:8004</Text>
         </View>
+        <TouchableOpacity style={[s.row, s.border]} onPress={toggleTheme} activeOpacity={0.7}>
+          <Ionicons name={dark ? 'sunny-outline' : 'moon-outline'} size={19} color={COLORS.subtle} style={s.icon} />
+          <Text style={[s.rowLabel, { flex: 1, marginLeft: 12 }]}>{dark ? 'Switch to light mode' : 'Switch to dark mode'}</Text>
+        </TouchableOpacity>
         <TouchableOpacity style={[s.row, s.border]} onPress={() => Linking.openURL(`${WEB}/privacy`)} activeOpacity={0.7}>
           <Ionicons name="lock-closed-outline" size={19} color={COLORS.subtle} style={s.icon} />
           <Text style={[s.rowLabel, { flex: 1, marginLeft: 12 }]}>Privacy policy</Text>
