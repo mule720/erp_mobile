@@ -99,6 +99,7 @@ export default function SidebarLayout() {
   // a web page shown inside the app (the long tail of the web app that has no native screen)
   const [webPage, setWebPage] = useState<{ path: string; title: string } | null>(null);
   const [morePages, setMorePages] = useState(false);
+  const [infinityOpen, setInfinityOpen] = useState(0);   // bumped by the bottom bar's More to open the Infinity sheet
   const slideX = useRef(new Animated.Value(-SIDEBAR_W)).current;
   const overlayO = useRef(new Animated.Value(0)).current;
 
@@ -168,11 +169,6 @@ export default function SidebarLayout() {
             <Ionicons name="apps-outline" size={22} color="#334155" />
           </TouchableOpacity>
         )}
-        {visible.some(n => n.key === 'capture') && (
-          <TouchableOpacity onPress={() => navigate('capture')} style={s.iconBtn} activeOpacity={0.7} accessibilityLabel="Capture a document">
-            <Ionicons name="scan-outline" size={22} color="#334155" />
-          </TouchableOpacity>
-        )}
         <TouchableOpacity onPress={() => setProfileOpen(true)} style={s.avatarBtn} activeOpacity={0.8}>
           <View style={s.avCircle}>
             <Text style={s.avText}>{user?.firstName?.[0]?.toUpperCase() || 'U'}</Text>
@@ -185,6 +181,35 @@ export default function SidebarLayout() {
         <ActiveScreen onNavigate={navigate} onOpenWeb={(path: string, title: string) => setWebPage({ path, title })} />
       </View>
 
+      {/* ─── Bottom bar: Home, the main section for this plan, Capture, NetOn AI, More ─── */}
+      <View style={s.tabBar}>
+        {(() => {
+          const has = (k: string) => visible.some(n => n.key === k);
+          const main = ['pos', 'sales', 'inventory', 'finance'].find(has);
+          const mainItem = NAV.find(n => n.key === main);
+          const tabs: { key: string; label: string; icon: keyof typeof Ionicons.glyphMap; onPress: () => void; big?: boolean }[] = [
+            { key: 'dashboard', label: 'Home', icon: 'home-outline', onPress: () => navigate('dashboard') },
+            ...(mainItem ? [{ key: mainItem.key, label: mainItem.label.replace('Point of Sale', 'Sell'), icon: mainItem.icon, onPress: () => navigate(mainItem.key) }] : []),
+            ...(has('capture') ? [{ key: 'capture', label: 'Capture', icon: 'scan-outline' as const, onPress: () => navigate('capture'), big: true }] : []),
+            ...(has('ai_assistant') ? [{ key: 'ai_assistant', label: 'NetOn AI', icon: 'sparkles-outline' as const, onPress: () => navigate('ai_assistant') }] : []),
+            { key: '__more', label: 'More', icon: 'menu-outline', onPress: () => { if (navMode === 'infinity') setInfinityOpen(n => n + 1); else openDrawer(); } },
+          ];
+          return tabs.map(t => {
+            const active = t.key === activeKey;
+            return (
+              <TouchableOpacity key={t.key} style={s.tab} onPress={t.onPress} activeOpacity={0.7} accessibilityRole="button" accessibilityLabel={t.label}>
+                {t.big ? (
+                  <View style={s.tabBig}><Ionicons name={t.icon} size={22} color="#fff" /></View>
+                ) : (
+                  <Ionicons name={active ? (t.icon.replace('-outline', '') as any) : t.icon} size={22} color={active ? COLORS.primary : COLORS.subtle} />
+                )}
+                <Text style={[s.tabLabel, active && { color: COLORS.primary, fontFamily: FONT.heading }]}>{t.label}</Text>
+              </TouchableOpacity>
+            );
+          });
+        })()}
+      </View>
+
       {!!MODULE_GROUPS[activeItem?.key || ''] && (
         <ModulePagesSheet moduleKey={activeItem!.key} title={activeItem!.label} visible={morePages} onClose={() => setMorePages(false)}
           onNavigate={navigate} onOpenWeb={(path, title) => setWebPage({ path, title })} />
@@ -194,7 +219,7 @@ export default function SidebarLayout() {
 
       {navMode === 'infinity' && (
         <InfinityMenu items={visible.map(v => ({ key: v.key, label: v.label, icon: v.icon }))} activeKey={activeItem?.key || 'dashboard'}
-          onSelect={navigate} onUseDashboard={() => chooseMode('dashboard')} />
+          onSelect={navigate} onUseDashboard={() => chooseMode('dashboard')} openSignal={infinityOpen} />
       )}
 
       {/* ─── Overlay ──────────────────────────────────────────────── */}
@@ -296,6 +321,10 @@ export default function SidebarLayout() {
 }
 
 const s = StyleSheet.create({
+  tabBar: { flexDirection: 'row', backgroundColor: COLORS.surface, borderTopWidth: 1, borderTopColor: COLORS.border, paddingTop: 4, paddingBottom: 4 },
+  tab: { flex: 1, alignItems: 'center', justifyContent: 'center', minHeight: 52, gap: 2 },
+  tabBig: { width: 44, height: 44, borderRadius: 22, backgroundColor: COLORS.primary, alignItems: 'center', justifyContent: 'center', marginTop: -2, ...SHADOW.card },
+  tabLabel: { fontSize: 11, color: COLORS.subtle, fontFamily: FONT.body },
   topBar: {
     flexDirection: 'row', alignItems: 'center',
     backgroundColor: '#fff', paddingHorizontal: 12, paddingBottom: 10,

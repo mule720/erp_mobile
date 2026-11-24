@@ -8,10 +8,11 @@ import { COLORS, SHADOW } from '../theme';
 export interface InfinityItem { key: string; label: string; icon: keyof typeof Ionicons.glyphMap }
 
 /** The Infinity button: a round button that floats over every screen and opens all the sections as big round tiles. */
-export default function InfinityMenu({ items, activeKey, onSelect, onUseDashboard }: {
-  items: InfinityItem[]; activeKey: string; onSelect: (key: string) => void; onUseDashboard: () => void;
+export default function InfinityMenu({ items, activeKey, onSelect, onUseDashboard, openSignal = 0 }: {
+  items: InfinityItem[]; activeKey: string; onSelect: (key: string) => void; onUseDashboard: () => void; openSignal?: number;
 }) {
   const [open, setOpen] = useState(false);
+  useEffect(() => { if (openSignal > 0) setOpen(true); }, [openSignal]);
   // The button can be dragged anywhere; on release it snaps to the nearest side and the spot is remembered.
   const SIZE = 54;
   const insets = useSafeAreaInsets();
