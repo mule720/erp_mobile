@@ -82,7 +82,7 @@ const NAV: NavItem[] = [
   { key: 'features',     label: 'All features',   icon: 'apps-outline',        component: AllFeaturesScreen },
   { key: 'setup',        label: 'Setup & Import', icon: 'settings-outline',    component: SetupScreen,       roleCheck: r => r.isAdmin },
   { key: 'settings',     label: 'Settings',       icon: 'options-outline',     component: SettingsScreen },
-  { key: 'plan_advisor', label: 'Choose a plan',  icon: 'pricetag-outline',    component: SetupAdvisorScreen, roleCheck: r => r.isAdmin },
+  { key: 'plan_advisor', label: 'AI setup help',  icon: 'sparkles-outline',      component: SetupAdvisorScreen, roleCheck: r => r.isAdmin },
   { key: 'sub_admin',    label: 'Subscriptions',  icon: 'card-outline',        component: SubscriptionAdminScreen, roleCheck: r => r.isStaff },
 ];
 
