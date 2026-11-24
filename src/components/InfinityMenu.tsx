@@ -19,7 +19,7 @@ export default function InfinityMenu({ items, activeKey, onSelect, onUseDashboar
   // the button lives between the status bar and the system navigation buttons, never under either
   const minY = insets.top + 8;
   const maxY = H - SIZE - insets.bottom - 12;
-  const home = { x: 14, y: Math.max(minY, H - insets.bottom - (Platform.OS === 'ios' ? 104 : 92) - SIZE) };
+  const home = { x: Math.max(10, W - SIZE - 14), y: Math.max(minY, H - insets.bottom - (Platform.OS === 'ios' ? 104 : 92) - SIZE) };
   const pos = useRef(new Animated.ValueXY(home)).current;
   const last = useRef(home);
   const moved = useRef(false);

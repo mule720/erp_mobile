@@ -303,7 +303,7 @@ const s = StyleSheet.create({
     shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 2, elevation: 3,
     zIndex: 10,
   },
-  iconBtn: { padding: 6 },
+  iconBtn: { padding: 10 },
   ham: { gap: 4 },
   line: { height: 2, width: 22, backgroundColor: '#334155', borderRadius: 2 },
   pageTitle: { flex: 1, fontSize: 16, fontFamily: FONT.heading, color: '#0F172A', marginLeft: 10 },
