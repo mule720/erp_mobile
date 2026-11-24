@@ -67,6 +67,7 @@ export default function RegisterScreen({ navigation }: any) {
   const [cycle, setCycle] = useState<'yearly' | 'monthly'>('yearly');
   const [loading, setLoading] = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);   // the eye on the two password boxes
 
   const [form, setForm] = useState({
     companyName: '', firstName: '', lastName: '', email: '', phone: '',
@@ -204,9 +205,15 @@ export default function RegisterScreen({ navigation }: any) {
                     placeholderTextColor={COLORS.faint}
                     keyboardType={f.keyboardType}
                     autoCapitalize={f.autoCapitalize}
-                    secureTextEntry={f.secure}
+                    secureTextEntry={f.secure && !showPassword}
                     autoComplete={f.key === 'email' ? 'email' : f.secure ? 'password' : undefined}
                   />
+                  {f.secure && (
+                    <TouchableOpacity onPress={() => setShowPassword(v => !v)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                      accessibilityRole="button" accessibilityLabel={showPassword ? 'Hide password' : 'Show password'} style={{ paddingHorizontal: 10 }}>
+                      <Ionicons name={showPassword ? 'eye-off-outline' : 'eye-outline'} size={19} color={COLORS.subtle} />
+                    </TouchableOpacity>
+                  )}
                 </View>
               </View>
             ))}

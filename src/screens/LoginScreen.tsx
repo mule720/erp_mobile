@@ -38,6 +38,7 @@ export default function LoginScreen({ navigation }: any) {
   const { signIn, setEmployeeId } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);   // the eye on the password box
   const [focused, setFocused] = useState<'email' | 'password' | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -127,17 +128,26 @@ export default function LoginScreen({ navigation }: any) {
             />
 
             <Text style={s.label}>Password</Text>
-            <TextInput
-              style={[s.input, focused === 'password' && s.inputFocused]}
-              value={password}
-              onChangeText={setPassword}
-              onFocus={() => setFocused('password')}
-              onBlur={() => setFocused(null)}
-              placeholder="••••••••"
-              placeholderTextColor={COLORS.faint}
-              secureTextEntry
-              autoComplete="password"
-            />
+            <View>
+              <TextInput
+                style={[s.input, { paddingRight: 46 }, focused === 'password' && s.inputFocused]}
+                value={password}
+                onChangeText={setPassword}
+                onFocus={() => setFocused('password')}
+                onBlur={() => setFocused(null)}
+                placeholder="••••••••"
+                placeholderTextColor={COLORS.faint}
+                secureTextEntry={!showPassword}
+                autoComplete="password"
+              />
+              <TouchableOpacity
+                onPress={() => setShowPassword(v => !v)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                style={{ position: 'absolute', right: 14, top: 0, bottom: 0, justifyContent: 'center' }}
+                accessibilityRole="button" accessibilityLabel={showPassword ? 'Hide password' : 'Show password'}
+              >
+                <Ionicons name={showPassword ? 'eye-off-outline' : 'eye-outline'} size={20} color={COLORS.subtle} />
+              </TouchableOpacity>
+            </View>
 
             <TouchableOpacity style={s.btn} onPress={handleLogin} disabled={loading} activeOpacity={0.85}>
               {loading
