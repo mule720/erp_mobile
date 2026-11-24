@@ -54,7 +54,7 @@ interface NavItem {
 
 // A business on the two base plans (Sell: point of sale and inventory; Books: accounting) only sees the parts it has. The other plans and
 // older businesses see everything, as before. Each menu item shows when ANY of its module codes is switched on.
-const TWO_PLANS = ['neton_sell', 'neton_books'];
+const TWO_PLANS = ['neton_sell_lite', 'neton_sell', 'neton_books'];
 const NEEDS_MODULE: Record<string, string[]> = {
   sales: ['crm', 'sales', 'finance', 'accounting'], pos: ['pos'], purchasing: ['supply_chain'], inventory: ['supply_chain'], finance: ['finance', 'accounting'],
   crm: ['sales', 'crm_sales_pro', 'crm'], people: ['human_resources', 'hr_self_service', 'payroll', 'hr'], fixed_assets: ['fixed_assets'],
