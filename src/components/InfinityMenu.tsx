@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, TouchableOpacity, Modal, ScrollView, StyleSheet, Platform, PanResponder, Animated, Dimensions } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SHADOW } from '../theme';
 
@@ -13,15 +14,19 @@ export default function InfinityMenu({ items, activeKey, onSelect, onUseDashboar
   const [open, setOpen] = useState(false);
   // The button can be dragged anywhere; on release it snaps to the nearest side and the spot is remembered.
   const SIZE = 54;
+  const insets = useSafeAreaInsets();
   const { width: W, height: H } = Dimensions.get('window');
-  const home = { x: 14, y: H - (Platform.OS === 'ios' ? 104 : 92) - SIZE };
+  // the button lives between the status bar and the system navigation buttons, never under either
+  const minY = insets.top + 8;
+  const maxY = H - SIZE - insets.bottom - 12;
+  const home = { x: 14, y: Math.max(minY, H - insets.bottom - (Platform.OS === 'ios' ? 104 : 92) - SIZE) };
   const pos = useRef(new Animated.ValueXY(home)).current;
   const last = useRef(home);
   const moved = useRef(false);
   useEffect(() => {
     AsyncStorage.getItem('erp_infinity_pos').then(v => {
       if (!v) return;
-      try { const p = JSON.parse(v); if (typeof p.x === 'number' && typeof p.y === 'number') { last.current = p; pos.setValue(p); } } catch {}
+      try { const p = JSON.parse(v); if (typeof p.x === 'number' && typeof p.y === 'number') { const q = { x: p.x, y: Math.min(Math.max(p.y, minY), maxY) }; last.current = q; pos.setValue(q); } } catch {}
     }).catch(() => {});
   }, []);
   const pan = useRef(PanResponder.create({
@@ -35,7 +40,7 @@ export default function InfinityMenu({ items, activeKey, onSelect, onUseDashboar
     onPanResponderRelease: (_, g) => {
       if (Math.abs(g.dx) < 8 && Math.abs(g.dy) < 8) { setOpen(true); return; }   // a tap opens the menu
       const x0 = last.current.x + g.dx, y0 = last.current.y + g.dy;
-      const y = Math.min(Math.max(y0, 40), H - SIZE - 40);
+      const y = Math.min(Math.max(y0, minY), maxY);
       const x = x0 + SIZE / 2 < W / 2 ? 10 : W - SIZE - 10;
       last.current = { x, y };
       Animated.spring(pos, { toValue: { x, y }, useNativeDriver: false, friction: 7 }).start();
@@ -52,7 +57,7 @@ export default function InfinityMenu({ items, activeKey, onSelect, onUseDashboar
       <Modal visible={open} transparent animationType="fade" onRequestClose={() => setOpen(false)}>
         <View style={s.backdrop}>
           <TouchableOpacity style={StyleSheet.absoluteFill} activeOpacity={1} onPress={() => setOpen(false)} />
-          <View style={s.sheet}>
+          <View style={[s.sheet, { paddingBottom: Math.max(24, insets.bottom + 12) }]}>
             <View style={s.head}>
               <Ionicons name="infinite" size={22} color={COLORS.amber} />
               <Text style={s.title}>Where to?</Text>

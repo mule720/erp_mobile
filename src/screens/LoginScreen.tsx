@@ -4,6 +4,7 @@ import {
   ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { gql } from '../api/graphql';
 import { useAuth } from '../store/AuthContext';
 import { COLORS, FONT, RADIUS, SHADOW } from '../theme';
@@ -33,6 +34,7 @@ const FIND_EMPLOYEE = `
 `;
 
 export default function LoginScreen({ navigation }: any) {
+  const insets = useSafeAreaInsets();      // keeps the last field and button clear of the system navigation buttons
   const { signIn, setEmployeeId } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -100,7 +102,7 @@ export default function LoginScreen({ navigation }: any) {
       </View>
 
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <ScrollView contentContainerStyle={s.container} keyboardShouldPersistTaps="handled">
+        <ScrollView contentContainerStyle={[s.container, { paddingTop: Math.max(56, insets.top + 24), paddingBottom: 24 + insets.bottom }]} keyboardShouldPersistTaps="handled">
           <View style={s.header}>
             <View style={s.logo}>
               <Ionicons name="layers" size={30} color={COLORS.navy} />
@@ -150,7 +152,7 @@ export default function LoginScreen({ navigation }: any) {
           </View>
 
           <TouchableOpacity style={s.switchLink} onPress={() => navigation.navigate('Register')} activeOpacity={0.7}>
-            <Text style={s.switchText}>New retail shop? <Text style={s.switchTextBold}>Create an account</Text></Text>
+            <Text style={s.switchText}>New business? <Text style={s.switchTextBold}>Create an account</Text></Text>
           </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>

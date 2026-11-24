@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator, StyleSheet, Platform, BackHandler, StatusBar, Linking } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as SecureStore from '../api/secureStorage';
 import { useAuth } from '../store/AuthContext';
 import { COLORS } from '../theme';
@@ -42,10 +43,11 @@ export default function WebPageView({ path, title, onClose }: { path: string; ti
   }, [back]);
 
   const url = `${WEB_BASE}${path}${path.includes('?') ? '&' : '?'}embed=1`;
-  const PT = Platform.OS === 'android' ? (StatusBar.currentHeight || 0) : 44;
+  const insets = useSafeAreaInsets();
+  const PT = Math.max(insets.top, Platform.OS === 'android' ? (StatusBar.currentHeight || 0) : 44);
 
   return (
-    <View style={s.root}>
+    <View style={[s.root, { paddingBottom: insets.bottom }]}>
       <View style={[s.bar, { paddingTop: PT + 6 }]}>
         <TouchableOpacity onPress={back} style={s.btn} accessibilityLabel="Back"><Ionicons name={canGoBack ? 'chevron-back' : 'close'} size={22} color="#fff" /></TouchableOpacity>
         <Text style={s.title} numberOfLines={1}>{title}</Text>

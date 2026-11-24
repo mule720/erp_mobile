@@ -4,6 +4,7 @@ import {
   ScrollView, Platform, StatusBar, Modal, Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../store/AuthContext';
 import { useRole } from '../store/RoleContext';
 import { COLORS, FONT, RADIUS, SHADOW } from '../theme';
@@ -139,10 +140,12 @@ export default function SidebarLayout() {
     ]);
   };
 
-  const PT = Platform.OS === 'android' ? (StatusBar.currentHeight || 0) : 44;
+  const insets = useSafeAreaInsets();
+  const PT = Math.max(insets.top, Platform.OS === 'android' ? (StatusBar.currentHeight || 0) : 44);
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#F1F5F9' }}>
+    // paddingBottom keeps everything above the phone's own navigation buttons (the app is drawn edge to edge on current Android)
+    <View style={{ flex: 1, backgroundColor: '#F1F5F9', paddingBottom: insets.bottom }}>
 
       {/* ─── Minimal Top Bar ─────────────────────────────────────── */}
       <View style={[s.topBar, { paddingTop: PT + 8 }]}>

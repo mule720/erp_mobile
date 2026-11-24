@@ -4,6 +4,7 @@ import {
   ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as SecureStore from '../api/secureStorage';
 import { gql } from '../api/graphql';
 import { useAuth } from '../store/AuthContext';
@@ -57,6 +58,7 @@ const FIELDS: Array<{ key: string; label: string; placeholder: string; icon: key
 ];
 
 export default function RegisterScreen({ navigation }: any) {
+  const insets = useSafeAreaInsets();      // keeps the last field and button clear of the system navigation buttons
   const { signIn } = useAuth();
   const [plans, setPlans] = useState<MobilePlan[]>([]);
   const [plan, setPlan] = useState<MobilePlan | null>(null);
@@ -135,7 +137,7 @@ export default function RegisterScreen({ navigation }: any) {
       </View>
 
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <ScrollView contentContainerStyle={s.container} keyboardShouldPersistTaps="handled">
+        <ScrollView contentContainerStyle={[s.container, { paddingTop: Math.max(56, insets.top + 24), paddingBottom: 24 + insets.bottom }]} keyboardShouldPersistTaps="handled">
           <View style={s.header}>
             <View style={s.logo}><Ionicons name="layers" size={26} color={COLORS.navy} /></View>
             <Text style={s.brand}>NetOn ERP Pro</Text>

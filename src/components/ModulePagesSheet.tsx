@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Modal, ScrollView, StyleSheet, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, RADIUS } from '../theme';
 import { MODULE_GROUPS, WEB_PAGES, type WebPage } from '../lib/webPages';
 import { useRole } from '../store/RoleContext';
@@ -11,6 +12,7 @@ export default function ModulePagesSheet({ moduleKey, title, visible, onClose, o
   onNavigate: (key: string) => void; onOpenWeb: (path: string, title: string) => void;
 }) {
   const role = useRole();
+  const insets = useSafeAreaInsets();
   const groups = MODULE_GROUPS[moduleKey] || [];
   const pages = WEB_PAGES.filter(p => groups.includes(p.group) && (!p.adminOnly || role.isAdmin || role.isStaff));
   const byGroup = groups.map(g => [g, pages.filter(p => p.group === g)] as const).filter(([, l]) => l.length > 0);
@@ -26,7 +28,7 @@ export default function ModulePagesSheet({ moduleKey, title, visible, onClose, o
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <View style={s.backdrop}>
         <TouchableOpacity style={StyleSheet.absoluteFill} activeOpacity={1} onPress={onClose} />
-        <View style={s.sheet}>
+        <View style={[s.sheet, { paddingBottom: insets.bottom }]}>
           <View style={s.head}>
             <Text style={s.title}>All {title} pages</Text>
             <TouchableOpacity onPress={onClose}><Ionicons name="close" size={22} color={COLORS.ink} /></TouchableOpacity>
