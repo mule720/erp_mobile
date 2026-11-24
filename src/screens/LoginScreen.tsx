@@ -139,6 +139,8 @@ export default function LoginScreen({ navigation }: any) {
                 placeholderTextColor={COLORS.faint}
                 secureTextEntry={!showPassword}
                 autoComplete="password"
+                returnKeyType="go"
+                onSubmitEditing={handleLogin}
               />
               <TouchableOpacity
                 onPress={() => setShowPassword(v => !v)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
