@@ -1,4 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { Ionicons } from '@expo/vector-icons';
+import Empty from '../components/Empty';
 import {
   View, Text, ScrollView, ActivityIndicator, StyleSheet,
   TouchableOpacity, Modal, Alert, TextInput,
@@ -28,7 +30,6 @@ const TABS = [
 ];
 
 function Loader() { return <View style={s.center}><ActivityIndicator size="large" color={NAVY} /></View>; }
-function Empty({ msg = 'No records' }: { msg?: string }) { return <Text style={s.empty}>{msg}</Text>; }
 
 function ActionBtn({ label, color = NAVY, onPress }: { label: string; color?: string; onPress: () => void }) {
   return (
@@ -188,7 +189,7 @@ function ProductsTab({ tenantId }: { tenantId: string }) {
                     <View style={{ alignItems: 'flex-end' }}>
                       <Text style={s.amount}>{fmt(p.price ?? p.unit_price)}</Text>
                       <Text style={[s.sub, { marginTop: 3, color: lowStock ? '#DC2626' : '#64748B' }]}>Stock: {p.stock ?? '–'}</Text>
-                      {lowStock && <Text style={{ fontSize: 10, color: '#DC2626', fontWeight: '700' }}>LOW</Text>}
+                      {lowStock && <Text style={{ fontSize: 11, color: '#DC2626', fontWeight: '700' }}>LOW</Text>}
                     </View>
                     <Text style={{ color: '#94A3B8', fontSize: 16, marginRight: 2 }}>{isOpen ? '▲' : '▼'}</Text>
                   </View>
@@ -613,7 +614,7 @@ function ExpiryTab({ tenantId }: { tenantId: string }) {
               </View>
               <View style={s.row}>
                 {b.expiryDate && <Text style={s.sub}>Expires: {b.expiryDate}</Text>}
-                {b.warehouse && <Text style={[s.sub, { marginLeft: 12 }]}>📍 {b.warehouse}</Text>}
+                {b.warehouse && <Text style={[s.sub, { marginLeft: 12 }]}><Ionicons name="location-outline" size={12} color="#64748B" /> {b.warehouse}</Text>}
               </View>
             </View>
           ))}
@@ -663,7 +664,7 @@ const s = StyleSheet.create({
   actionBtnTxt: { color: '#fff', fontSize: 14, fontWeight: '700' },
   searchWrap: { paddingHorizontal: 16, paddingTop: 10, paddingBottom: 4 },
   searchInput: { backgroundColor: '#fff', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 10, fontSize: 14, color: '#0F172A', borderWidth: 1, borderColor: '#E2E8F0' },
-  chipRow: { paddingVertical: 6 },
+  chipRow: { paddingVertical: 6, flexGrow: 0 },
   chip: { paddingHorizontal: 14, paddingVertical: 7, borderRadius: 20, borderWidth: 1, borderColor: '#E2E8F0', backgroundColor: '#fff' },
   chipActive: { backgroundColor: NAVY, borderColor: NAVY },
   chipTxt: { fontSize: 12, fontWeight: '600', color: '#334155' },

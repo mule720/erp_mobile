@@ -1,4 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { Ionicons } from '@expo/vector-icons';
+import Empty from '../components/Empty';
 import {
   View, Text, ScrollView, ActivityIndicator, StyleSheet,
   TouchableOpacity, Modal, Alert,
@@ -27,7 +29,6 @@ const TABS = [
 ];
 
 function Loader() { return <View style={s.center}><ActivityIndicator size="large" color={NAVY} /></View>; }
-function Empty({ msg = 'No records' }: { msg?: string }) { return <Text style={s.empty}>{msg}</Text>; }
 
 function ActionBtn({ label, color = NAVY, onPress }: { label: string; color?: string; onPress: () => void }) {
   return (
@@ -167,7 +168,7 @@ function VatReturnsTab({ tenantId }: { tenantId: string }) {
   return (
     <ScrollView style={{ flex: 1 }}>
       <View style={[s.card, { marginTop: 20, padding: 24, alignItems: 'center' }]}>
-        <Text style={{ fontSize: 32, marginBottom: 12 }}>🌐</Text>
+        <Ionicons name="globe-outline" size={32} color="#94A3B8" style={{ marginBottom: 12 }} />
         <Text style={[s.main, { textAlign: 'center', marginBottom: 8 }]}>VAT Returns managed on web portal</Text>
         <Text style={[s.sub, { textAlign: 'center' }]}>
           Please use the ERP web application to create, review, and submit VAT returns to ZRA.
@@ -354,10 +355,10 @@ const s = StyleSheet.create({
   summaryLabel: { fontSize: 11, color: '#64748B', marginBottom: 4 },
   summaryValue: { fontSize: 15, fontWeight: '800', color: NAVY },
   defaultBadge: { backgroundColor: '#EEF2FF', borderRadius: 6, paddingHorizontal: 6, paddingVertical: 2 },
-  defaultBadgeTxt: { fontSize: 10, fontWeight: '700', color: '#4F46E5' },
+  defaultBadgeTxt: { fontSize: 11, fontWeight: '700', color: '#4F46E5' },
   urgencyBar: { width: 4, borderRadius: 2, marginRight: 12, alignSelf: 'stretch' },
   urgencyLabel: { fontSize: 12, fontWeight: '700', marginBottom: 4 },
   zraCodeBox: { marginTop: 6, backgroundColor: '#F0FDF4', borderRadius: 6, padding: 6 },
-  zraCodeLabel: { fontSize: 10, color: '#16A34A', fontWeight: '600' },
+  zraCodeLabel: { fontSize: 11, color: '#16A34A', fontWeight: '600' },
   zraCode: { fontSize: 12, color: '#166534', fontWeight: '700', fontFamily: 'monospace' },
 });

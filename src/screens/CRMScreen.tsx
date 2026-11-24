@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import Empty from '../components/Empty';
 import {
   View, Text, ScrollView, ActivityIndicator, StyleSheet,
   TouchableOpacity, Modal, TextInput, Alert,
@@ -24,7 +25,6 @@ const TYPE_LABELS: Record<string, string> = { invoice: 'Invoice', payment: 'Paym
 const TYPE_COLOR: Record<string, string> = { invoice: '#DC2626', payment: '#16A34A', credit_note: '#3B82F6' };
 
 function Loader() { return <View style={s.center}><ActivityIndicator size="large" color={NAVY} /></View>; }
-function Empty({ msg = 'No records' }: { msg?: string }) { return <Text style={s.empty}>{msg}</Text>; }
 
 /* ─────────────────────────── CUSTOMERS ─────────────────────────── */
 function CustomersTab({ tenantId }: { tenantId: string }) {
@@ -355,7 +355,7 @@ const s = StyleSheet.create({
   searchInput: { backgroundColor: '#fff', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 10, fontSize: 14, color: '#0F172A', borderWidth: 1, borderColor: '#E2E8F0' },
   statCard: { flex: 1, backgroundColor: '#fff', borderRadius: 10, padding: 12, borderTopWidth: 3, alignItems: 'center', shadowColor: '#000', shadowOpacity: 0.04, elevation: 1 },
   statNum: { fontSize: 22, fontWeight: '800' },
-  statLabel: { fontSize: 10, color: '#64748B', fontWeight: '700', marginTop: 2 },
+  statLabel: { fontSize: 11, color: '#64748B', fontWeight: '700', marginTop: 2 },
   leadDot: { width: 10, height: 10, borderRadius: 5, marginRight: 12 },
   statusBtn: { paddingHorizontal: 16, paddingVertical: 9, borderRadius: 10 },
   statusBtnTxt: { color: '#fff', fontSize: 14, fontWeight: '700' },

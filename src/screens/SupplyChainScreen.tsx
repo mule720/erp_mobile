@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import Empty from '../components/Empty';
 import {
   View, Text, ScrollView, ActivityIndicator, StyleSheet,
   TouchableOpacity, Modal, Alert, RefreshControl, TextInput,
@@ -32,7 +33,6 @@ const TABS = [
 ];
 
 function Loader() { return <View style={s.center}><ActivityIndicator size="large" color={NAVY} /></View>; }
-function Empty({ msg = 'No records' }: { msg?: string }) { return <Text style={s.empty}>{msg}</Text>; }
 
 function ActionBtn({ label, color = NAVY, onPress }: { label: string; color?: string; onPress: () => void }) {
   return (
@@ -375,7 +375,7 @@ function ProductsTab({ tenantId }: { tenantId: string }) {
                 <View style={{ alignItems: 'flex-end' }}>
                   <Text style={s.amount}>{fmt(p.price ?? p.unit_price)}</Text>
                   <Text style={[s.sub, { marginTop: 3, color: lowStock ? '#DC2626' : '#64748B' }]}>Stock: {p.stock ?? '–'}</Text>
-                  {lowStock && <Text style={{ fontSize: 10, color: '#DC2626', fontWeight: '700' }}>LOW</Text>}
+                  {lowStock && <Text style={{ fontSize: 11, color: '#DC2626', fontWeight: '700' }}>LOW</Text>}
                 </View>
               </TouchableOpacity>
             );
@@ -717,7 +717,7 @@ function ThreeWayMatchTab({ tenantId }: { tenantId: string }) {
   return (
     <ScrollView style={{ flex: 1 }}>
       <Text style={s.sectionTitle}>Select a supplier bill to match against its PO and GRN</Text>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 12, gap: 8 }}>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0 }} contentContainerStyle={{ paddingHorizontal: 12, gap: 8 }}>
         {bills.map(b => (
           <TouchableOpacity key={b.id} onPress={() => { setSelectedId(b.id); setResult(null); }}
             style={[s.chip, selectedId === b.id && { backgroundColor: NAVY }]}>

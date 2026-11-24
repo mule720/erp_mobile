@@ -304,7 +304,7 @@ const s = StyleSheet.create({
     alignItems: 'center', backgroundColor: COLORS.surface,
   },
   pillVal: { fontSize: 16, fontFamily: FONT.display },
-  pillLbl: { fontSize: 10, color: COLORS.subtle, marginTop: 2, fontFamily: FONT.bodyRegular },
+  pillLbl: { fontSize: 11, color: COLORS.subtle, marginTop: 2, fontFamily: FONT.bodyRegular },
 
   twoCol: { marginTop: 4 },
 
@@ -342,5 +342,5 @@ const s = StyleSheet.create({
 
   divider: { width: 1, backgroundColor: '#F1F5F9', marginVertical: 8 },
   payVal: { fontSize: 16, fontFamily: FONT.display, color: NAVY },
-  payLbl: { fontSize: 10, color: COLORS.subtle, marginTop: 2, textAlign: 'center', fontFamily: FONT.bodyRegular },
+  payLbl: { fontSize: 11, color: COLORS.subtle, marginTop: 2, textAlign: 'center', fontFamily: FONT.bodyRegular },
 });

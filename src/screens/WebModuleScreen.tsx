@@ -1,4 +1,5 @@
 import React from 'react';
+import { Ionicons } from '@expo/vector-icons';
 import { View, Text, StyleSheet, Platform } from 'react-native';
 
 interface Props { path: string; title: string; }
@@ -22,9 +23,9 @@ export default function WebModuleScreen({ path, title }: Props) {
   // Native fallback — show a message directing user to web
   return (
     <View style={s.fallback}>
-      <Text style={s.icon}>🌐</Text>
+      <Ionicons name="globe-outline" size={40} color="#94A3B8" />
       <Text style={s.heading}>{title}</Text>
-      <Text style={s.body}>Open the NetOn ERP Pro web app at{'\n'}netonerppro.com{path}{'\n'}for full access to this module.</Text>
+      <Text style={s.body}>Open the Neton ERP Pro web app at{'\n'}netonerppro.com{path}{'\n'}for full access to this module.</Text>
     </View>
   );
 }

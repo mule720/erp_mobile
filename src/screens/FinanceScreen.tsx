@@ -1,4 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { Ionicons } from '@expo/vector-icons';
+import Empty from '../components/Empty';
 import {
   View, Text, ScrollView, ActivityIndicator, StyleSheet,
   TouchableOpacity, Modal, Alert, RefreshControl, TextInput,
@@ -149,7 +151,7 @@ function BudgetTab({ tenantId }: { tenantId: string }) {
     <ScrollView style={{ flex: 1 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); load(); }} colors={[NAVY]} />}>
       {budgets.length === 0 ? <Empty msg="No budgets set up yet." /> : (
         <>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 12 }} contentContainerStyle={{ paddingHorizontal: 12, gap: 8 }}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 12, flexGrow: 0 }} contentContainerStyle={{ paddingHorizontal: 12, gap: 8 }}>
             {budgets.map(b => (
               <TouchableOpacity key={b.id} onPress={() => setSelectedId(b.id)}
                 style={[s.chip, selectedId === b.id && { backgroundColor: NAVY }]}>
@@ -252,7 +254,7 @@ function PostingCenterTab() {
   return (
     <ScrollView style={{ flex: 1 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); load(); }} colors={[NAVY]} />}>
       <View style={[s.card, { marginTop: 12, flexDirection: 'row', alignItems: 'center', paddingVertical: 14 }]}>
-        <Text style={{ fontSize: 28, marginRight: 10 }}>{items.length === 0 ? '✅' : '📥'}</Text>
+        <Ionicons name={items.length === 0 ? 'checkmark-circle' : 'download-outline'} size={28} color={items.length === 0 ? '#059669' : '#2563EB'} style={{ marginRight: 10 }} />
         <View style={{ flex: 1 }}>
           <Text style={s.main}>{items.length === 0 ? 'Nothing pending' : `${items.length} item${items.length !== 1 ? 's' : ''} pending`}</Text>
           <Text style={s.sub}>{items.length === 0 ? 'Everything across the app has been posted or approved.' : 'Every draft, unposted document and pending approval, in one place.'}</Text>
@@ -280,7 +282,6 @@ function PostingCenterTab() {
 }
 
 function Loader() { return <View style={s.center}><ActivityIndicator size="large" color={NAVY} /></View>; }
-function Empty({ msg = 'No records' }: { msg?: string }) { return <Text style={s.empty}>{msg}</Text>; }
 
 function ActionBtn({ label, color = NAVY, onPress }: { label: string; color?: string; onPress: () => void }) {
   return (
@@ -365,7 +366,7 @@ function OverviewTab({ tenantId }: { tenantId: string }) {
                       <View style={{ width: 6, height: Math.max(2, opH), backgroundColor: '#16A34A', borderRadius: 2 }} />
                       <View style={{ width: 6, height: Math.max(2, netH), backgroundColor: netPos ? '#3B82F6' : '#DC2626', borderRadius: 2 }} />
                     </View>
-                    <Text style={{ fontSize: 8, color: '#94A3B8', textAlign: 'center' }}>{m.month?.slice(0, 3)}</Text>
+                    <Text style={{ fontSize: 11, color: '#94A3B8', textAlign: 'center' }}>{m.month?.slice(0, 3)}</Text>
                   </View>
                 );
               })}
@@ -1034,9 +1035,9 @@ function ReportsTab({ tenantId }: { tenantId: string }) {
   };
 
   const REPORTS = [
-    { key: 'trial_balance', label: 'Trial Balance', icon: '⚖', desc: 'Debit/credit totals by account' },
-    { key: 'pl', label: 'Profit & Loss', icon: '📈', desc: 'Revenue, expenses, net profit' },
-    { key: 'balance_sheet', label: 'Balance Sheet', icon: '🏦', desc: 'Assets, liabilities, equity' },
+    { key: 'trial_balance', label: 'Trial Balance', icon: 'scale-outline', desc: 'Debit/credit totals by account' },
+    { key: 'pl', label: 'Profit & Loss', icon: 'trending-up-outline', desc: 'Revenue, expenses, net profit' },
+    { key: 'balance_sheet', label: 'Balance Sheet', icon: 'business-outline', desc: 'Assets, liabilities, equity' },
   ];
 
   return (
@@ -1054,7 +1055,7 @@ function ReportsTab({ tenantId }: { tenantId: string }) {
       <View style={s.card}>
         {REPORTS.map((r, i) => (
           <TouchableOpacity key={r.key} style={[s.row, i < REPORTS.length - 1 && s.border, { gap: 12 }]} onPress={() => fetchReport(r.key)} activeOpacity={0.7}>
-            <Text style={{ fontSize: 24 }}>{r.icon}</Text>
+            <Ionicons name={r.icon as any} size={24} color="#2563EB" />
             <View style={{ flex: 1 }}>
               <Text style={s.main}>{r.label}</Text>
               <Text style={s.sub}>{r.desc}</Text>

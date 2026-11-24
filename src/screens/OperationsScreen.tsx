@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import Empty from '../components/Empty';
 import {
   View, Text, ScrollView, ActivityIndicator, StyleSheet,
   TouchableOpacity, Modal, Alert, RefreshControl,
@@ -25,7 +26,6 @@ const TABS = [
 ];
 
 function Loader() { return <View style={s.center}><ActivityIndicator size="large" color={NAVY} /></View>; }
-function Empty({ msg = 'No records' }: { msg?: string }) { return <Text style={s.empty}>{msg}</Text>; }
 
 function ActionBtn({ label, color = NAVY, onPress }: { label: string; color?: string; onPress: () => void }) {
   return (
@@ -537,7 +537,7 @@ const s = StyleSheet.create({
   sectionTitle: { fontSize: 13, fontWeight: '700', color: NAVY, marginHorizontal: 16, marginTop: 16, marginBottom: 4 },
   statCard: { flex: 1, backgroundColor: '#fff', borderRadius: 10, padding: 12, borderTopWidth: 3, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 2, elevation: 1, alignItems: 'center' },
   statNum: { fontSize: 22, fontWeight: '800' },
-  statLabel: { fontSize: 10, color: '#64748B', fontWeight: '700', marginTop: 2 },
+  statLabel: { fontSize: 11, color: '#64748B', fontWeight: '700', marginTop: 2 },
   modalHeader: { flexDirection: 'row', alignItems: 'center', padding: 16, borderBottomWidth: 1, borderBottomColor: '#E2E8F0', backgroundColor: '#fff' },
   modalTitle: { flex: 1, fontSize: 17, fontWeight: '700', color: NAVY },
   modalClose: { fontSize: 18, color: '#64748B', padding: 4 },

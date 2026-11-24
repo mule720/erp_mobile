@@ -107,7 +107,7 @@ export default function AICentreScreen({ onNavigate }: { onNavigate?: (key: stri
 
       {summary && (
         <Card title="Your business, in plain words" icon="bulb-outline">
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 8 }}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 8, flexGrow: 0 }}>
             {PERIODS.map(([k, l]) => (
               <TouchableOpacity key={k} onPress={() => setPeriod(k)} style={[s.chip, period === k && s.chipOn]}><Text style={[s.chipTxt, period === k && { color: '#fff' }]}>{l}</Text></TouchableOpacity>
             ))}

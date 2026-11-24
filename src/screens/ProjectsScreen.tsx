@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import Empty from '../components/Empty';
 import {
   View, Text, ScrollView, ActivityIndicator, StyleSheet,
   TouchableOpacity, Modal, TextInput, Alert,
@@ -43,7 +44,6 @@ const PRIORITY_COLOR: Record<string, string> = {
 };
 
 function Loader() { return <View style={s.center}><ActivityIndicator size="large" color={NAVY} /></View>; }
-function Empty({ msg = 'No records' }: { msg?: string }) { return <Text style={s.empty}>{msg}</Text>; }
 
 /* ─────────────────────────── PROJECTS ─────────────────────────── */
 function ProjectsTab({ tenantId }: { tenantId: string }) {
@@ -125,7 +125,7 @@ function ProjectsTab({ tenantId }: { tenantId: string }) {
                 </View>
                 {p.riskLevel && p.riskLevel !== 'low' && (
                   <View style={[s.riskBadge, { backgroundColor: p.riskLevel === 'high' ? '#FEE2E2' : '#FEF3C7' }]}>
-                    <Text style={{ fontSize: 10, color: p.riskLevel === 'high' ? '#DC2626' : '#D97706', fontWeight: '600' }}>
+                    <Text style={{ fontSize: 11, color: p.riskLevel === 'high' ? '#DC2626' : '#D97706', fontWeight: '600' }}>
                       {p.riskLevel.toUpperCase()} RISK
                     </Text>
                   </View>

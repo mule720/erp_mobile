@@ -103,8 +103,8 @@ export default function NotificationBell({ onOpenLink }: { onOpenLink: (path: st
 
 const s = StyleSheet.create({
   btn: { padding: 10 },
-  badge: { position: 'absolute', top: 1, right: 1, minWidth: 16, height: 16, borderRadius: 8, backgroundColor: COLORS.danger, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 3, borderWidth: 1.5, borderColor: '#fff' },
-  badgeTxt: { color: '#fff', fontSize: 9, fontFamily: FONT.display },
+  badge: { position: 'absolute', top: 1, right: 1, minWidth: 18, height: 18, borderRadius: 9, backgroundColor: COLORS.danger, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 3, borderWidth: 1.5, borderColor: '#fff' },
+  badgeTxt: { color: '#fff', fontSize: 10, fontFamily: FONT.display },
   backdrop: { flex: 1, backgroundColor: 'rgba(15,23,42,0.45)', justifyContent: 'flex-end' },
   sheet: { backgroundColor: COLORS.surface, borderTopLeftRadius: 24, borderTopRightRadius: 24 },
   head: { flexDirection: 'row', alignItems: 'center', padding: 18, paddingBottom: 10 },

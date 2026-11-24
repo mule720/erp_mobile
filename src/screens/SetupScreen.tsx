@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import Empty from '../components/Empty';
 import {
   View, Text, ScrollView, ActivityIndicator, StyleSheet,
   TouchableOpacity, Alert, TextInput,
@@ -24,7 +25,6 @@ const TABS = [
 ];
 
 function Loader() { return <View style={s.center}><ActivityIndicator size="large" color={NAVY} /></View>; }
-function Empty({ msg = 'No records' }: { msg?: string }) { return <Text style={s.empty}>{msg}</Text>; }
 
 function ActionBtn({ label, color = NAVY, onPress }: { label: string; color?: string; onPress: () => void }) {
   return (
@@ -408,7 +408,7 @@ function ChartOfAccountsTab({ tenantId }: { tenantId: string }) {
         />
       </View>
 
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ paddingHorizontal: 12, paddingBottom: 8 }} contentContainerStyle={{ gap: 6 }}>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ paddingHorizontal: 12, paddingBottom: 8, flexGrow: 0 }} contentContainerStyle={{ gap: 6 }}>
         {ACCOUNT_TYPES.map(t => (
           <TouchableOpacity key={t.value} onPress={() => setFilterType(t.value)}
             style={[s.chip, filterType === t.value && { backgroundColor: NAVY }]}>

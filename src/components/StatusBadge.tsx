@@ -33,5 +33,5 @@ export default function StatusBadge({ status }: { status: string }) {
 
 const s = StyleSheet.create({
   badge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 },
-  text: { fontSize: 10, fontWeight: '700', letterSpacing: 0.3 },
+  text: { fontSize: 11, fontWeight: '700', letterSpacing: 0.3 },
 });

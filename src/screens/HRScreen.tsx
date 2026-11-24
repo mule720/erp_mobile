@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import Empty from '../components/Empty';
 import {
   View, Text, ScrollView, ActivityIndicator, StyleSheet,
   TouchableOpacity, Modal, Alert, TextInput, RefreshControl,
@@ -134,7 +135,6 @@ function PayrollReportsTab({ tenantId }: { tenantId: string }) {
 }
 
 function Loader() { return <View style={s.center}><ActivityIndicator size="large" color={NAVY} /></View>; }
-function Empty({ msg = 'No records' }: { msg?: string }) { return <Text style={s.empty}>{msg}</Text>; }
 
 function ActionBtn({ label, color = NAVY, onPress }: { label: string; color?: string; onPress: () => void }) {
   return (
@@ -1040,7 +1040,7 @@ const s = StyleSheet.create({
   actionBtnTxt: { color: '#fff', fontSize: 14, fontWeight: '700' },
   searchWrap: { paddingHorizontal: 16, paddingTop: 10, paddingBottom: 4 },
   searchInput: { backgroundColor: '#fff', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 10, fontSize: 14, color: '#0F172A', borderWidth: 1, borderColor: '#E2E8F0' },
-  chipRow: { paddingVertical: 6 },
+  chipRow: { paddingVertical: 6, flexGrow: 0 },
   chip: { paddingHorizontal: 14, paddingVertical: 7, borderRadius: 20, borderWidth: 1, borderColor: '#E2E8F0', backgroundColor: '#fff' },
   chipActive: { backgroundColor: NAVY, borderColor: NAVY },
   chipTxt: { fontSize: 12, fontWeight: '600', color: '#334155' },
@@ -1053,7 +1053,7 @@ const s = StyleSheet.create({
   statGrid: { flexDirection: 'row', gap: 10, paddingHorizontal: 16, paddingTop: 12 },
   statCard: { flex: 1, backgroundColor: '#fff', borderRadius: 12, padding: 14, alignItems: 'center', shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 3, elevation: 1 },
   statNum: { fontSize: 22, fontWeight: '800', color: NAVY },
-  statLbl: { fontSize: 10, color: '#64748B', marginTop: 2, textAlign: 'center' },
+  statLbl: { fontSize: 11, color: '#64748B', marginTop: 2, textAlign: 'center' },
   activityDot: { width: 8, height: 8, borderRadius: 4, marginRight: 12 },
   balCard: { backgroundColor: '#fff', borderRadius: 12, padding: 14, marginRight: 10, width: 140, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 3, elevation: 1 },
   balName: { fontSize: 11, fontWeight: '600', color: '#64748B', marginBottom: 6 },
@@ -1061,7 +1061,7 @@ const s = StyleSheet.create({
   balOf: { fontSize: 14, fontWeight: '400', color: '#94A3B8' },
   barBg: { height: 4, backgroundColor: '#E2E8F0', borderRadius: 2, marginVertical: 6 },
   barFg: { height: 4, backgroundColor: GOLD, borderRadius: 2 },
-  balSub: { fontSize: 10, color: '#94A3B8' },
+  balSub: { fontSize: 11, color: '#94A3B8' },
   dateBtn: { backgroundColor: NAVY, borderRadius: 10, paddingHorizontal: 16, paddingVertical: 10 },
   dateBtnTxt: { color: '#fff', fontSize: 14, fontWeight: '700' },
 });

@@ -4,6 +4,7 @@
  * module add-on prices, and addon pack prices. Also shows all tenant
  * subscriptions and allows assigning a plan to a tenant.
  */
+import { Ionicons } from '@expo/vector-icons';
 import React, { useState, useCallback, useEffect } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
@@ -132,10 +133,10 @@ interface TenantSub {
 
 type TabKey = 'plans' | 'modules' | 'addons' | 'tenants';
 const TABS: { key: TabKey; label: string; icon: string }[] = [
-  { key: 'plans',   label: 'Plans',     icon: '📋' },
-  { key: 'modules', label: 'Modules',   icon: '🧩' },
-  { key: 'addons',  label: 'Add-Ons',   icon: '⚡' },
-  { key: 'tenants', label: 'Tenants',   icon: '🏢' },
+  { key: 'plans',   label: 'Plans',     icon: 'list-outline' },
+  { key: 'modules', label: 'Modules',   icon: 'apps-outline' },
+  { key: 'addons',  label: 'Add-Ons',   icon: 'flash-outline' },
+  { key: 'tenants', label: 'Tenants',   icon: 'business-outline' },
 ];
 
 // ─── Helper: numeric input to string ────────────────────────────
@@ -389,7 +390,7 @@ function PlansTab({ plans, reload }: { plans: Plan[]; reload: () => void }) {
             <View style={{ flex: 1 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                 <Text style={t.cardTitle}>{plan.name}</Text>
-                {plan.isFeatured && <Text style={t.badge}>⭐ Featured</Text>}
+                {plan.isFeatured && <Text style={t.badge}>Featured</Text>}
                 {!plan.isActive && <Text style={[t.badge, { backgroundColor: '#FEE2E2', color: DANGER }]}>Inactive</Text>}
                 {!plan.isPublic && <Text style={[t.badge, { backgroundColor: '#FEF3C7', color: WARN }]}>Private</Text>}
               </View>
@@ -709,7 +710,7 @@ function TenantsTab({ tenants }: { tenants: TenantSub[] }) {
   if (tenants.length === 0) {
     return (
       <View style={{ padding: 32, alignItems: 'center' }}>
-        <Text style={{ fontSize: 32, marginBottom: 8 }}>🏢</Text>
+        <Ionicons name="business-outline" size={32} color="#94A3B8" style={{ marginBottom: 8 }} />
         <Text style={{ color: '#64748B', textAlign: 'center' }}>
           No tenant subscriptions yet.{'\n'}Tenants subscribe from the customer portal.
         </Text>
@@ -834,7 +835,7 @@ export default function SubscriptionAdminScreen() {
         >
           {seeding
             ? <ActivityIndicator color={GOLD} size="small" />
-            : <Text style={s.seedTxt}>🌱 Seed</Text>}
+            : <Text style={s.seedTxt}>Seed</Text>}
         </TouchableOpacity>
       </View>
 
@@ -847,7 +848,7 @@ export default function SubscriptionAdminScreen() {
             onPress={() => setTab(tb.key)}
             activeOpacity={0.8}
           >
-            <Text style={s.tabIcon}>{tb.icon}</Text>
+            <Ionicons name={tb.icon as any} size={15} color="#64748B" style={{ marginRight: 4 }} />
             <Text style={[s.tabLabel, tab === tb.key && s.tabLabelActive]}>{tb.label}</Text>
             {tab === tb.key && <View style={s.tabUnderline} />}
           </TouchableOpacity>
@@ -941,7 +942,7 @@ const t = StyleSheet.create({
   badge: {
     paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4,
     backgroundColor: '#ECFDF5', color: SUCCESS,
-    fontSize: 10, fontWeight: '700',
+    fontSize: 11, fontWeight: '700',
   },
 
   row: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
@@ -950,7 +951,7 @@ const t = StyleSheet.create({
     paddingHorizontal: 10, paddingVertical: 6, alignItems: 'center',
   },
   statVal: { fontSize: 13, fontWeight: '700', color: '#0F172A' },
-  statLbl: { fontSize: 10, color: '#94A3B8', marginTop: 1 },
+  statLbl: { fontSize: 11, color: '#94A3B8', marginTop: 1 },
 
   statusPill: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
   statusTxt: { fontSize: 11, fontWeight: '700' },
