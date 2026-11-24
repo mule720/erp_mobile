@@ -12,8 +12,8 @@ import FormModal from '../components/FormModal';
 import { Field, SelectField, Section } from '../components/Field';
 import FAB from '../components/FAB';
 
-const NAVY = '#1E3A5F';
-const GOLD = '#C9A84C';
+const NAVY = '#2563EB';
+const GOLD = '#0EA5E9';
 const today = () => new Date().toISOString().slice(0, 10);
 const fmt = (n: any) =>
   new Intl.NumberFormat('en-ZM', { style: 'currency', currency: 'ZMW' }).format(Number(n ?? 0));
@@ -146,7 +146,7 @@ function TaxRatesTab({ tenantId }: { tenantId: string }) {
               </View>
               <View style={{ alignItems: 'flex-end' }}>
                 <Text style={s.amount}>{r.rate}%</Text>
-                <Text style={{ fontSize: 11, color: r.isActive ? '#16A34A' : '#9CA3AF', marginTop: 2 }}>{r.isActive ? 'Active' : 'Inactive'}</Text>
+                <Text style={{ fontSize: 11, color: r.isActive ? '#16A34A' : '#94A3B8', marginTop: 2 }}>{r.isActive ? 'Active' : 'Inactive'}</Text>
               </View>
             </View>
           ))}
@@ -205,7 +205,7 @@ function SmartInvoiceTab({ tenantId }: { tenantId: string }) {
     if (status === 'verified') return '#16A34A';
     if (status === 'rejected') return '#DC2626';
     if (status === 'sent') return GOLD;
-    return '#6B7280';
+    return '#64748B';
   };
 
   if (loading) return <Loader />;
@@ -331,27 +331,27 @@ export default function TaxHubScreen() {
 
 const s = StyleSheet.create({
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 40 },
-  empty: { color: '#9CA3AF', fontSize: 14, textAlign: 'center', padding: 16 },
+  empty: { color: '#94A3B8', fontSize: 14, textAlign: 'center', padding: 16 },
   card: { backgroundColor: '#fff', borderRadius: 12, paddingHorizontal: 16, marginHorizontal: 16, marginTop: 8, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 4, elevation: 2 },
   row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12 },
   border: { borderBottomWidth: 1, borderBottomColor: '#F1F5F9' },
-  main: { fontSize: 14, fontWeight: '600', color: '#1F2937' },
-  sub: { fontSize: 12, color: '#6B7280', marginTop: 2 },
-  sub2: { fontSize: 11, color: '#9CA3AF', marginTop: 1 },
+  main: { fontSize: 14, fontWeight: '600', color: '#0F172A' },
+  sub: { fontSize: 12, color: '#64748B', marginTop: 2 },
+  sub2: { fontSize: 11, color: '#94A3B8', marginTop: 1 },
   amount: { fontSize: 14, fontWeight: '700', color: NAVY },
   sectionTitle: { fontSize: 13, fontWeight: '700', color: NAVY, marginHorizontal: 16, marginTop: 16, marginBottom: 4 },
-  modalHeader: { flexDirection: 'row', alignItems: 'center', padding: 16, borderBottomWidth: 1, borderBottomColor: '#E5E7EB', backgroundColor: '#fff' },
+  modalHeader: { flexDirection: 'row', alignItems: 'center', padding: 16, borderBottomWidth: 1, borderBottomColor: '#E2E8F0', backgroundColor: '#fff' },
   modalTitle: { flex: 1, fontSize: 17, fontWeight: '700', color: NAVY },
-  modalClose: { fontSize: 18, color: '#6B7280', padding: 4 },
+  modalClose: { fontSize: 18, color: '#64748B', padding: 4 },
   detailRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 12 },
-  detailLabel: { fontSize: 13, color: '#6B7280' },
-  detailValue: { fontSize: 13, fontWeight: '600', color: '#1F2937', flex: 1, textAlign: 'right' },
+  detailLabel: { fontSize: 13, color: '#64748B' },
+  detailValue: { fontSize: 13, fontWeight: '600', color: '#0F172A', flex: 1, textAlign: 'right' },
   actionRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, padding: 16 },
   actionBtn: { paddingHorizontal: 18, paddingVertical: 11, borderRadius: 10, backgroundColor: NAVY },
   actionBtnTxt: { color: '#fff', fontSize: 14, fontWeight: '700' },
   summaryGrid: { flexDirection: 'row', flexWrap: 'wrap', paddingVertical: 8 },
   summaryCell: { width: '50%', paddingVertical: 10, paddingHorizontal: 4 },
-  summaryLabel: { fontSize: 11, color: '#6B7280', marginBottom: 4 },
+  summaryLabel: { fontSize: 11, color: '#64748B', marginBottom: 4 },
   summaryValue: { fontSize: 15, fontWeight: '800', color: NAVY },
   defaultBadge: { backgroundColor: '#EEF2FF', borderRadius: 6, paddingHorizontal: 6, paddingVertical: 2 },
   defaultBadgeTxt: { fontSize: 10, fontWeight: '700', color: '#4F46E5' },

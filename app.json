@@ -16,8 +16,8 @@
       "package": "com.nexora.erp",
       "versionCode": 1,
       "adaptiveIcon": {
-        "backgroundColor": "#1E3A5F",
-        "foregroundImage": "./assets/icon.png"
+        "backgroundColor": "#FFFFFF",
+        "foregroundImage": "./assets/adaptive-icon.png"
       },
       "permissions": [
         "android.permission.CAMERA",
@@ -58,7 +58,7 @@
         "expo-notifications",
         {
           "icon": "./assets/icon.png",
-          "color": "#1E3A5F"
+          "color": "#2563EB"
         }
       ],
       [
@@ -71,7 +71,7 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#1E3A5F",
+          "backgroundColor": "#FFFFFF",
           "image": "./assets/icon.png",
           "imageWidth": 200
         }

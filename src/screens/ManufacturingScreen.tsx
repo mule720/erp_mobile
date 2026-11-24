@@ -15,7 +15,7 @@ import {
 
 const TABS = [{ key: 'planner', label: 'Planner' }, { key: 'recipes', label: 'Recipes' }, { key: 'orders', label: 'Work orders' }, { key: 'alerts', label: 'Alerts' }];
 const say = (title: string, msg?: string) => (Platform.OS === 'web' ? window.alert(msg ? `${title}\n${msg}` : title) : Alert.alert(title, msg));
-const STATUS_COLOR: Record<string, string> = { planned: '#3B82F6', released: '#6366F1', in_progress: '#F59E0B', completed: '#16A34A', closed: '#6B7280', cancelled: '#DC2626' };
+const STATUS_COLOR: Record<string, string> = { planned: '#3B82F6', released: '#6366F1', in_progress: '#F59E0B', completed: '#16A34A', closed: '#64748B', cancelled: '#DC2626' };
 
 /* ───────────────────────────── Planner ───────────────────────────── */
 function Planner({ t, items }: { t: string; items: RecipeItem[] }) {

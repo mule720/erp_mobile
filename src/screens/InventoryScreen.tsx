@@ -12,8 +12,8 @@ import FormModal from '../components/FormModal';
 import { Field, SelectField, Section } from '../components/Field';
 import FAB from '../components/FAB';
 
-const NAVY = '#1E3A5F';
-const GOLD = '#C9A84C';
+const NAVY = '#2563EB';
+const GOLD = '#0EA5E9';
 const today = () => new Date().toISOString().slice(0, 10);
 const fmt = (n: any, cur = 'ZMW') =>
   new Intl.NumberFormat('en-ZM', { style: 'currency', currency: cur, maximumFractionDigits: 2 }).format(Number(n ?? 0));
@@ -159,7 +159,7 @@ function ProductsTab({ tenantId }: { tenantId: string }) {
   return (
     <View style={{ flex: 1 }}>
       <View style={s.searchWrap}>
-        <TextInput style={s.searchInput} value={search} onChangeText={setSearch} placeholder="Search products…" placeholderTextColor="#9CA3AF" />
+        <TextInput style={s.searchInput} value={search} onChangeText={setSearch} placeholder="Search products…" placeholderTextColor="#94A3B8" />
       </View>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={s.chipRow} contentContainerStyle={{ paddingHorizontal: 16, gap: 8 }}>
         {categories.map(c => (
@@ -187,7 +187,7 @@ function ProductsTab({ tenantId }: { tenantId: string }) {
                   <View style={{ alignItems: 'flex-end', flexDirection: 'row', gap: 8, alignSelf: 'center' }}>
                     <View style={{ alignItems: 'flex-end' }}>
                       <Text style={s.amount}>{fmt(p.price ?? p.unit_price)}</Text>
-                      <Text style={[s.sub, { marginTop: 3, color: lowStock ? '#DC2626' : '#6B7280' }]}>Stock: {p.stock ?? '–'}</Text>
+                      <Text style={[s.sub, { marginTop: 3, color: lowStock ? '#DC2626' : '#64748B' }]}>Stock: {p.stock ?? '–'}</Text>
                       {lowStock && <Text style={{ fontSize: 10, color: '#DC2626', fontWeight: '700' }}>LOW</Text>}
                     </View>
                     <Text style={{ color: '#94A3B8', fontSize: 16, marginRight: 2 }}>{isOpen ? '▲' : '▼'}</Text>
@@ -196,7 +196,7 @@ function ProductsTab({ tenantId }: { tenantId: string }) {
 
                 {/* Inline expanded details */}
                 {isOpen && (
-                  <View style={{ backgroundColor: '#F8FAFC', paddingHorizontal: 16, paddingBottom: 14, borderBottomWidth: i < filtered.length - 1 ? 1 : 0, borderBottomColor: '#E5E7EB' }}>
+                  <View style={{ backgroundColor: '#F8FAFC', paddingHorizontal: 16, paddingBottom: 14, borderBottomWidth: i < filtered.length - 1 ? 1 : 0, borderBottomColor: '#E2E8F0' }}>
                     {([
                       ['SKU', p.sku],
                       ['Category', p.category],
@@ -208,7 +208,7 @@ function ProductsTab({ tenantId }: { tenantId: string }) {
                       ['Description', p.description],
                     ] as [string, any][]).filter(([, v]) => v && v !== 'undefined' && v !== 'null').map(([l, v]) => (
                       <View key={l} style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6, borderBottomWidth: 1, borderBottomColor: '#EEF2F7' }}>
-                        <Text style={{ fontSize: 12, color: '#6B7280', fontWeight: '600' }}>{l}</Text>
+                        <Text style={{ fontSize: 12, color: '#64748B', fontWeight: '600' }}>{l}</Text>
                         <Text style={{ fontSize: 12, color: '#1E293B', flexShrink: 1, marginLeft: 12, textAlign: 'right' }}>{v}</Text>
                       </View>
                     ))}
@@ -603,8 +603,8 @@ function ExpiryTab({ tenantId }: { tenantId: string }) {
                   {b.batchNumber && <Text style={s.sub}>Batch: {b.batchNumber}</Text>}
                 </View>
                 <View style={{ alignItems: 'flex-end' }}>
-                  <View style={[s.chip, { borderColor: STATUS_COLOR[b.status] || '#6B7280', paddingHorizontal: 8, paddingVertical: 2 }]}>
-                    <Text style={{ fontSize: 11, color: STATUS_COLOR[b.status] || '#6B7280', fontWeight: '600' }}>
+                  <View style={[s.chip, { borderColor: STATUS_COLOR[b.status] || '#64748B', paddingHorizontal: 8, paddingVertical: 2 }]}>
+                    <Text style={{ fontSize: 11, color: STATUS_COLOR[b.status] || '#64748B', fontWeight: '600' }}>
                       {b.status === 'expired' ? 'Expired' : `${b.daysLeft}d left`}
                     </Text>
                   </View>
@@ -643,32 +643,32 @@ export default function InventoryScreen() {
 
 const s = StyleSheet.create({
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 40 },
-  empty: { color: '#9CA3AF', fontSize: 14, textAlign: 'center', padding: 16 },
+  empty: { color: '#94A3B8', fontSize: 14, textAlign: 'center', padding: 16 },
   card: { backgroundColor: '#fff', borderRadius: 12, paddingHorizontal: 16, marginHorizontal: 16, marginTop: 8, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 4, elevation: 2 },
   row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12 },
   border: { borderBottomWidth: 1, borderBottomColor: '#F1F5F9' },
-  main: { fontSize: 14, fontWeight: '600', color: '#1F2937' },
-  sub: { fontSize: 12, color: '#6B7280', marginTop: 2 },
-  sub2: { fontSize: 11, color: '#9CA3AF', marginTop: 1 },
+  main: { fontSize: 14, fontWeight: '600', color: '#0F172A' },
+  sub: { fontSize: 12, color: '#64748B', marginTop: 2 },
+  sub2: { fontSize: 11, color: '#94A3B8', marginTop: 1 },
   amount: { fontSize: 14, fontWeight: '700', color: NAVY },
   sectionTitle: { fontSize: 13, fontWeight: '700', color: NAVY, marginHorizontal: 16, marginTop: 16, marginBottom: 4 },
-  modalHeader: { flexDirection: 'row', alignItems: 'center', padding: 16, borderBottomWidth: 1, borderBottomColor: '#E5E7EB', backgroundColor: '#fff' },
+  modalHeader: { flexDirection: 'row', alignItems: 'center', padding: 16, borderBottomWidth: 1, borderBottomColor: '#E2E8F0', backgroundColor: '#fff' },
   modalTitle: { flex: 1, fontSize: 17, fontWeight: '700', color: NAVY },
-  modalClose: { fontSize: 18, color: '#6B7280', padding: 4 },
+  modalClose: { fontSize: 18, color: '#64748B', padding: 4 },
   detailRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 12 },
-  detailLabel: { fontSize: 13, color: '#6B7280' },
-  detailValue: { fontSize: 13, fontWeight: '600', color: '#1F2937', flex: 1, textAlign: 'right' },
+  detailLabel: { fontSize: 13, color: '#64748B' },
+  detailValue: { fontSize: 13, fontWeight: '600', color: '#0F172A', flex: 1, textAlign: 'right' },
   actionRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, padding: 16 },
   actionBtn: { paddingHorizontal: 18, paddingVertical: 11, borderRadius: 10, backgroundColor: NAVY },
   actionBtnTxt: { color: '#fff', fontSize: 14, fontWeight: '700' },
   searchWrap: { paddingHorizontal: 16, paddingTop: 10, paddingBottom: 4 },
-  searchInput: { backgroundColor: '#fff', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 10, fontSize: 14, color: '#111827', borderWidth: 1, borderColor: '#E5E7EB' },
+  searchInput: { backgroundColor: '#fff', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 10, fontSize: 14, color: '#0F172A', borderWidth: 1, borderColor: '#E2E8F0' },
   chipRow: { paddingVertical: 6 },
-  chip: { paddingHorizontal: 14, paddingVertical: 7, borderRadius: 20, borderWidth: 1, borderColor: '#E5E7EB', backgroundColor: '#fff' },
+  chip: { paddingHorizontal: 14, paddingVertical: 7, borderRadius: 20, borderWidth: 1, borderColor: '#E2E8F0', backgroundColor: '#fff' },
   chipActive: { backgroundColor: NAVY, borderColor: NAVY },
-  chipTxt: { fontSize: 12, fontWeight: '600', color: '#374151' },
+  chipTxt: { fontSize: 12, fontWeight: '600', color: '#334155' },
   chipTxtActive: { color: '#fff' },
-  progressBg: { height: 6, backgroundColor: '#E5E7EB', borderRadius: 3, width: '100%', marginTop: 6, marginBottom: 4 },
+  progressBg: { height: 6, backgroundColor: '#E2E8F0', borderRadius: 3, width: '100%', marginTop: 6, marginBottom: 4 },
   progressFill: { height: 6, borderRadius: 3 },
   movIcon: { width: 34, height: 34, borderRadius: 17, justifyContent: 'center', alignItems: 'center', marginRight: 12 },
   catIcon: { width: 36, height: 36, borderRadius: 10, justifyContent: 'center', alignItems: 'center', marginRight: 12 },
@@ -677,5 +677,5 @@ const s = StyleSheet.create({
   statRow: { flexDirection: 'row', gap: 12, paddingHorizontal: 16, paddingTop: 12 },
   statCard: { flex: 1, backgroundColor: '#fff', borderRadius: 12, padding: 14, alignItems: 'center', shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 3, elevation: 1 },
   statNum: { fontSize: 20, fontWeight: '800', color: NAVY },
-  statLbl: { fontSize: 11, color: '#6B7280', marginTop: 2 },
+  statLbl: { fontSize: 11, color: '#64748B', marginTop: 2 },
 });

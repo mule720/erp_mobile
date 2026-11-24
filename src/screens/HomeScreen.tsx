@@ -35,7 +35,7 @@ const ACTIVITY_COLORS: Record<string, string> = {
   purchase: '#F59E0B',
   payroll: '#8B5CF6',
   expense: '#EF4444',
-  journal_entry: '#6B7280',
+  journal_entry: '#64748B',
 };
 
 const ACTIVITY_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
@@ -171,7 +171,7 @@ export default function HomeScreen({ onNavigate }: Props) {
           <BreakdownPill label="Draft" value={summary.draft} color="#F59E0B" />
           <BreakdownPill label="Paid" value={summary.paid} color="#10B981" />
           <BreakdownPill label="Overdue" value={summary.overdue} color="#EF4444" />
-          <BreakdownPill label="Fiscalised" value={summary.fiscalised} color="#6B7280" />
+          <BreakdownPill label="Fiscalised" value={summary.fiscalised} color="#64748B" />
         </View>
       )}
 
@@ -189,7 +189,7 @@ export default function HomeScreen({ onNavigate }: Props) {
                 ? <Text style={s.empty}>No recent activity</Text>
                 : activities.map((a: any, i: number) => (
                   <View key={i} style={[s.actRow, i < activities.length - 1 && s.border]}>
-                    <View style={[s.actDot, { backgroundColor: ACTIVITY_COLORS[a.activityType] || '#6B7280' }]}>
+                    <View style={[s.actDot, { backgroundColor: ACTIVITY_COLORS[a.activityType] || '#64748B' }]}>
                       <Ionicons name={ACTIVITY_ICONS[a.activityType] || 'ellipse'} size={13} color="#fff" />
                     </View>
                     <View style={{ flex: 1 }}>
@@ -274,7 +274,7 @@ function PayrollStat({ label, value, accent }: { label: string; value: any; acce
 const s = StyleSheet.create({
   aiCard: { backgroundColor: COLORS.navy, borderRadius: RADIUS.lg, padding: 14, marginHorizontal: 16, marginBottom: 14, ...SHADOW.card },
   aiTitle: { color: '#fff', fontSize: 13, fontWeight: '800' },
-  aiMore: { color: COLORS.amberLight, fontSize: 12, fontWeight: '700' },
+  aiMore: { color: '#DBEAFE', fontSize: 12, fontWeight: '700' },
   aiLine: { color: 'rgba(255,255,255,0.85)', fontSize: 12.5, lineHeight: 18, marginTop: 3 },
   root: { flex: 1, backgroundColor: COLORS.surfaceMuted },
 

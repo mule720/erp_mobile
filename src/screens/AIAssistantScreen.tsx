@@ -7,8 +7,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { gql } from '../api/graphql';
 import { useAuth } from '../store/AuthContext';
 
-const NAVY = '#1E3A5F';
-const GOLD = '#C9A84C';
+const NAVY = '#2563EB';
+const GOLD = '#0EA5E9';
 
 interface Message { role: 'user' | 'assistant'; content: string; loading?: boolean }
 

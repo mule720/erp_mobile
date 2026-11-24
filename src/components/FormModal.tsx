@@ -4,7 +4,7 @@ import {
   StyleSheet, KeyboardAvoidingView, Platform,
 } from 'react-native';
 
-const NAVY = '#1E3A5F';
+const NAVY = '#2563EB';
 
 interface Props {
   visible: boolean;
@@ -46,10 +46,10 @@ const s = StyleSheet.create({
   header: {
     flexDirection: 'row', alignItems: 'center',
     backgroundColor: '#fff', paddingHorizontal: 8, paddingVertical: 12,
-    borderBottomWidth: 1, borderBottomColor: '#E5E7EB',
+    borderBottomWidth: 1, borderBottomColor: '#E2E8F0',
   },
   closeBtn: { padding: 8 },
-  closeText: { fontSize: 18, color: '#6B7280' },
+  closeText: { fontSize: 18, color: '#64748B' },
   title: { flex: 1, fontSize: 16, fontWeight: '700', color: NAVY, textAlign: 'center' },
   saveBtn: { backgroundColor: NAVY, borderRadius: 8, paddingHorizontal: 16, paddingVertical: 8 },
   saveText: { color: '#fff', fontSize: 14, fontWeight: '700' },

@@ -12,8 +12,8 @@ import FormModal from '../components/FormModal';
 import { Field, SelectField, Section } from '../components/Field';
 import FAB from '../components/FAB';
 
-const NAVY = '#1E3A5F';
-const GOLD = '#C9A84C';
+const NAVY = '#2563EB';
+const GOLD = '#0EA5E9';
 const today = () => new Date().toISOString().slice(0, 10);
 const fmt = (n: any) => Number(n ?? 0).toLocaleString('en-ZM', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const fmtK = (n: any) => `K${Number(n ?? 0).toLocaleString()}`;
@@ -68,10 +68,10 @@ function AgeingTab({ tenantId }: { tenantId: string }) {
 
   return (
     <ScrollView style={{ flex: 1 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); load(); }} colors={[NAVY]} />}>
-      <View style={{ flexDirection: 'row', margin: 16, marginBottom: 8, backgroundColor: '#E5E7EB', borderRadius: 10, padding: 3 }}>
+      <View style={{ flexDirection: 'row', margin: 16, marginBottom: 8, backgroundColor: '#E2E8F0', borderRadius: 10, padding: 3 }}>
         {(['receivables', 'payables'] as const).map(k => (
           <TouchableOpacity key={k} style={{ flex: 1, paddingVertical: 8, borderRadius: 8, backgroundColor: side === k ? '#fff' : 'transparent', alignItems: 'center' }} onPress={() => setSide(k)}>
-            <Text style={{ fontSize: 13, fontWeight: '700', color: side === k ? NAVY : '#6B7280' }}>{k === 'receivables' ? 'Receivables' : 'Payables'}</Text>
+            <Text style={{ fontSize: 13, fontWeight: '700', color: side === k ? NAVY : '#64748B' }}>{k === 'receivables' ? 'Receivables' : 'Payables'}</Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -341,7 +341,7 @@ function OverviewTab({ tenantId }: { tenantId: string }) {
             <Text style={s.kpiLabel}>Accounts Receivable</Text>
             <Text style={[s.kpiValue, { color: '#2563EB', fontSize: 16 }]}>{fmtK(d.arBalance ?? d.receivables)}</Text>
           </View>
-          <View style={{ width: 1, backgroundColor: '#E5E7EB' }} />
+          <View style={{ width: 1, backgroundColor: '#E2E8F0' }} />
           <View style={{ flex: 1, alignItems: 'center' }}>
             <Text style={s.kpiLabel}>Accounts Payable</Text>
             <Text style={[s.kpiValue, { color: '#DC2626', fontSize: 16 }]}>{fmtK(d.apBalance ?? d.payables)}</Text>
@@ -365,7 +365,7 @@ function OverviewTab({ tenantId }: { tenantId: string }) {
                       <View style={{ width: 6, height: Math.max(2, opH), backgroundColor: '#16A34A', borderRadius: 2 }} />
                       <View style={{ width: 6, height: Math.max(2, netH), backgroundColor: netPos ? '#3B82F6' : '#DC2626', borderRadius: 2 }} />
                     </View>
-                    <Text style={{ fontSize: 8, color: '#9CA3AF', textAlign: 'center' }}>{m.month?.slice(0, 3)}</Text>
+                    <Text style={{ fontSize: 8, color: '#94A3B8', textAlign: 'center' }}>{m.month?.slice(0, 3)}</Text>
                   </View>
                 );
               })}
@@ -373,11 +373,11 @@ function OverviewTab({ tenantId }: { tenantId: string }) {
             <View style={{ flexDirection: 'row', gap: 16, paddingBottom: 8 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                 <View style={{ width: 8, height: 8, backgroundColor: '#16A34A', borderRadius: 2 }} />
-                <Text style={{ fontSize: 11, color: '#6B7280' }}>Inflow</Text>
+                <Text style={{ fontSize: 11, color: '#64748B' }}>Inflow</Text>
               </View>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                 <View style={{ width: 8, height: 8, backgroundColor: '#DC2626', borderRadius: 2 }} />
-                <Text style={{ fontSize: 11, color: '#6B7280' }}>Outflow</Text>
+                <Text style={{ fontSize: 11, color: '#64748B' }}>Outflow</Text>
               </View>
             </View>
           </View>
@@ -523,7 +523,7 @@ function JournalsTab({ tenantId }: { tenantId: string }) {
         {form.lines.map((line, i) => (
           <View key={i} style={s.lineItem}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
-              <Text style={{ fontSize: 12, fontWeight: '600', color: '#6B7280' }}>Line {i + 1}</Text>
+              <Text style={{ fontSize: 12, fontWeight: '600', color: '#64748B' }}>Line {i + 1}</Text>
               {form.lines.length > 1 && (
                 <TouchableOpacity onPress={() => setForm(f => ({ ...f, lines: f.lines.filter((_, j) => j !== i) }))}>
                   <Text style={{ color: '#DC2626', fontSize: 13 }}>Remove</Text>
@@ -1073,7 +1073,7 @@ function ReportsTab({ tenantId }: { tenantId: string }) {
               <View style={[s.card, { marginBottom: 8 }]}>
                 {selected === 'trial_balance' && (
                   <>
-                    <View style={[s.row, { borderBottomWidth: 1, borderBottomColor: '#E5E7EB' }]}>
+                    <View style={[s.row, { borderBottomWidth: 1, borderBottomColor: '#E2E8F0' }]}>
                       <Text style={[s.detailLabel, { flex: 2 }]}>Account</Text>
                       <Text style={[s.detailLabel, { flex: 1, textAlign: 'right' }]}>Debit</Text>
                       <Text style={[s.detailLabel, { flex: 1, textAlign: 'right' }]}>Credit</Text>
@@ -1291,31 +1291,31 @@ export default function FinanceScreen() {
 
 const s = StyleSheet.create({
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 40 },
-  empty: { color: '#9CA3AF', fontSize: 14, textAlign: 'center', padding: 16 },
+  empty: { color: '#94A3B8', fontSize: 14, textAlign: 'center', padding: 16 },
   card: { backgroundColor: '#fff', borderRadius: 12, paddingHorizontal: 16, marginHorizontal: 16, marginTop: 8, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 4, elevation: 2 },
   row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12 },
   border: { borderBottomWidth: 1, borderBottomColor: '#F1F5F9' },
-  main: { fontSize: 14, fontWeight: '600', color: '#1F2937' },
-  sub: { fontSize: 12, color: '#6B7280', marginTop: 2 },
-  sub2: { fontSize: 11, color: '#9CA3AF', marginTop: 1 },
+  main: { fontSize: 14, fontWeight: '600', color: '#0F172A' },
+  sub: { fontSize: 12, color: '#64748B', marginTop: 2 },
+  sub2: { fontSize: 11, color: '#94A3B8', marginTop: 1 },
   amount: { fontSize: 14, fontWeight: '700', color: NAVY },
   sectionTitle: { fontSize: 13, fontWeight: '700', color: NAVY, marginHorizontal: 16, marginTop: 16, marginBottom: 4 },
   kpiRow: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 12, paddingTop: 12, gap: 8 },
   kpi: { flex: 1, minWidth: '45%', backgroundColor: '#fff', borderRadius: 12, padding: 14, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 3, elevation: 1 },
-  kpiLabel: { fontSize: 11, color: '#6B7280', fontWeight: '600', textTransform: 'uppercase' },
+  kpiLabel: { fontSize: 11, color: '#64748B', fontWeight: '600', textTransform: 'uppercase' },
   kpiValue: { fontSize: 18, fontWeight: '800', color: NAVY, marginTop: 4 },
-  modalHeader: { flexDirection: 'row', alignItems: 'center', padding: 16, borderBottomWidth: 1, borderBottomColor: '#E5E7EB', backgroundColor: '#fff' },
+  modalHeader: { flexDirection: 'row', alignItems: 'center', padding: 16, borderBottomWidth: 1, borderBottomColor: '#E2E8F0', backgroundColor: '#fff' },
   modalTitle: { flex: 1, fontSize: 17, fontWeight: '700', color: NAVY },
-  modalClose: { fontSize: 18, color: '#6B7280', padding: 4 },
+  modalClose: { fontSize: 18, color: '#64748B', padding: 4 },
   detailRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 12 },
-  detailLabel: { fontSize: 13, color: '#6B7280' },
-  detailValue: { fontSize: 13, fontWeight: '600', color: '#1F2937', flex: 1, textAlign: 'right', marginLeft: 8 },
+  detailLabel: { fontSize: 13, color: '#64748B' },
+  detailValue: { fontSize: 13, fontWeight: '600', color: '#0F172A', flex: 1, textAlign: 'right', marginLeft: 8 },
   actionRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, padding: 16 },
   actionBtn: { paddingHorizontal: 18, paddingVertical: 11, borderRadius: 10, backgroundColor: NAVY },
   actionBtnTxt: { color: '#fff', fontSize: 14, fontWeight: '700' },
-  lineItem: { backgroundColor: '#F8FAFC', borderRadius: 10, padding: 12, marginBottom: 10, borderWidth: 1, borderColor: '#E5E7EB' },
+  lineItem: { backgroundColor: '#F8FAFC', borderRadius: 10, padding: 12, marginBottom: 10, borderWidth: 1, borderColor: '#E2E8F0' },
   addLineBtn: { borderStyle: 'dashed', borderWidth: 1, borderColor: '#CBD5E1', borderRadius: 10, padding: 12, alignItems: 'center', marginBottom: 14 },
   addLineTxt: { color: NAVY, fontSize: 13, fontWeight: '600' },
-  chip: { paddingHorizontal: 14, paddingVertical: 7, borderRadius: 20, backgroundColor: '#E5E7EB' },
-  chipTxt: { fontSize: 13, fontWeight: '600', color: '#374151' },
+  chip: { paddingHorizontal: 14, paddingVertical: 7, borderRadius: 20, backgroundColor: '#E2E8F0' },
+  chipTxt: { fontSize: 13, fontWeight: '600', color: '#334155' },
 });

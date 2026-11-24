@@ -11,8 +11,8 @@ import FormModal from '../components/FormModal';
 import { Field, SelectField } from '../components/Field';
 import FAB from '../components/FAB';
 
-const NAVY = '#1E3A5F';
-const GOLD = '#C9A84C';
+const NAVY = '#2563EB';
+const GOLD = '#0EA5E9';
 
 function DetailRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -35,11 +35,11 @@ const TICKET_PRIORITIES = ['low', 'medium', 'high', 'critical'];
 
 const STATUS_COLOR: Record<string, string> = {
   planned: '#3B82F6', active: '#16A34A', on_hold: '#F59E0B',
-  completed: '#6B7280', cancelled: '#DC2626',
-  open: '#3B82F6', in_progress: '#F59E0B', resolved: '#16A34A', closed: '#6B7280',
+  completed: '#64748B', cancelled: '#DC2626',
+  open: '#3B82F6', in_progress: '#F59E0B', resolved: '#16A34A', closed: '#64748B',
 };
 const PRIORITY_COLOR: Record<string, string> = {
-  low: '#6B7280', medium: '#3B82F6', high: '#F59E0B', critical: '#DC2626',
+  low: '#64748B', medium: '#3B82F6', high: '#F59E0B', critical: '#DC2626',
 };
 
 function Loader() { return <View style={s.center}><ActivityIndicator size="large" color={NAVY} /></View>; }
@@ -110,8 +110,8 @@ function ProjectsTab({ tenantId }: { tenantId: string }) {
                   <Text style={s.cardCode}>{p.projectCode}</Text>
                   <Text style={s.cardName}>{p.name}</Text>
                 </View>
-                <View style={[s.statusBadge, { backgroundColor: (STATUS_COLOR[p.status] || '#6B7280') + '22' }]}>
-                  <Text style={[s.statusTxt, { color: STATUS_COLOR[p.status] || '#6B7280' }]}>{p.status?.replace('_', ' ')}</Text>
+                <View style={[s.statusBadge, { backgroundColor: (STATUS_COLOR[p.status] || '#64748B') + '22' }]}>
+                  <Text style={[s.statusTxt, { color: STATUS_COLOR[p.status] || '#64748B' }]}>{p.status?.replace('_', ' ')}</Text>
                 </View>
               </View>
               <View style={s.cardStats}>
@@ -158,15 +158,15 @@ function ProjectsTab({ tenantId }: { tenantId: string }) {
             </View>
             <ScrollView contentContainerStyle={{ padding: 16 }}>
               <DetailRow label="Status">
-                <View style={[s.statusBadge, { backgroundColor: (STATUS_COLOR[selected.status] || '#6B7280') + '22' }]}>
-                  <Text style={[s.statusTxt, { color: STATUS_COLOR[selected.status] || '#6B7280' }]}>{selected.status?.replace('_', ' ')}</Text>
+                <View style={[s.statusBadge, { backgroundColor: (STATUS_COLOR[selected.status] || '#64748B') + '22' }]}>
+                  <Text style={[s.statusTxt, { color: STATUS_COLOR[selected.status] || '#64748B' }]}>{selected.status?.replace('_', ' ')}</Text>
                 </View>
               </DetailRow>
               <DetailRow label="Budget"><Text style={s.detailVal}>{fmt(selected.budgetAmount)}</Text></DetailRow>
               <DetailRow label="Billed"><Text style={s.detailVal}>{fmt(selected.billedAmount)}</Text></DetailRow>
               <DetailRow label="Timeline"><Text style={s.detailVal}>{selected.startDate || '—'} → {selected.endDate || 'ongoing'}</Text></DetailRow>
               <DetailRow label="Tasks"><Text style={s.detailVal}>{selected.tasksDone} / {selected.taskCount} done</Text></DetailRow>
-              {selected.riskLevel && <DetailRow label="Risk Level"><Text style={[s.detailVal, { color: PRIORITY_COLOR[selected.riskLevel] || '#6B7280' }]}>{selected.riskLevel?.toUpperCase()}</Text></DetailRow>}
+              {selected.riskLevel && <DetailRow label="Risk Level"><Text style={[s.detailVal, { color: PRIORITY_COLOR[selected.riskLevel] || '#64748B' }]}>{selected.riskLevel?.toUpperCase()}</Text></DetailRow>}
               {selected.notes ? <DetailRow label="Notes"><Text style={s.detailVal}>{selected.notes}</Text></DetailRow> : null}
             </ScrollView>
           </View>
@@ -245,11 +245,11 @@ function TicketsTab({ tenantId }: { tenantId: string }) {
                   <Text style={s.cardName}>{t.subject}</Text>
                 </View>
                 <View style={{ gap: 4, alignItems: 'flex-end' }}>
-                  <View style={[s.statusBadge, { backgroundColor: (STATUS_COLOR[t.status] || '#6B7280') + '22' }]}>
-                    <Text style={[s.statusTxt, { color: STATUS_COLOR[t.status] || '#6B7280' }]}>{t.status?.replace('_', ' ')}</Text>
+                  <View style={[s.statusBadge, { backgroundColor: (STATUS_COLOR[t.status] || '#64748B') + '22' }]}>
+                    <Text style={[s.statusTxt, { color: STATUS_COLOR[t.status] || '#64748B' }]}>{t.status?.replace('_', ' ')}</Text>
                   </View>
-                  <View style={[s.statusBadge, { backgroundColor: (PRIORITY_COLOR[t.priority] || '#6B7280') + '22' }]}>
-                    <Text style={[s.statusTxt, { color: PRIORITY_COLOR[t.priority] || '#6B7280' }]}>{t.priority}</Text>
+                  <View style={[s.statusBadge, { backgroundColor: (PRIORITY_COLOR[t.priority] || '#64748B') + '22' }]}>
+                    <Text style={[s.statusTxt, { color: PRIORITY_COLOR[t.priority] || '#64748B' }]}>{t.priority}</Text>
                   </View>
                 </View>
               </View>
@@ -282,8 +282,8 @@ function TicketsTab({ tenantId }: { tenantId: string }) {
             <ScrollView contentContainerStyle={{ padding: 16 }}>
               <Text style={{ fontSize: 16, fontWeight: '700', color: NAVY, marginBottom: 12 }}>{selected.subject}</Text>
               <DetailRow label="Status">
-                <View style={[s.statusBadge, { backgroundColor: (STATUS_COLOR[selected.status] || '#6B7280') + '22' }]}>
-                  <Text style={[s.statusTxt, { color: STATUS_COLOR[selected.status] || '#6B7280' }]}>{selected.status?.replace('_', ' ')}</Text>
+                <View style={[s.statusBadge, { backgroundColor: (STATUS_COLOR[selected.status] || '#64748B') + '22' }]}>
+                  <Text style={[s.statusTxt, { color: STATUS_COLOR[selected.status] || '#64748B' }]}>{selected.status?.replace('_', ' ')}</Text>
                 </View>
               </DetailRow>
               <DetailRow label="Priority"><Text style={[s.detailVal, { color: PRIORITY_COLOR[selected.priority] }]}>{selected.priority?.toUpperCase()}</Text></DetailRow>

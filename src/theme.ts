@@ -1,21 +1,25 @@
-// Shared design tokens - same brand identity as the web app (erp_frontend's
-// src/lib/brand.ts): near-black navy as the dark ground, one amber accent,
-// Plus Jakarta Sans for display type. Centralising these here so every
-// screen pulls from one system instead of each file inventing its own
-// hex literals (the old NAVY '#1E3A5F' / GOLD '#C9A84C' in HomeScreen.tsx
-// didn't even match the web's '#0B1120' navy or amber accent - two apps,
-// two different brands by accident).
+// Design tokens: the SAME look as the web application (erp_frontend src/index.css): light slate surfaces, one blue primary (the blue of the
+// N logo, hsl 221 83% 53%), Inter for type, slate neutrals and the web's radius. Every screen pulls from here rather than inventing hex values.
+//
+// `navy` and `amber`/`amberLight` are kept as names because ~60 places use them: navy is now the PRIMARY blue (buttons, active states, avatars),
+// amberLight/amber are the logo's sky blue and a warning amber. Prefer `primary`, `accent` and `warning` in new code.
 export const COLORS = {
-  navy: '#0B1120',       // primary dark ground - matches web BRAND_DARK
-  navyLight: '#16213A',  // one step up, for cards/rows sitting on navy
-  amber: '#F59E0B',      // the one accent color, used sparingly
-  amberLight: '#FBBF24',
-  ink: '#0F172A',        // body text on light surfaces
-  subtle: '#64748B',     // secondary text
-  faint: '#94A3B8',      // tertiary text / placeholders
-  border: '#E2E8F0',
+  primary: '#2563EB',      // web --primary
+  primaryDark: '#1D4ED8',  // pressed / on-light text emphasis
+  primarySoft: '#EFF6FF',  // tinted background for selected rows and chips
+  accent: '#0EA5E9',       // the lighter blue of the logo gradient, for small accents
+  navy: '#2563EB',         // legacy name: now the primary blue
+  navyLight: '#EFF6FF',    // legacy name: now the soft tint
+  amber: '#D97706',        // warnings and "needs attention"
+  amberLight: '#0EA5E9',   // legacy name: now the accent blue
+  warning: '#D97706',
+  ink: '#0F172A',          // web --foreground
+  subtle: '#64748B',       // web --muted-foreground
+  faint: '#94A3B8',
+  border: '#E2E8F0',       // web --border
+  background: '#F8FAFC',   // web --background
   surface: '#FFFFFF',
-  surfaceMuted: '#F8FAFC',
+  surfaceMuted: '#F1F5F9',
   success: '#059669',
   successBg: '#ECFDF5',
   danger: '#DC2626',
@@ -26,26 +30,25 @@ export const COLORS = {
   violetBg: '#F5F3FF',
 } as const;
 
-// Font family names as registered by useFonts() in App.tsx. Fall back to
-// the platform system font until fonts finish loading (App.tsx gates
-// first paint on that anyway, so in practice these are always ready).
+// Font family names as registered by useFonts() in App.tsx (Inter, the web application's font).
 export const FONT = {
-  display: 'PlusJakartaSans_800ExtraBold',
-  displaySemibold: 'PlusJakartaSans_700Bold',
-  heading: 'PlusJakartaSans_600SemiBold',
-  body: 'PlusJakartaSans_500Medium',
-  bodyRegular: 'PlusJakartaSans_400Regular',
+  display: 'Inter_800ExtraBold',
+  displaySemibold: 'Inter_700Bold',
+  heading: 'Inter_600SemiBold',
+  body: 'Inter_500Medium',
+  bodyRegular: 'Inter_400Regular',
 } as const;
 
-export const RADIUS = { sm: 8, md: 12, lg: 16, xl: 20, pill: 999 } as const;
+// The web uses a 0.5rem base radius with larger rounding on cards.
+export const RADIUS = { sm: 6, md: 8, lg: 12, xl: 16, pill: 999 } as const;
 
 export const SHADOW = {
   card: {
-    shadowColor: '#0F172A', shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06, shadowRadius: 10, elevation: 2,
+    shadowColor: '#0F172A', shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06, shadowRadius: 6, elevation: 1,
   },
   raised: {
-    shadowColor: '#0F172A', shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.14, shadowRadius: 24, elevation: 8,
+    shadowColor: '#0F172A', shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.16, shadowRadius: 16, elevation: 6,
   },
 } as const;

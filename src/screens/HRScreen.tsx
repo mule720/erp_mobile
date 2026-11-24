@@ -12,8 +12,8 @@ import FormModal from '../components/FormModal';
 import { Field, SelectField, Section } from '../components/Field';
 import FAB from '../components/FAB';
 
-const NAVY = '#1E3A5F';
-const GOLD = '#C9A84C';
+const NAVY = '#2563EB';
+const GOLD = '#0EA5E9';
 const today = () => new Date().toISOString().slice(0, 10);
 const fmt = (n: any, cur = 'ZMW') =>
   new Intl.NumberFormat('en-ZM', { style: 'currency', currency: cur, maximumFractionDigits: 2 }).format(Number(n ?? 0));
@@ -110,7 +110,7 @@ function PayrollReportsTab({ tenantId }: { tenantId: string }) {
           <Text style={s.kpiLabel}>Periods on Record</Text>
           <Text style={[s.kpiValue, { color: NAVY }]}>{runs.length}</Text>
         </View>
-        <View style={{ width: 1, backgroundColor: '#E5E7EB' }} />
+        <View style={{ width: 1, backgroundColor: '#E2E8F0' }} />
         <View style={{ flex: 1, alignItems: 'center' }}>
           <Text style={s.kpiLabel}>Total Net Paid</Text>
           <Text style={[s.kpiValue, { color: GOLD }]}>{fmt(totalNet)}</Text>
@@ -290,7 +290,7 @@ function EmployeesTab({ tenantId }: { tenantId: string }) {
   return (
     <View style={{ flex: 1 }}>
       <View style={s.searchWrap}>
-        <TextInput style={s.searchInput} value={search} onChangeText={setSearch} placeholder="Search employees…" placeholderTextColor="#9CA3AF" />
+        <TextInput style={s.searchInput} value={search} onChangeText={setSearch} placeholder="Search employees…" placeholderTextColor="#94A3B8" />
       </View>
       {departments.length > 0 && (
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={s.chipRow} contentContainerStyle={{ paddingHorizontal: 16, gap: 8 }}>
@@ -651,7 +651,7 @@ function PayrollTab({ tenantId, employeeId }: { tenantId: string; employeeId: st
 
       {view === 'payslips' && (
         <View style={[s.center, { padding: 32 }]}>
-          <Text style={[s.main, { textAlign: 'center', color: '#6B7280' }]}>
+          <Text style={[s.main, { textAlign: 'center', color: '#64748B' }]}>
             Payslips are available on the web portal.{'\n'}Please log in via browser to view and download payslips.
           </Text>
         </View>
@@ -747,7 +747,7 @@ function AttendanceTab({ tenantId, employeeId }: { tenantId: string; employeeId:
   if (!employeeId) {
     return (
       <View style={s.center}>
-        <Text style={[s.empty, { color: '#6B7280' }]}>Sign in as an employee to view attendance records.</Text>
+        <Text style={[s.empty, { color: '#64748B' }]}>Sign in as an employee to view attendance records.</Text>
       </View>
     );
   }
@@ -888,7 +888,7 @@ function LoansTab({ tenantId }: { tenantId: string }) {
       .finally(() => setLoading(false));
   }, [tenantId]);
 
-  const STATUS_COLOR: Record<string, string> = { active: '#16A34A', pending: '#F59E0B', closed: '#6B7280', overdue: '#DC2626' };
+  const STATUS_COLOR: Record<string, string> = { active: '#16A34A', pending: '#F59E0B', closed: '#64748B', overdue: '#DC2626' };
 
   if (loading) return <View style={s.center}><ActivityIndicator size="large" color={NAVY} /></View>;
   if (!loans.length) return <Text style={s.empty}>No employee loans</Text>;
@@ -903,8 +903,8 @@ function LoansTab({ tenantId }: { tenantId: string }) {
               {loan.loanNumber && <Text style={s.sub}>Ref: {loan.loanNumber}</Text>}
             </View>
             {loan.status && (
-              <View style={{ paddingHorizontal: 8, paddingVertical: 3, borderRadius: 12, backgroundColor: (STATUS_COLOR[loan.status] || '#6B7280') + '22' }}>
-                <Text style={{ fontSize: 11, fontWeight: '600', color: STATUS_COLOR[loan.status] || '#6B7280' }}>{loan.status}</Text>
+              <View style={{ paddingHorizontal: 8, paddingVertical: 3, borderRadius: 12, backgroundColor: (STATUS_COLOR[loan.status] || '#64748B') + '22' }}>
+                <Text style={{ fontSize: 11, fontWeight: '600', color: STATUS_COLOR[loan.status] || '#64748B' }}>{loan.status}</Text>
               </View>
             )}
           </View>
@@ -944,7 +944,7 @@ function OvertimeTab({ tenantId }: { tenantId: string }) {
       .finally(() => setLoading(false));
   }, [tenantId]);
 
-  const STATUS_COLOR: Record<string, string> = { pending: '#F59E0B', approved: '#16A34A', rejected: '#DC2626', paid: '#6B7280' };
+  const STATUS_COLOR: Record<string, string> = { pending: '#F59E0B', approved: '#16A34A', rejected: '#DC2626', paid: '#64748B' };
 
   if (loading) return <View style={s.center}><ActivityIndicator size="large" color={NAVY} /></View>;
   if (!items.length) return <Text style={s.empty}>No overtime authorizations</Text>;
@@ -959,8 +959,8 @@ function OvertimeTab({ tenantId }: { tenantId: string }) {
               {ot.workDate && <Text style={s.sub}>{ot.workDate}</Text>}
             </View>
             {ot.status && (
-              <View style={{ paddingHorizontal: 8, paddingVertical: 3, borderRadius: 12, backgroundColor: (STATUS_COLOR[ot.status] || '#6B7280') + '22' }}>
-                <Text style={{ fontSize: 11, fontWeight: '600', color: STATUS_COLOR[ot.status] || '#6B7280' }}>{ot.status}</Text>
+              <View style={{ paddingHorizontal: 8, paddingVertical: 3, borderRadius: 12, backgroundColor: (STATUS_COLOR[ot.status] || '#64748B') + '22' }}>
+                <Text style={{ fontSize: 11, fontWeight: '600', color: STATUS_COLOR[ot.status] || '#64748B' }}>{ot.status}</Text>
               </View>
             )}
           </View>
@@ -1014,54 +1014,54 @@ export default function HRScreen() {
 
 const s = StyleSheet.create({
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 40 },
-  empty: { color: '#9CA3AF', fontSize: 14, textAlign: 'center', padding: 16 },
+  empty: { color: '#94A3B8', fontSize: 14, textAlign: 'center', padding: 16 },
   card: { backgroundColor: '#fff', borderRadius: 12, paddingHorizontal: 16, marginHorizontal: 16, marginTop: 8, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 4, elevation: 2 },
   row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12 },
   border: { borderBottomWidth: 1, borderBottomColor: '#F1F5F9' },
-  main: { fontSize: 14, fontWeight: '600', color: '#1F2937' },
-  sub: { fontSize: 12, color: '#6B7280', marginTop: 2 },
-  sub2: { fontSize: 11, color: '#9CA3AF', marginTop: 1 },
+  main: { fontSize: 14, fontWeight: '600', color: '#0F172A' },
+  sub: { fontSize: 12, color: '#64748B', marginTop: 2 },
+  sub2: { fontSize: 11, color: '#94A3B8', marginTop: 1 },
   amount: { fontSize: 14, fontWeight: '700', color: NAVY },
   sectionTitle: { fontSize: 13, fontWeight: '700', color: NAVY, marginHorizontal: 16, marginTop: 16, marginBottom: 4 },
   kpiRow: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 12, paddingTop: 12, gap: 8 },
   kpi: { flex: 1, minWidth: '45%', backgroundColor: '#fff', borderRadius: 12, padding: 14, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 3, elevation: 1 },
-  kpiLabel: { fontSize: 11, color: '#6B7280', fontWeight: '600', textTransform: 'uppercase' },
+  kpiLabel: { fontSize: 11, color: '#64748B', fontWeight: '600', textTransform: 'uppercase' },
   kpiValue: { fontSize: 18, fontWeight: '800', color: NAVY, marginTop: 4 },
   avatar: { width: 40, height: 40, borderRadius: 20, backgroundColor: NAVY + '18', justifyContent: 'center', alignItems: 'center' },
   avatarTxt: { fontSize: 15, fontWeight: '700', color: NAVY },
-  modalHeader: { flexDirection: 'row', alignItems: 'center', padding: 16, borderBottomWidth: 1, borderBottomColor: '#E5E7EB', backgroundColor: '#fff' },
+  modalHeader: { flexDirection: 'row', alignItems: 'center', padding: 16, borderBottomWidth: 1, borderBottomColor: '#E2E8F0', backgroundColor: '#fff' },
   modalTitle: { flex: 1, fontSize: 17, fontWeight: '700', color: NAVY },
-  modalClose: { fontSize: 18, color: '#6B7280', padding: 4 },
+  modalClose: { fontSize: 18, color: '#64748B', padding: 4 },
   detailRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 12 },
-  detailLabel: { fontSize: 13, color: '#6B7280' },
-  detailValue: { fontSize: 13, fontWeight: '600', color: '#1F2937' },
+  detailLabel: { fontSize: 13, color: '#64748B' },
+  detailValue: { fontSize: 13, fontWeight: '600', color: '#0F172A' },
   actionRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, padding: 16 },
   actionBtn: { paddingHorizontal: 18, paddingVertical: 11, borderRadius: 10, backgroundColor: NAVY },
   actionBtnTxt: { color: '#fff', fontSize: 14, fontWeight: '700' },
   searchWrap: { paddingHorizontal: 16, paddingTop: 10, paddingBottom: 4 },
-  searchInput: { backgroundColor: '#fff', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 10, fontSize: 14, color: '#111827', borderWidth: 1, borderColor: '#E5E7EB' },
+  searchInput: { backgroundColor: '#fff', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 10, fontSize: 14, color: '#0F172A', borderWidth: 1, borderColor: '#E2E8F0' },
   chipRow: { paddingVertical: 6 },
-  chip: { paddingHorizontal: 14, paddingVertical: 7, borderRadius: 20, borderWidth: 1, borderColor: '#E5E7EB', backgroundColor: '#fff' },
+  chip: { paddingHorizontal: 14, paddingVertical: 7, borderRadius: 20, borderWidth: 1, borderColor: '#E2E8F0', backgroundColor: '#fff' },
   chipActive: { backgroundColor: NAVY, borderColor: NAVY },
-  chipTxt: { fontSize: 12, fontWeight: '600', color: '#374151' },
+  chipTxt: { fontSize: 12, fontWeight: '600', color: '#334155' },
   chipTxtActive: { color: '#fff' },
   subChipRow: { flexDirection: 'row', gap: 8, paddingHorizontal: 16, paddingVertical: 10 },
-  subChip: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 8, borderWidth: 1, borderColor: '#E5E7EB', backgroundColor: '#fff' },
+  subChip: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 8, borderWidth: 1, borderColor: '#E2E8F0', backgroundColor: '#fff' },
   subChipActive: { backgroundColor: NAVY, borderColor: NAVY },
-  subChipTxt: { fontSize: 13, fontWeight: '600', color: '#374151' },
+  subChipTxt: { fontSize: 13, fontWeight: '600', color: '#334155' },
   subChipTxtActive: { color: '#fff' },
   statGrid: { flexDirection: 'row', gap: 10, paddingHorizontal: 16, paddingTop: 12 },
   statCard: { flex: 1, backgroundColor: '#fff', borderRadius: 12, padding: 14, alignItems: 'center', shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 3, elevation: 1 },
   statNum: { fontSize: 22, fontWeight: '800', color: NAVY },
-  statLbl: { fontSize: 10, color: '#6B7280', marginTop: 2, textAlign: 'center' },
+  statLbl: { fontSize: 10, color: '#64748B', marginTop: 2, textAlign: 'center' },
   activityDot: { width: 8, height: 8, borderRadius: 4, marginRight: 12 },
   balCard: { backgroundColor: '#fff', borderRadius: 12, padding: 14, marginRight: 10, width: 140, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 3, elevation: 1 },
-  balName: { fontSize: 11, fontWeight: '600', color: '#6B7280', marginBottom: 6 },
+  balName: { fontSize: 11, fontWeight: '600', color: '#64748B', marginBottom: 6 },
   balNum: { fontSize: 24, fontWeight: '800', color: NAVY },
-  balOf: { fontSize: 14, fontWeight: '400', color: '#9CA3AF' },
-  barBg: { height: 4, backgroundColor: '#E5E7EB', borderRadius: 2, marginVertical: 6 },
+  balOf: { fontSize: 14, fontWeight: '400', color: '#94A3B8' },
+  barBg: { height: 4, backgroundColor: '#E2E8F0', borderRadius: 2, marginVertical: 6 },
   barFg: { height: 4, backgroundColor: GOLD, borderRadius: 2 },
-  balSub: { fontSize: 10, color: '#9CA3AF' },
+  balSub: { fontSize: 10, color: '#94A3B8' },
   dateBtn: { backgroundColor: NAVY, borderRadius: 10, paddingHorizontal: 16, paddingVertical: 10 },
   dateBtnTxt: { color: '#fff', fontSize: 14, fontWeight: '700' },
 });

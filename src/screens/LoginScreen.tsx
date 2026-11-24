@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-  View, Text, TextInput, TouchableOpacity, StyleSheet,
+  Image, View, Text, TextInput, TouchableOpacity, StyleSheet,
   ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -97,18 +97,12 @@ export default function LoginScreen({ navigation }: any) {
       {/* Ledger-rule texture on the dark ground - same technique as the
           web landing page hero, so the brand reads as one product across
           both apps instead of a generic gradient-blob login screen. */}
-      <View style={s.ruleLayer} pointerEvents="none">
-        {Array.from({ length: 14 }).map((_, i) => <View key={i} style={s.rule} />)}
-        <View style={s.margin} />
-      </View>
 
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView contentContainerStyle={[s.container, { paddingTop: Math.max(56, insets.top + 24), paddingBottom: 24 + insets.bottom }]} keyboardShouldPersistTaps="handled">
           <View style={s.header}>
-            <View style={s.logo}>
-              <Ionicons name="layers" size={30} color={COLORS.navy} />
-            </View>
-            <Text style={s.brand}>NetOn ERP Pro</Text>
+            <Image source={require('../../assets/logo.png')} style={s.logo} resizeMode="contain" accessibilityLabel="Neton ERP Pro" />
+            <Text style={s.brand}>Neton ERP Pro</Text>
             <Text style={s.tagline}>Your business, in your pocket</Text>
           </View>
 
@@ -173,24 +167,17 @@ export default function LoginScreen({ navigation }: any) {
 }
 
 const s = StyleSheet.create({
-  root: { flex: 1, backgroundColor: COLORS.navy },
-  ruleLayer: { ...StyleSheet.absoluteFill, opacity: 0.4 },
-  rule: { height: 1, backgroundColor: '#334155', marginTop: 34 },
-  margin: { position: 'absolute', top: 0, bottom: 0, left: 64, width: 1, backgroundColor: 'rgba(245,158,11,0.35)' },
+  root: { flex: 1, backgroundColor: COLORS.background },
 
   container: { flexGrow: 1, justifyContent: 'center', padding: 24, paddingTop: 72 },
   header: { alignItems: 'center', marginBottom: 36 },
-  logo: {
-    width: 72, height: 72, borderRadius: RADIUS.lg, backgroundColor: COLORS.amberLight,
-    alignItems: 'center', justifyContent: 'center', marginBottom: 16,
-    ...SHADOW.raised,
-  },
-  brand: { fontSize: 26, color: '#fff', fontFamily: FONT.display },
-  tagline: { fontSize: 14, color: '#94A3B8', marginTop: 6, fontFamily: FONT.bodyRegular },
+  logo: { width: 84, height: 84, marginBottom: 12 },
+  brand: { fontSize: 24, color: COLORS.ink, fontFamily: FONT.display },
+  tagline: { fontSize: 14, color: COLORS.subtle, marginTop: 6, fontFamily: FONT.bodyRegular },
 
   card: {
     backgroundColor: COLORS.surface, borderRadius: RADIUS.xl, padding: 24,
-    ...SHADOW.raised,
+    borderWidth: 1, borderColor: COLORS.border, ...SHADOW.card,
   },
   label: { fontSize: 12, fontFamily: FONT.heading, color: COLORS.subtle, marginBottom: 8, marginTop: 16, textTransform: 'uppercase', letterSpacing: 0.4 },
   input: {
@@ -206,6 +193,6 @@ const s = StyleSheet.create({
   btnText: { color: '#fff', fontSize: 16, fontFamily: FONT.heading },
 
   switchLink: { marginTop: 24, alignItems: 'center' },
-  switchText: { color: '#94A3B8', fontSize: 13, fontFamily: FONT.bodyRegular },
-  switchTextBold: { color: COLORS.amberLight, fontFamily: FONT.heading },
+  switchText: { color: COLORS.subtle, fontSize: 13, fontFamily: FONT.bodyRegular },
+  switchTextBold: { color: COLORS.primary, fontFamily: FONT.heading },
 });

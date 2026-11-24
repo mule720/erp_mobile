@@ -12,8 +12,8 @@ import FormModal from '../components/FormModal';
 import { Field, SelectField, Section } from '../components/Field';
 import FAB from '../components/FAB';
 
-const NAVY = '#1E3A5F';
-const GOLD = '#C9A84C';
+const NAVY = '#2563EB';
+const GOLD = '#0EA5E9';
 
 const TABS = [
   { key: 'company', label: 'Company' },
@@ -175,8 +175,8 @@ function UsersTab({ tenantId }: { tenantId: string }) {
             const roles = '';
             return (
               <View key={u.id} style={[s.row, i < users.length - 1 && s.border]}>
-                <View style={[s.avatar, { backgroundColor: u.isActive ? '#EFF6FF' : '#F3F4F6' }]}>
-                  <Text style={[s.avatarTxt, { color: u.isActive ? '#2563EB' : '#9CA3AF' }]}>
+                <View style={[s.avatar, { backgroundColor: u.isActive ? '#EFF6FF' : '#F1F5F9' }]}>
+                  <Text style={[s.avatarTxt, { color: u.isActive ? '#2563EB' : '#94A3B8' }]}>
                     {name?.[0]?.toUpperCase() || '?'}
                   </Text>
                 </View>
@@ -264,7 +264,7 @@ function RolesTab({ tenantId }: { tenantId: string }) {
         <View style={s.permSheet}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
             <Text style={{ fontSize: 15, fontWeight: '700', color: NAVY }}>{selected.name}</Text>
-            <TouchableOpacity onPress={() => setSelected(null)}><Text style={{ color: '#6B7280', fontSize: 16 }}>✕</Text></TouchableOpacity>
+            <TouchableOpacity onPress={() => setSelected(null)}><Text style={{ color: '#64748B', fontSize: 16 }}>✕</Text></TouchableOpacity>
           </View>
           {selected.description && <Text style={[s.sub, { marginBottom: 8 }]}>{selected.description}</Text>}
           <ScrollView style={{ maxHeight: 200 }}>
@@ -404,7 +404,7 @@ function ChartOfAccountsTab({ tenantId }: { tenantId: string }) {
           value={search}
           onChangeText={setSearch}
           placeholder="Search accounts…"
-          placeholderTextColor="#9CA3AF"
+          placeholderTextColor="#94A3B8"
         />
       </View>
 
@@ -422,7 +422,7 @@ function ChartOfAccountsTab({ tenantId }: { tenantId: string }) {
         <View style={[s.card, { marginBottom: 100 }]}>
           {filtered.length === 0 ? <Empty msg="No accounts found" /> : filtered.map((a, i) => (
             <View key={a.id} style={[s.row, i < filtered.length - 1 && s.border]}>
-              <View style={[s.typeDot, { backgroundColor: TYPE_COLORS[a.accountType] || '#9CA3AF' }]} />
+              <View style={[s.typeDot, { backgroundColor: TYPE_COLORS[a.accountType] || '#94A3B8' }]} />
               <View style={{ flex: 1 }}>
                 <Text style={s.main}>{a.code} – {a.name}</Text>
                 <Text style={s.sub2}>{a.accountType?.toUpperCase()}</Text>
@@ -483,13 +483,13 @@ export default function SetupScreen() {
 
 const s = StyleSheet.create({
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 40 },
-  empty: { color: '#9CA3AF', fontSize: 14, textAlign: 'center', padding: 16 },
+  empty: { color: '#94A3B8', fontSize: 14, textAlign: 'center', padding: 16 },
   card: { backgroundColor: '#fff', borderRadius: 12, paddingHorizontal: 16, marginHorizontal: 16, marginTop: 8, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 4, elevation: 2 },
   row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12 },
   border: { borderBottomWidth: 1, borderBottomColor: '#F1F5F9' },
-  main: { fontSize: 14, fontWeight: '600', color: '#1F2937' },
-  sub: { fontSize: 12, color: '#6B7280', marginTop: 2 },
-  sub2: { fontSize: 11, color: '#9CA3AF', marginTop: 1 },
+  main: { fontSize: 14, fontWeight: '600', color: '#0F172A' },
+  sub: { fontSize: 12, color: '#64748B', marginTop: 2 },
+  sub2: { fontSize: 11, color: '#94A3B8', marginTop: 1 },
   amount: { fontSize: 14, fontWeight: '700', color: NAVY },
   sectionTitle: { fontSize: 13, fontWeight: '700', color: NAVY, marginHorizontal: 16, marginTop: 16, marginBottom: 4 },
   avatar: { width: 38, height: 38, borderRadius: 19, justifyContent: 'center', alignItems: 'center', marginRight: 12 },
@@ -498,19 +498,19 @@ const s = StyleSheet.create({
   logoTxt: { fontSize: 32, fontWeight: '800', color: GOLD },
   companyName: { fontSize: 20, fontWeight: '800', color: NAVY, marginBottom: 2 },
   detailRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 12 },
-  detailLabel: { fontSize: 13, color: '#6B7280' },
-  detailValue: { fontSize: 13, fontWeight: '600', color: '#1F2937', flex: 1, textAlign: 'right', marginLeft: 8 },
+  detailLabel: { fontSize: 13, color: '#64748B' },
+  detailValue: { fontSize: 13, fontWeight: '600', color: '#0F172A', flex: 1, textAlign: 'right', marginLeft: 8 },
   actionRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, padding: 16 },
   actionBtn: { paddingHorizontal: 18, paddingVertical: 11, borderRadius: 10, backgroundColor: NAVY },
   actionBtnTxt: { color: '#fff', fontSize: 14, fontWeight: '700' },
-  toggleBtn: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6, borderWidth: 1, borderColor: '#D1D5DB' },
-  toggleBtnTxt: { fontSize: 11, color: '#6B7280', fontWeight: '600' },
+  toggleBtn: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6, borderWidth: 1, borderColor: '#CBD5E1' },
+  toggleBtnTxt: { fontSize: 11, color: '#64748B', fontWeight: '600' },
   permBadge: { backgroundColor: '#EFF6FF', borderRadius: 8, paddingHorizontal: 8, paddingVertical: 4 },
   permBadgeTxt: { fontSize: 11, color: '#2563EB', fontWeight: '700' },
-  permSheet: { backgroundColor: '#fff', borderTopLeftRadius: 16, borderTopRightRadius: 16, padding: 16, borderTopWidth: 1, borderTopColor: '#E5E7EB', shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 8, elevation: 8 },
-  chip: { paddingHorizontal: 14, paddingVertical: 7, borderRadius: 20, backgroundColor: '#E5E7EB' },
-  chipTxt: { fontSize: 13, fontWeight: '600', color: '#374151' },
+  permSheet: { backgroundColor: '#fff', borderTopLeftRadius: 16, borderTopRightRadius: 16, padding: 16, borderTopWidth: 1, borderTopColor: '#E2E8F0', shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 8, elevation: 8 },
+  chip: { paddingHorizontal: 14, paddingVertical: 7, borderRadius: 20, backgroundColor: '#E2E8F0' },
+  chipTxt: { fontSize: 13, fontWeight: '600', color: '#334155' },
   typeDot: { width: 10, height: 10, borderRadius: 5, marginRight: 12 },
   searchWrap: { paddingHorizontal: 16, paddingVertical: 10 },
-  searchInput: { backgroundColor: '#fff', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 10, fontSize: 14, color: '#111827', borderWidth: 1, borderColor: '#E5E7EB' },
+  searchInput: { backgroundColor: '#fff', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 10, fontSize: 14, color: '#0F172A', borderWidth: 1, borderColor: '#E2E8F0' },
 });

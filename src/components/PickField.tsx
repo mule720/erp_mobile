@@ -33,7 +33,7 @@ export default function PickField({ label, value, items, onPick, placeholder = '
 }
 
 const s = StyleSheet.create({
-  label: { fontSize: 12, fontWeight: '600', color: '#374151', marginBottom: 5 },
+  label: { fontSize: 12, fontWeight: '600', color: '#334155', marginBottom: 5 },
   select: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: COLORS.border, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 11, backgroundColor: '#fff' },
   backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', padding: 24 },
   sheet: { backgroundColor: '#fff', borderRadius: RADIUS.lg, maxHeight: '70%' },

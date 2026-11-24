@@ -59,7 +59,7 @@ export default function InfinityMenu({ items, activeKey, onSelect, onUseDashboar
           <TouchableOpacity style={StyleSheet.absoluteFill} activeOpacity={1} onPress={() => setOpen(false)} />
           <View style={[s.sheet, { paddingBottom: Math.max(24, insets.bottom + 12) }]}>
             <View style={s.head}>
-              <Ionicons name="infinite" size={22} color={COLORS.amber} />
+              <Ionicons name="infinite" size={22} color={COLORS.primary} />
               <Text style={s.title}>Where to?</Text>
               <View style={{ flex: 1 }} />
               <TouchableOpacity onPress={() => setOpen(false)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}><Ionicons name="close" size={22} color={COLORS.ink} /></TouchableOpacity>
@@ -85,7 +85,7 @@ export default function InfinityMenu({ items, activeKey, onSelect, onUseDashboar
 const s = StyleSheet.create({
   fab: {
     position: 'absolute', width: 54, height: 54, borderRadius: 27,
-    backgroundColor: COLORS.navy, alignItems: 'center', justifyContent: 'center', zIndex: 40, borderWidth: 2, borderColor: COLORS.amber, ...SHADOW.raised,
+    backgroundColor: COLORS.navy, alignItems: 'center', justifyContent: 'center', zIndex: 40, borderWidth: 2, borderColor: '#FFFFFF', ...SHADOW.raised,
   },
   fabInner: { flex: 1, alignItems: 'center', justifyContent: 'center', borderRadius: 27 },
   backdrop: { flex: 1, backgroundColor: 'rgba(11,17,32,0.55)', justifyContent: 'flex-end' },

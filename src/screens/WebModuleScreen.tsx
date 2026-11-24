@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Platform } from 'react-native';
 
 interface Props { path: string; title: string; }
 
-const NAVY = '#1E3A5F';
+const NAVY = '#2563EB';
 const WEB_BASE = 'https://netonerppro.com';
 
 export default function WebModuleScreen({ path, title }: Props) {
@@ -34,5 +34,5 @@ const s = StyleSheet.create({
   fallback: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 32, backgroundColor: '#F1F5F9' },
   icon: { fontSize: 48, marginBottom: 16 },
   heading: { fontSize: 20, fontWeight: '700', color: NAVY, marginBottom: 8 },
-  body: { fontSize: 14, color: '#6B7280', textAlign: 'center', lineHeight: 22 },
+  body: { fontSize: 14, color: '#64748B', textAlign: 'center', lineHeight: 22 },
 });

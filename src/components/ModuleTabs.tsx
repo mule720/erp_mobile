@@ -1,8 +1,8 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 
-const NAVY = '#1E3A5F';
-const GOLD = '#C9A84C';
+const NAVY = '#2563EB';
+const GOLD = '#0EA5E9';
 
 interface Tab { key: string; label: string; }
 
@@ -36,11 +36,11 @@ export default function ModuleTabs({ tabs, active, onChange }: Props) {
 }
 
 const s = StyleSheet.create({
-  container: { backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#E5E7EB' },
+  container: { backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#E2E8F0' },
   scroll: { paddingHorizontal: 12 },
   tab: { paddingHorizontal: 14, paddingVertical: 12, position: 'relative' },
   tabActive: {},
-  label: { fontSize: 13, fontWeight: '500', color: '#6B7280' },
+  label: { fontSize: 13, fontWeight: '500', color: '#64748B' },
   labelActive: { color: NAVY, fontWeight: '700' },
   indicator: { position: 'absolute', bottom: 0, left: 14, right: 14, height: 2, backgroundColor: GOLD, borderRadius: 1 },
 });

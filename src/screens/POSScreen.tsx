@@ -10,8 +10,8 @@ import BarcodeScannerModal from '../components/BarcodeScannerModal';
 import { matchCode, suggest } from '../lib/productCode';
 import { productByCode, setProductBarcode } from '../api/aiApi';
 
-const NAVY = '#1E3A5F';
-const GOLD = '#C9A84C';
+const NAVY = '#2563EB';
+const GOLD = '#0EA5E9';
 const GREEN = '#16A34A';
 
 const fmt = (n: any) => new Intl.NumberFormat('en-ZM', { style: 'currency', currency: 'ZMW', maximumFractionDigits: 2 }).format(Number(n ?? 0));
@@ -205,7 +205,7 @@ export default function POSScreen() {
           value={search}
           onChangeText={setSearch}
           placeholder="Search products…"
-          placeholderTextColor="#9CA3AF"
+          placeholderTextColor="#94A3B8"
         />
         {/* expo-camera has no barcode-scanning support on web - hide the
             entry point there rather than open a scanner that can never
@@ -334,7 +334,7 @@ export default function POSScreen() {
                 onChangeText={setCashReceived}
                 placeholder="0.00"
                 keyboardType="decimal-pad"
-                placeholderTextColor="#9CA3AF"
+                placeholderTextColor="#94A3B8"
               />
               {parseFloat(cashReceived || '0') >= total && (
                 <View style={s.changeBox}>
@@ -348,11 +348,11 @@ export default function POSScreen() {
           {payMethod !== 'cash' && (
             <>
               <Text style={s.paySection}>Reference / Transaction ID</Text>
-              <TextInput style={s.payInput} value={reference} onChangeText={setReference} placeholder="Transaction reference" placeholderTextColor="#9CA3AF" />
+              <TextInput style={s.payInput} value={reference} onChangeText={setReference} placeholder="Transaction reference" placeholderTextColor="#94A3B8" />
             </>
           )}
         </ScrollView>
-        <View style={{ padding: 16, backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#E5E7EB' }}>
+        <View style={{ padding: 16, backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#E2E8F0' }}>
           <TouchableOpacity style={[s.processBtn, processing && { opacity: 0.5 }]} onPress={processPayment} disabled={processing}>
             <Text style={s.processBtnTxt}>{processing ? 'Processing…' : `Confirm Payment · ${fmt(total)}`}</Text>
           </TouchableOpacity>
@@ -375,10 +375,10 @@ export default function POSScreen() {
               <Text style={s.unkTitle}>No product has this code yet</Text>
               <Text style={s.unkCode}>{unknownCode}</Text>
             </View>
-            <TouchableOpacity onPress={() => setUnknownCode(null)}><Ionicons name="close" size={24} color="#111827" /></TouchableOpacity>
+            <TouchableOpacity onPress={() => setUnknownCode(null)}><Ionicons name="close" size={24} color="#0F172A" /></TouchableOpacity>
           </View>
           <Text style={s.unkHelp}>Pick the product it is. Choose "Add and remember" and the next scan of this pack finds it at once.</Text>
-          <TextInput style={[s.searchInput, { margin: 12 }]} value={pickText} onChangeText={setPickText} placeholder="Type part of the product name" placeholderTextColor="#9CA3AF" />
+          <TextInput style={[s.searchInput, { margin: 12 }]} value={pickText} onChangeText={setPickText} placeholder="Type part of the product name" placeholderTextColor="#94A3B8" />
           <ScrollView keyboardShouldPersistTaps="handled">
             {suggest(products, pickText, 12).map(p => (
               <View key={p.id} style={s.unkRow}>
@@ -402,31 +402,31 @@ export default function POSScreen() {
 }
 
 const s = StyleSheet.create({
-  unkHead: { flexDirection: 'row', alignItems: 'center', padding: 16, paddingTop: Platform.OS === 'ios' ? 52 : 20, borderBottomWidth: 1, borderBottomColor: '#E5E7EB' },
-  unkTitle: { fontSize: 16, fontWeight: '800', color: '#111827' },
-  unkCode: { fontSize: 13, color: '#6B7280', marginTop: 2 },
-  unkHelp: { fontSize: 13, color: '#374151', padding: 14, paddingBottom: 0, lineHeight: 19 },
+  unkHead: { flexDirection: 'row', alignItems: 'center', padding: 16, paddingTop: Platform.OS === 'ios' ? 52 : 20, borderBottomWidth: 1, borderBottomColor: '#E2E8F0' },
+  unkTitle: { fontSize: 16, fontWeight: '800', color: '#0F172A' },
+  unkCode: { fontSize: 13, color: '#64748B', marginTop: 2 },
+  unkHelp: { fontSize: 13, color: '#334155', padding: 14, paddingBottom: 0, lineHeight: 19 },
   unkRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 14, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#F1F5F9' },
-  unkName: { fontSize: 14, fontWeight: '700', color: '#111827' },
-  unkSub: { fontSize: 12, color: '#6B7280', marginTop: 2 },
-  unkBtnGhost: { paddingHorizontal: 12, paddingVertical: 9, borderRadius: 8, borderWidth: 1, borderColor: '#D1D5DB' },
-  unkBtnGhostTxt: { fontSize: 12, fontWeight: '700', color: '#374151' },
+  unkName: { fontSize: 14, fontWeight: '700', color: '#0F172A' },
+  unkSub: { fontSize: 12, color: '#64748B', marginTop: 2 },
+  unkBtnGhost: { paddingHorizontal: 12, paddingVertical: 9, borderRadius: 8, borderWidth: 1, borderColor: '#CBD5E1' },
+  unkBtnGhostTxt: { fontSize: 12, fontWeight: '700', color: '#334155' },
   unkBtn: { paddingHorizontal: 12, paddingVertical: 9, borderRadius: 8, backgroundColor: NAVY },
   unkBtnTxt: { fontSize: 12, fontWeight: '700', color: '#fff' },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  empty: { color: '#9CA3AF', textAlign: 'center', padding: 40, fontSize: 14 },
+  empty: { color: '#94A3B8', textAlign: 'center', padding: 40, fontSize: 14 },
 
-  searchBar: { flexDirection: 'row', paddingHorizontal: 12, paddingVertical: 10, gap: 10, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#E5E7EB' },
-  searchInput: { flex: 1, backgroundColor: '#F1F5F9', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 10, fontSize: 14, color: '#111827' },
+  searchBar: { flexDirection: 'row', paddingHorizontal: 12, paddingVertical: 10, gap: 10, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#E2E8F0' },
+  searchInput: { flex: 1, backgroundColor: '#F1F5F9', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 10, fontSize: 14, color: '#0F172A' },
   scanBtn: { width: 42, height: 42, borderRadius: 10, backgroundColor: NAVY, alignItems: 'center', justifyContent: 'center' },
   cartBtn: { backgroundColor: NAVY, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 8, alignItems: 'center' },
   cartBtnTxt: { color: '#fff', fontSize: 12, fontWeight: '600' },
-  cartBtnAmt: { color: GOLD, fontSize: 13, fontWeight: '800' },
+  cartBtnAmt: { color: '#FFFFFF', fontSize: 13, fontWeight: '800' },
 
-  catScroll: { maxHeight: 48, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#E5E7EB' },
-  catChip: { height: 32, paddingHorizontal: 14, borderRadius: 16, borderWidth: 1, borderColor: '#D1D5DB', justifyContent: 'center', alignSelf: 'center' },
+  catScroll: { maxHeight: 48, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#E2E8F0' },
+  catChip: { height: 32, paddingHorizontal: 14, borderRadius: 16, borderWidth: 1, borderColor: '#CBD5E1', justifyContent: 'center', alignSelf: 'center' },
   catChipActive: { backgroundColor: NAVY, borderColor: NAVY },
-  catChipTxt: { fontSize: 13, color: '#374151', fontWeight: '500' },
+  catChipTxt: { fontSize: 13, color: '#334155', fontWeight: '500' },
   catChipTxtActive: { color: '#fff', fontWeight: '700' },
 
   grid: { flexDirection: 'row', flexWrap: 'wrap', padding: 8, gap: 8 },
@@ -434,47 +434,47 @@ const s = StyleSheet.create({
   productCardDisabled: { opacity: 0.5 },
   productIcon: { width: 44, height: 44, borderRadius: 22, backgroundColor: '#EEF2FF', justifyContent: 'center', alignItems: 'center', marginBottom: 8 },
   productIconTxt: { fontSize: 18, fontWeight: '700', color: '#4F46E5' },
-  productName: { fontSize: 13, fontWeight: '600', color: '#1F2937', marginBottom: 4 },
+  productName: { fontSize: 13, fontWeight: '600', color: '#0F172A', marginBottom: 4 },
   productPrice: { fontSize: 15, fontWeight: '800', color: NAVY },
-  productStock: { fontSize: 11, color: '#6B7280', marginTop: 3 },
+  productStock: { fontSize: 11, color: '#64748B', marginTop: 3 },
   inCartBadge: { position: 'absolute', top: 8, right: 8, width: 22, height: 22, borderRadius: 11, backgroundColor: GOLD, justifyContent: 'center', alignItems: 'center' },
   inCartTxt: { fontSize: 11, fontWeight: '800', color: '#fff' },
 
-  cartHeader: { flexDirection: 'row', alignItems: 'center', padding: 16, borderBottomWidth: 1, borderBottomColor: '#E5E7EB', backgroundColor: '#fff' },
+  cartHeader: { flexDirection: 'row', alignItems: 'center', padding: 16, borderBottomWidth: 1, borderBottomColor: '#E2E8F0', backgroundColor: '#fff' },
   cartTitle: { flex: 1, fontSize: 18, fontWeight: '700', color: NAVY },
-  cartClose: { fontSize: 20, color: '#6B7280', padding: 4 },
+  cartClose: { fontSize: 20, color: '#64748B', padding: 4 },
 
   cartItem: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: 12, padding: 14, marginHorizontal: 16 },
-  cartItemName: { fontSize: 14, fontWeight: '600', color: '#1F2937' },
-  cartItemPrice: { fontSize: 12, color: '#6B7280', marginTop: 2 },
+  cartItemName: { fontSize: 14, fontWeight: '600', color: '#0F172A' },
+  cartItemPrice: { fontSize: 12, color: '#64748B', marginTop: 2 },
   cartItemTotal: { fontSize: 14, fontWeight: '700', color: NAVY, marginLeft: 10 },
   qtyRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginHorizontal: 12 },
-  qtyBtn: { width: 30, height: 30, borderRadius: 15, borderWidth: 1, borderColor: '#D1D5DB', justifyContent: 'center', alignItems: 'center' },
+  qtyBtn: { width: 30, height: 30, borderRadius: 15, borderWidth: 1, borderColor: '#CBD5E1', justifyContent: 'center', alignItems: 'center' },
   qtyBtnTxt: { fontSize: 18, color: NAVY, lineHeight: 22 },
-  qtyTxt: { fontSize: 16, fontWeight: '700', color: '#1F2937', minWidth: 20, textAlign: 'center' },
+  qtyTxt: { fontSize: 16, fontWeight: '700', color: '#0F172A', minWidth: 20, textAlign: 'center' },
 
   summaryCard: { backgroundColor: '#fff', borderRadius: 12, marginHorizontal: 16, marginTop: 16, padding: 16 },
   summaryRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6 },
-  summaryLabel: { fontSize: 14, color: '#6B7280' },
-  summaryAmt: { fontSize: 14, color: '#1F2937', fontWeight: '600' },
-  totalRow: { borderTopWidth: 1, borderTopColor: '#E5E7EB', marginTop: 6, paddingTop: 12 },
+  summaryLabel: { fontSize: 14, color: '#64748B' },
+  summaryAmt: { fontSize: 14, color: '#0F172A', fontWeight: '600' },
+  totalRow: { borderTopWidth: 1, borderTopColor: '#E2E8F0', marginTop: 6, paddingTop: 12 },
   totalLabel: { fontSize: 16, fontWeight: '800', color: NAVY },
   totalAmt: { fontSize: 18, fontWeight: '900', color: NAVY },
 
-  checkoutBar: { flexDirection: 'row', padding: 16, gap: 12, backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#E5E7EB' },
-  clearBtn: { paddingVertical: 14, paddingHorizontal: 20, borderRadius: 12, borderWidth: 1, borderColor: '#E5E7EB' },
-  clearBtnTxt: { fontSize: 14, color: '#6B7280', fontWeight: '600' },
+  checkoutBar: { flexDirection: 'row', padding: 16, gap: 12, backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#E2E8F0' },
+  clearBtn: { paddingVertical: 14, paddingHorizontal: 20, borderRadius: 12, borderWidth: 1, borderColor: '#E2E8F0' },
+  clearBtnTxt: { fontSize: 14, color: '#64748B', fontWeight: '600' },
   checkoutBtn: { flex: 1, backgroundColor: NAVY, borderRadius: 12, paddingVertical: 14, alignItems: 'center' },
   checkoutBtnTxt: { color: '#fff', fontSize: 16, fontWeight: '800' },
 
   payTotal: { backgroundColor: NAVY, borderRadius: 16, padding: 20, alignItems: 'center', marginBottom: 20 },
   payTotalLabel: { color: 'rgba(255,255,255,0.7)', fontSize: 14 },
   payTotalAmt: { color: '#fff', fontSize: 32, fontWeight: '900', marginTop: 4 },
-  paySection: { fontSize: 13, fontWeight: '700', color: '#374151', marginBottom: 10 },
-  payInput: { backgroundColor: '#fff', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 14, fontSize: 18, fontWeight: '700', color: '#111827', borderWidth: 1, borderColor: '#E5E7EB', marginBottom: 16 },
-  methodBtn: { flex: 1, paddingVertical: 12, borderRadius: 10, borderWidth: 1, borderColor: '#D1D5DB', alignItems: 'center' },
+  paySection: { fontSize: 13, fontWeight: '700', color: '#334155', marginBottom: 10 },
+  payInput: { backgroundColor: '#fff', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 14, fontSize: 18, fontWeight: '700', color: '#0F172A', borderWidth: 1, borderColor: '#E2E8F0', marginBottom: 16 },
+  methodBtn: { flex: 1, paddingVertical: 12, borderRadius: 10, borderWidth: 1, borderColor: '#CBD5E1', alignItems: 'center' },
   methodBtnActive: { backgroundColor: NAVY, borderColor: NAVY },
-  methodTxt: { fontSize: 13, color: '#374151', fontWeight: '600' },
+  methodTxt: { fontSize: 13, color: '#334155', fontWeight: '600' },
   methodTxtActive: { color: '#fff' },
   changeBox: { backgroundColor: '#DCFCE7', borderRadius: 12, padding: 16, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   changeLabel: { fontSize: 15, fontWeight: '700', color: GREEN },
@@ -486,7 +486,7 @@ const s = StyleSheet.create({
   floatingCart: { position: 'absolute', bottom: 20, left: 16, right: 16, backgroundColor: NAVY, borderRadius: 16, flexDirection: 'row', alignItems: 'center', paddingVertical: 14, paddingHorizontal: 20, shadowColor: '#000', shadowOpacity: 0.3, shadowRadius: 10, elevation: 10 },
   floatingCartCount: { backgroundColor: GOLD, borderRadius: 12, width: 26, height: 26, textAlign: 'center', lineHeight: 26, fontSize: 13, fontWeight: '800', color: '#fff', marginRight: 10 },
   floatingCartTxt: { flex: 1, color: '#fff', fontSize: 16, fontWeight: '700' },
-  floatingCartAmt: { color: GOLD, fontSize: 16, fontWeight: '900' },
+  floatingCartAmt: { color: '#FFFFFF', fontSize: 16, fontWeight: '900' },
 
   receiptCard: { backgroundColor: '#fff', borderRadius: 20, margin: 16, marginTop: 32, overflow: 'hidden', shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 10, elevation: 5 },
   receiptHeader: { backgroundColor: GREEN, padding: 28, alignItems: 'center' },
@@ -495,11 +495,11 @@ const s = StyleSheet.create({
   receiptNum: { fontSize: 13, color: 'rgba(255,255,255,0.8)', marginTop: 4 },
   receiptBody: { padding: 20 },
   receiptRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6 },
-  receiptItem: { fontSize: 13, color: '#374151' },
-  receiptLabel: { fontSize: 13, color: '#6B7280' },
-  receiptAmt: { fontSize: 13, fontWeight: '600', color: '#1F2937' },
+  receiptItem: { fontSize: 13, color: '#334155' },
+  receiptLabel: { fontSize: 13, color: '#64748B' },
+  receiptAmt: { fontSize: 13, fontWeight: '600', color: '#0F172A' },
   receiptTotal: { fontSize: 16, fontWeight: '800', color: NAVY },
-  divider: { height: 1, backgroundColor: '#E5E7EB', marginVertical: 10 },
+  divider: { height: 1, backgroundColor: '#E2E8F0', marginVertical: 10 },
   newSaleBtn: { backgroundColor: NAVY, borderRadius: 14, margin: 16, paddingVertical: 16, alignItems: 'center' },
   newSaleTxt: { color: '#fff', fontSize: 16, fontWeight: '800' },
 });

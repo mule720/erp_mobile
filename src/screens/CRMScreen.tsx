@@ -11,8 +11,8 @@ import FormModal from '../components/FormModal';
 import { Field, SelectField, Section } from '../components/Field';
 import FAB from '../components/FAB';
 
-const NAVY = '#1E3A5F';
-const GOLD = '#C9A84C';
+const NAVY = '#2563EB';
+const GOLD = '#0EA5E9';
 const fmt = (n: any, cur = 'ZMW') => new Intl.NumberFormat('en-ZM', { style: 'currency', currency: cur, maximumFractionDigits: 2 }).format(Number(n ?? 0));
 
 const TABS = [
@@ -81,7 +81,7 @@ function CustomersTab({ tenantId }: { tenantId: string }) {
   return (
     <View style={{ flex: 1 }}>
       <View style={s.searchWrap}>
-        <TextInput style={s.searchInput} value={search} onChangeText={setSearch} placeholder="Search customers…" placeholderTextColor="#9CA3AF" />
+        <TextInput style={s.searchInput} value={search} onChangeText={setSearch} placeholder="Search customers…" placeholderTextColor="#94A3B8" />
       </View>
       <ScrollView style={{ flex: 1 }}>
         <View style={[s.card, { marginBottom: 100 }]}>
@@ -156,7 +156,7 @@ function CustomersTab({ tenantId }: { tenantId: string }) {
                       <Text style={s.sub}>{e.date}</Text>
                     </View>
                     <View style={{ alignItems: 'flex-end' }}>
-                      <Text style={[s.amount, { color: TYPE_COLOR[e.type] || '#1F2937' }]}>
+                      <Text style={[s.amount, { color: TYPE_COLOR[e.type] || '#0F172A' }]}>
                         {e.debit > 0 ? `+${fmt(e.debit)}` : e.credit > 0 ? `−${fmt(e.credit)}` : fmt(0)}
                       </Text>
                       <Text style={s.sub2}>Bal. {fmt(e.balance)}</Text>
@@ -237,7 +237,7 @@ function LeadsTab({ tenantId }: { tenantId: string }) {
     } catch (e: any) { Alert.alert('Error', e.message); }
   };
 
-  const STATUS_COLOR: Record<string, string> = { new: '#3B82F6', contacted: '#8B5CF6', qualified: '#F59E0B', converted: '#16A34A', lost: '#6B7280' };
+  const STATUS_COLOR: Record<string, string> = { new: '#3B82F6', contacted: '#8B5CF6', qualified: '#F59E0B', converted: '#16A34A', lost: '#64748B' };
 
   if (loading) return <Loader />;
   return (
@@ -255,7 +255,7 @@ function LeadsTab({ tenantId }: { tenantId: string }) {
         <View style={[s.card, { marginBottom: 100 }]}>
           {leads.length === 0 ? <Empty msg="No leads" /> : leads.map((lead, i) => (
             <TouchableOpacity key={lead.id} style={[s.row, i < leads.length - 1 && s.border]} onPress={() => setSelected(lead)} activeOpacity={0.7}>
-              <View style={[s.leadDot, { backgroundColor: STATUS_COLOR[lead.stage] || '#6B7280' }]} />
+              <View style={[s.leadDot, { backgroundColor: STATUS_COLOR[lead.stage] || '#64748B' }]} />
               <View style={{ flex: 1 }}>
                 <Text style={s.main}>{lead.name}</Text>
                 {lead.source && <Text style={s.sub}>{lead.source}</Text>}
@@ -329,13 +329,13 @@ export default function CRMScreen() {
 
 const s = StyleSheet.create({
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 40 },
-  empty: { color: '#9CA3AF', fontSize: 14, textAlign: 'center', padding: 16 },
+  empty: { color: '#94A3B8', fontSize: 14, textAlign: 'center', padding: 16 },
   card: { backgroundColor: '#fff', borderRadius: 12, paddingHorizontal: 16, marginHorizontal: 16, marginTop: 8, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 4, elevation: 2 },
   row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12 },
   border: { borderBottomWidth: 1, borderBottomColor: '#F1F5F9' },
-  main: { fontSize: 14, fontWeight: '600', color: '#1F2937' },
-  sub: { fontSize: 12, color: '#6B7280', marginTop: 2 },
-  sub2: { fontSize: 11, color: '#9CA3AF', marginTop: 1 },
+  main: { fontSize: 14, fontWeight: '600', color: '#0F172A' },
+  sub: { fontSize: 12, color: '#64748B', marginTop: 2 },
+  sub2: { fontSize: 11, color: '#94A3B8', marginTop: 1 },
   amount: { fontSize: 14, fontWeight: '700', color: NAVY },
   sectionTitle: { fontSize: 13, fontWeight: '700', color: NAVY, marginHorizontal: 16, marginTop: 16, marginBottom: 4 },
   avatar: { width: 38, height: 38, borderRadius: 19, justifyContent: 'center', alignItems: 'center', marginRight: 12 },
@@ -343,19 +343,19 @@ const s = StyleSheet.create({
   avatarBig: { alignItems: 'center', padding: 24, backgroundColor: '#fff', marginHorizontal: 16, marginTop: 12, borderRadius: 16 },
   avatarCircle: { width: 64, height: 64, borderRadius: 32, justifyContent: 'center', alignItems: 'center', marginBottom: 10 },
   avatarBigTxt: { fontSize: 28, fontWeight: '800' },
-  customerName: { fontSize: 18, fontWeight: '700', color: '#1F2937' },
-  customerEmail: { fontSize: 13, color: '#6B7280', marginTop: 4 },
-  modalHeader: { flexDirection: 'row', alignItems: 'center', padding: 16, borderBottomWidth: 1, borderBottomColor: '#E5E7EB', backgroundColor: '#fff' },
+  customerName: { fontSize: 18, fontWeight: '700', color: '#0F172A' },
+  customerEmail: { fontSize: 13, color: '#64748B', marginTop: 4 },
+  modalHeader: { flexDirection: 'row', alignItems: 'center', padding: 16, borderBottomWidth: 1, borderBottomColor: '#E2E8F0', backgroundColor: '#fff' },
   modalTitle: { flex: 1, fontSize: 17, fontWeight: '700', color: NAVY },
-  modalClose: { fontSize: 18, color: '#6B7280', padding: 4 },
+  modalClose: { fontSize: 18, color: '#64748B', padding: 4 },
   detailRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 12 },
-  detailLabel: { fontSize: 13, color: '#6B7280' },
-  detailValue: { fontSize: 13, fontWeight: '600', color: '#1F2937' },
+  detailLabel: { fontSize: 13, color: '#64748B' },
+  detailValue: { fontSize: 13, fontWeight: '600', color: '#0F172A' },
   searchWrap: { paddingHorizontal: 16, paddingVertical: 10 },
-  searchInput: { backgroundColor: '#fff', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 10, fontSize: 14, color: '#111827', borderWidth: 1, borderColor: '#E5E7EB' },
+  searchInput: { backgroundColor: '#fff', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 10, fontSize: 14, color: '#0F172A', borderWidth: 1, borderColor: '#E2E8F0' },
   statCard: { flex: 1, backgroundColor: '#fff', borderRadius: 10, padding: 12, borderTopWidth: 3, alignItems: 'center', shadowColor: '#000', shadowOpacity: 0.04, elevation: 1 },
   statNum: { fontSize: 22, fontWeight: '800' },
-  statLabel: { fontSize: 10, color: '#6B7280', fontWeight: '700', marginTop: 2 },
+  statLabel: { fontSize: 10, color: '#64748B', fontWeight: '700', marginTop: 2 },
   leadDot: { width: 10, height: 10, borderRadius: 5, marginRight: 12 },
   statusBtn: { paddingHorizontal: 16, paddingVertical: 9, borderRadius: 10 },
   statusBtnTxt: { color: '#fff', fontSize: 14, fontWeight: '700' },

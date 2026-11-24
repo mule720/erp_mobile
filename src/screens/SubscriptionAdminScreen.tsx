@@ -11,8 +11,8 @@ import {
 } from 'react-native';
 import { gql } from '../api/graphql';
 
-const NAVY = '#1E3A5F';
-const GOLD = '#C9A84C';
+const NAVY = '#2563EB';
+const GOLD = '#0EA5E9';
 const SUCCESS = '#059669';
 const DANGER = '#DC2626';
 const WARN = '#D97706';
@@ -167,7 +167,7 @@ function EditModal({
           <View style={m.header}>
             <Text style={m.title}>{title}</Text>
             <TouchableOpacity onPress={onClose} style={{ padding: 4 }}>
-              <Text style={{ color: '#6B7280', fontSize: 18 }}>✕</Text>
+              <Text style={{ color: '#64748B', fontSize: 18 }}>✕</Text>
             </TouchableOpacity>
           </View>
           <ScrollView style={{ maxHeight: 420 }} showsVerticalScrollIndicator={false}>
@@ -180,7 +180,7 @@ function EditModal({
                     onPress={() => set(f.key, !local[f.key])}
                     activeOpacity={0.8}
                   >
-                    <Text style={{ color: local[f.key] ? '#fff' : '#374151', fontWeight: '600', fontSize: 13 }}>
+                    <Text style={{ color: local[f.key] ? '#fff' : '#334155', fontWeight: '600', fontSize: 13 }}>
                       {local[f.key] ? 'Yes' : 'No'}
                     </Text>
                   </TouchableOpacity>
@@ -191,7 +191,7 @@ function EditModal({
                     onChangeText={v => set(f.key, f.type === 'number' ? v : v)}
                     keyboardType={f.type === 'number' ? 'decimal-pad' : 'default'}
                     placeholder={`Enter ${f.label.toLowerCase()}`}
-                    placeholderTextColor="#9CA3AF"
+                    placeholderTextColor="#94A3B8"
                   />
                 )}
               </View>
@@ -235,7 +235,7 @@ function CreateModal({
           <View style={m.header}>
             <Text style={m.title}>{title}</Text>
             <TouchableOpacity onPress={onClose} style={{ padding: 4 }}>
-              <Text style={{ color: '#6B7280', fontSize: 18 }}>✕</Text>
+              <Text style={{ color: '#64748B', fontSize: 18 }}>✕</Text>
             </TouchableOpacity>
           </View>
           <ScrollView style={{ maxHeight: 420 }} showsVerticalScrollIndicator={false}>
@@ -248,7 +248,7 @@ function CreateModal({
                     onPress={() => set(f.key, !local[f.key])}
                     activeOpacity={0.8}
                   >
-                    <Text style={{ color: local[f.key] ? '#fff' : '#374151', fontWeight: '600', fontSize: 13 }}>
+                    <Text style={{ color: local[f.key] ? '#fff' : '#334155', fontWeight: '600', fontSize: 13 }}>
                       {local[f.key] ? 'Yes' : 'No'}
                     </Text>
                   </TouchableOpacity>
@@ -259,7 +259,7 @@ function CreateModal({
                     onChangeText={v => set(f.key, v)}
                     keyboardType={f.type === 'number' ? 'decimal-pad' : 'default'}
                     placeholder={`Enter ${f.label.toLowerCase()}`}
-                    placeholderTextColor="#9CA3AF"
+                    placeholderTextColor="#94A3B8"
                   />
                 )}
               </View>
@@ -702,7 +702,7 @@ function AddonsTab({ addons, reload }: { addons: AddonPack[]; reload: () => void
 
 const STATUS_COLORS: Record<string, string> = {
   active: SUCCESS, trial: '#0284C7', cancelled: DANGER,
-  expired: '#6B7280', suspended: WARN,
+  expired: '#64748B', suspended: WARN,
 };
 
 function TenantsTab({ tenants }: { tenants: TenantSub[] }) {
@@ -710,7 +710,7 @@ function TenantsTab({ tenants }: { tenants: TenantSub[] }) {
     return (
       <View style={{ padding: 32, alignItems: 'center' }}>
         <Text style={{ fontSize: 32, marginBottom: 8 }}>🏢</Text>
-        <Text style={{ color: '#6B7280', textAlign: 'center' }}>
+        <Text style={{ color: '#64748B', textAlign: 'center' }}>
           No tenant subscriptions yet.{'\n'}Tenants subscribe from the customer portal.
         </Text>
       </View>
@@ -728,8 +728,8 @@ function TenantsTab({ tenants }: { tenants: TenantSub[] }) {
               {sub.startDate && <Text style={t.cardSub}>Start: {sub.startDate?.slice(0, 10)}</Text>}
               {sub.endDate && <Text style={t.cardSub}>Expires: {sub.endDate?.slice(0, 10)}</Text>}
             </View>
-            <View style={[t.statusPill, { backgroundColor: (STATUS_COLORS[sub.status?.toLowerCase()] || '#6B7280') + '20' }]}>
-              <Text style={[t.statusTxt, { color: STATUS_COLORS[sub.status?.toLowerCase()] || '#6B7280' }]}>
+            <View style={[t.statusPill, { backgroundColor: (STATUS_COLORS[sub.status?.toLowerCase()] || '#64748B') + '20' }]}>
+              <Text style={[t.statusTxt, { color: STATUS_COLORS[sub.status?.toLowerCase()] || '#64748B' }]}>
                 {sub.status?.toUpperCase()}
               </Text>
             </View>
@@ -811,7 +811,7 @@ export default function SubscriptionAdminScreen() {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F8FAFC' }}>
         <ActivityIndicator size="large" color={NAVY} />
-        <Text style={{ color: '#6B7280', marginTop: 12 }}>Loading subscription data…</Text>
+        <Text style={{ color: '#64748B', marginTop: 12 }}>Loading subscription data…</Text>
       </View>
     );
   }
@@ -883,10 +883,10 @@ const s = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center',
     paddingHorizontal: 16, paddingVertical: 12,
     backgroundColor: '#fff',
-    borderBottomWidth: 1, borderBottomColor: '#E5E7EB',
+    borderBottomWidth: 1, borderBottomColor: '#E2E8F0',
   },
   headerTitle: { fontSize: 17, fontWeight: '800', color: NAVY },
-  headerSub: { fontSize: 12, color: '#6B7280', marginTop: 2 },
+  headerSub: { fontSize: 12, color: '#64748B', marginTop: 2 },
   seedBtn: {
     paddingHorizontal: 14, paddingVertical: 8,
     backgroundColor: NAVY, borderRadius: 8,
@@ -895,7 +895,7 @@ const s = StyleSheet.create({
 
   tabBar: {
     flexDirection: 'row', backgroundColor: '#fff',
-    borderBottomWidth: 1, borderBottomColor: '#E5E7EB',
+    borderBottomWidth: 1, borderBottomColor: '#E2E8F0',
   },
   tabItem: {
     flex: 1, alignItems: 'center', paddingVertical: 10,
@@ -903,7 +903,7 @@ const s = StyleSheet.create({
   },
   tabActive: {},
   tabIcon: { fontSize: 14, marginBottom: 2 },
-  tabLabel: { fontSize: 11, color: '#6B7280', fontWeight: '500' },
+  tabLabel: { fontSize: 11, color: '#64748B', fontWeight: '500' },
   tabLabelActive: { color: NAVY, fontWeight: '700' },
   tabUnderline: {
     position: 'absolute', bottom: 0, left: 8, right: 8,
@@ -919,18 +919,18 @@ const t = StyleSheet.create({
   addBtnTxt: { color: GOLD, fontWeight: '700', fontSize: 14 },
 
   sectionHdr: {
-    fontSize: 11, fontWeight: '700', color: '#9CA3AF',
+    fontSize: 11, fontWeight: '700', color: '#94A3B8',
     letterSpacing: 1, marginTop: 12, marginBottom: 6, marginLeft: 4,
   },
 
   card: {
     backgroundColor: '#fff', borderRadius: 10, padding: 14, marginBottom: 10,
-    borderWidth: 1, borderColor: '#E5E7EB',
+    borderWidth: 1, borderColor: '#E2E8F0',
     shadowColor: '#000', shadowOpacity: 0.03, shadowRadius: 4, elevation: 1,
   },
   cardHeader: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 10 },
-  cardTitle: { fontSize: 14, fontWeight: '700', color: '#111827' },
-  cardSub: { fontSize: 12, color: '#6B7280', marginTop: 2 },
+  cardTitle: { fontSize: 14, fontWeight: '700', color: '#0F172A' },
+  cardSub: { fontSize: 12, color: '#64748B', marginTop: 2 },
 
   editBtn: {
     paddingHorizontal: 12, paddingVertical: 6,
@@ -949,8 +949,8 @@ const t = StyleSheet.create({
     backgroundColor: '#F8FAFC', borderRadius: 6,
     paddingHorizontal: 10, paddingVertical: 6, alignItems: 'center',
   },
-  statVal: { fontSize: 13, fontWeight: '700', color: '#111827' },
-  statLbl: { fontSize: 10, color: '#9CA3AF', marginTop: 1 },
+  statVal: { fontSize: 13, fontWeight: '700', color: '#0F172A' },
+  statLbl: { fontSize: 10, color: '#94A3B8', marginTop: 1 },
 
   statusPill: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
   statusTxt: { fontSize: 11, fontWeight: '700' },
@@ -968,24 +968,24 @@ const m = StyleSheet.create({
   },
   header: { flexDirection: 'row', alignItems: 'center', marginBottom: 18 },
   title: { flex: 1, fontSize: 16, fontWeight: '800', color: NAVY },
-  label: { fontSize: 13, fontWeight: '600', color: '#374151', marginBottom: 6 },
+  label: { fontSize: 13, fontWeight: '600', color: '#334155', marginBottom: 6 },
   input: {
-    borderWidth: 1, borderColor: '#D1D5DB', borderRadius: 8,
+    borderWidth: 1, borderColor: '#CBD5E1', borderRadius: 8,
     paddingHorizontal: 12, paddingVertical: 10,
-    fontSize: 14, color: '#111827', backgroundColor: '#F9FAFB',
+    fontSize: 14, color: '#0F172A', backgroundColor: '#F8FAFC',
   },
   toggle: {
-    borderWidth: 1, borderColor: '#D1D5DB', borderRadius: 8,
+    borderWidth: 1, borderColor: '#CBD5E1', borderRadius: 8,
     paddingHorizontal: 16, paddingVertical: 8,
-    alignSelf: 'flex-start', backgroundColor: '#F9FAFB',
+    alignSelf: 'flex-start', backgroundColor: '#F8FAFC',
   },
   toggleOn: { backgroundColor: NAVY, borderColor: NAVY },
   actions: { flexDirection: 'row', gap: 10, marginTop: 20 },
   cancelBtn: {
-    flex: 1, borderWidth: 1, borderColor: '#D1D5DB',
+    flex: 1, borderWidth: 1, borderColor: '#CBD5E1',
     borderRadius: 8, paddingVertical: 12, alignItems: 'center',
   },
-  cancelTxt: { color: '#374151', fontSize: 14, fontWeight: '600' },
+  cancelTxt: { color: '#334155', fontSize: 14, fontWeight: '600' },
   saveBtn: {
     flex: 2, backgroundColor: NAVY,
     borderRadius: 8, paddingVertical: 12, alignItems: 'center',

@@ -156,7 +156,7 @@ export default function SoftPOSScreen({ route, navigation }: Props) {
       </Text>
 
       {status === 'loading' ? (
-        <ActivityIndicator size="large" color="#1E3A5F" style={{ marginTop: 40 }} />
+        <ActivityIndicator size="large" color="#2563EB" style={{ marginTop: 40 }} />
       ) : (
         <>
           <TouchableOpacity style={styles.acceptBtn} onPress={handleAccept}>
@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 24,
   },
-  header: { fontSize: 22, fontWeight: '700', color: '#1E3A5F', marginBottom: 32 },
+  header: { fontSize: 22, fontWeight: '700', color: '#2563EB', marginBottom: 32 },
   card: {
     width: '100%',
     backgroundColor: '#fff',
@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
     marginBottom: 28,
   },
   amountLabel: { fontSize: 14, color: '#64748B', marginBottom: 8 },
-  amount: { fontSize: 44, fontWeight: '800', color: '#1E3A5F' },
+  amount: { fontSize: 44, fontWeight: '800', color: '#2563EB' },
   description: { fontSize: 15, color: '#64748B', marginTop: 12, textAlign: 'center' },
   waiting: { fontSize: 16, color: '#475569', marginBottom: 8 },
   timer: { fontSize: 14, color: '#94A3B8', marginBottom: 40 },
@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
   resultTitle: { fontSize: 24, fontWeight: '700', color: '#1E293B', marginBottom: 12 },
   resultSub: { fontSize: 16, color: '#64748B', textAlign: 'center', marginBottom: 40 },
   doneBtn: {
-    backgroundColor: '#1E3A5F',
+    backgroundColor: '#2563EB',
     borderRadius: 12,
     paddingVertical: 16,
     paddingHorizontal: 40,

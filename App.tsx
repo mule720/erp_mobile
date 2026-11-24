@@ -5,12 +5,12 @@ import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import { useFonts } from 'expo-font';
 import {
-  PlusJakartaSans_400Regular,
-  PlusJakartaSans_500Medium,
-  PlusJakartaSans_600SemiBold,
-  PlusJakartaSans_700Bold,
-  PlusJakartaSans_800ExtraBold,
-} from '@expo-google-fonts/plus-jakarta-sans';
+  Inter_400Regular,
+  Inter_500Medium,
+  Inter_600SemiBold,
+  Inter_700Bold,
+  Inter_800ExtraBold,
+} from '@expo-google-fonts/inter';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthProvider } from './src/store/AuthContext';
 import { RoleProvider } from './src/store/RoleContext';
@@ -20,16 +20,16 @@ import { COLORS } from './src/theme';
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
 export default function App() {
-  // Plus Jakarta Sans - the same display face erp_frontend uses - loaded
+  // Inter - the same face erp_frontend uses - loaded
   // once here so every screen can reference it by name via src/theme.ts's
   // FONT tokens. Held behind the splash screen rather than flashing the
   // system font first and swapping mid-render.
   const [fontsLoaded] = useFonts({
-    PlusJakartaSans_400Regular,
-    PlusJakartaSans_500Medium,
-    PlusJakartaSans_600SemiBold,
-    PlusJakartaSans_700Bold,
-    PlusJakartaSans_800ExtraBold,
+    Inter_400Regular,
+    Inter_500Medium,
+    Inter_600SemiBold,
+    Inter_700Bold,
+    Inter_800ExtraBold,
   });
 
   const onLayout = useCallback(async () => {

@@ -51,7 +51,7 @@ export default function AppNavigator() {
   }, []);
 
   if (!ready) return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#1E3A5F' }}>
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#2563EB' }}>
       <Text style={{ color: '#fff', fontSize: 24, fontWeight: '800' }}>NetOn ERP Pro</Text>
     </View>
   );

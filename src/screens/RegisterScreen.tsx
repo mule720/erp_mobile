@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
-  View, Text, TextInput, TouchableOpacity, StyleSheet,
+  Image, View, Text, TextInput, TouchableOpacity, StyleSheet,
   ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -132,16 +132,12 @@ export default function RegisterScreen({ navigation }: any) {
 
   return (
     <View style={s.root}>
-      <View style={s.ruleLayer} pointerEvents="none">
-        {Array.from({ length: 6 }).map((_, i) => <View key={i} style={s.rule} />)}
-        <View style={s.margin} />
-      </View>
 
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView contentContainerStyle={[s.container, { paddingTop: Math.max(56, insets.top + 24), paddingBottom: 24 + insets.bottom }]} keyboardShouldPersistTaps="handled">
           <View style={s.header}>
-            <View style={s.logo}><Ionicons name="layers" size={26} color={COLORS.navy} /></View>
-            <Text style={s.brand}>NetOn ERP Pro</Text>
+            <Image source={require('../../assets/logo.png')} style={s.logo} resizeMode="contain" accessibilityLabel="Neton ERP Pro" />
+            <Text style={s.brand}>Neton ERP Pro</Text>
             <Text style={s.tagline}>Set up your business in minutes</Text>
           </View>
 
@@ -240,40 +236,34 @@ export default function RegisterScreen({ navigation }: any) {
 }
 
 const s = StyleSheet.create({
-  root: { flex: 1, backgroundColor: COLORS.navy },
-  ruleLayer: { ...StyleSheet.absoluteFill, opacity: 0.35 },
-  rule: { height: 1, backgroundColor: '#334155', marginTop: 60 },
-  margin: { position: 'absolute', top: 0, bottom: 0, left: 64, width: 1, backgroundColor: 'rgba(245,158,11,0.35)' },
+  root: { flex: 1, backgroundColor: COLORS.background },
 
   container: { flexGrow: 1, padding: 24, paddingTop: 56 },
   header: { alignItems: 'center', marginBottom: 20 },
-  logo: {
-    width: 60, height: 60, borderRadius: RADIUS.lg, backgroundColor: COLORS.amberLight,
-    alignItems: 'center', justifyContent: 'center', marginBottom: 12,
-  },
-  brand: { fontSize: 21, color: '#fff', fontFamily: FONT.display },
-  tagline: { fontSize: 13, color: '#94A3B8', marginTop: 4, fontFamily: FONT.bodyRegular },
+  logo: { width: 64, height: 64, marginBottom: 8 },
+  brand: { fontSize: 21, color: COLORS.ink, fontFamily: FONT.display },
+  tagline: { fontSize: 13, color: COLORS.subtle, marginTop: 4, fontFamily: FONT.bodyRegular },
 
   planCard: {
-    backgroundColor: COLORS.navyLight, borderRadius: RADIUS.lg, padding: 18, marginBottom: 18,
-    borderWidth: 1, borderColor: 'rgba(245,158,11,0.25)',
+    backgroundColor: COLORS.surface, borderRadius: RADIUS.lg, padding: 18, marginBottom: 18,
+    borderWidth: 1, borderColor: COLORS.border, ...SHADOW.card,
   },
   planRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' },
-  planName: { color: '#fff', fontSize: 15, fontFamily: FONT.heading },
-  planPrice: { color: COLORS.amberLight, fontSize: 16, fontFamily: FONT.displaySemibold },
+  planName: { color: COLORS.ink, fontSize: 15, fontFamily: FONT.heading },
+  planPrice: { color: COLORS.primary, fontSize: 16, fontFamily: FONT.displaySemibold },
   cycleRow: { flexDirection: 'row', gap: 8, marginTop: 10 },
-  cycleBtn: { flex: 1, paddingVertical: 8, borderRadius: 999, borderWidth: 1, borderColor: 'rgba(255,255,255,0.25)', alignItems: 'center' },
-  cycleBtnOn: { backgroundColor: COLORS.amberLight, borderColor: COLORS.amberLight },
-  cycleText: { color: '#fff', fontSize: 12, fontFamily: FONT.heading },
-  cycleTextOn: { color: '#0B1733' },
-  planDesc: { color: '#CBD5E1', fontSize: 12, marginTop: 8, lineHeight: 17, fontFamily: FONT.bodyRegular },
+  cycleBtn: { flex: 1, paddingVertical: 8, borderRadius: 999, borderWidth: 1, borderColor: COLORS.border, alignItems: 'center' },
+  cycleBtnOn: { backgroundColor: COLORS.primary, borderColor: COLORS.primary },
+  cycleText: { color: COLORS.subtle, fontSize: 12, fontFamily: FONT.heading },
+  cycleTextOn: { color: '#fff' },
+  planDesc: { color: COLORS.subtle, fontSize: 12, marginTop: 8, lineHeight: 17, fontFamily: FONT.bodyRegular },
   planTrialRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 10 },
-  planTrial: { color: '#93C5FD', fontSize: 11, fontFamily: FONT.heading },
-  planFallback: { color: '#94A3B8', fontSize: 12, marginBottom: 18, textAlign: 'center', fontFamily: FONT.bodyRegular },
+  planTrial: { color: COLORS.success, fontSize: 11, fontFamily: FONT.heading },
+  planFallback: { color: COLORS.subtle, fontSize: 12, marginBottom: 18, textAlign: 'center', fontFamily: FONT.bodyRegular },
 
   card: {
     backgroundColor: COLORS.surface, borderRadius: RADIUS.xl, padding: 22,
-    ...SHADOW.raised,
+    borderWidth: 1, borderColor: COLORS.border, ...SHADOW.card,
   },
   label: { fontSize: 11, fontFamily: FONT.heading, color: COLORS.subtle, marginBottom: 7, marginTop: 15, textTransform: 'uppercase', letterSpacing: 0.4 },
   inputRow: {
@@ -290,6 +280,6 @@ const s = StyleSheet.create({
   },
   btnText: { color: '#fff', fontSize: 16, fontFamily: FONT.heading },
   switchLink: { marginTop: 20, alignItems: 'center' },
-  switchText: { color: '#94A3B8', fontSize: 13, fontFamily: FONT.bodyRegular },
-  switchTextBold: { color: COLORS.amberLight, fontFamily: FONT.heading },
+  switchText: { color: COLORS.subtle, fontSize: 13, fontFamily: FONT.bodyRegular },
+  switchTextBold: { color: COLORS.primary, fontFamily: FONT.heading },
 });

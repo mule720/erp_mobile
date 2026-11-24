@@ -13,8 +13,8 @@ import FormModal from '../components/FormModal';
 import { Field, SelectField, Section } from '../components/Field';
 import FAB from '../components/FAB';
 
-const NAVY = '#1E3A5F';
-const GOLD = '#C9A84C';
+const NAVY = '#2563EB';
+const GOLD = '#0EA5E9';
 const today = () => new Date().toISOString().slice(0, 10);
 const fmt = (n: any, cur = 'ZMW') =>
   new Intl.NumberFormat('en-ZM', { style: 'currency', currency: cur, maximumFractionDigits: 2 }).format(Number(n ?? 0));
@@ -170,7 +170,7 @@ function PurchaseOrdersTab({ tenantId }: { tenantId: string }) {
         {form.lines.map((line, i) => (
           <View key={i} style={s.lineItem}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
-              <Text style={{ fontSize: 12, fontWeight: '600', color: '#6B7280' }}>Line {i + 1}</Text>
+              <Text style={{ fontSize: 12, fontWeight: '600', color: '#64748B' }}>Line {i + 1}</Text>
               {form.lines.length > 1 && <TouchableOpacity onPress={() => setForm(f => ({ ...f, lines: f.lines.filter((_, j) => j !== i) }))}><Text style={{ color: '#DC2626', fontSize: 13 }}>Remove</Text></TouchableOpacity>}
             </View>
             <Field label="Description" value={line.description} onChangeText={v => setLine(i, 'description', v)} placeholder="Item / product" />
@@ -241,7 +241,7 @@ function SuppliersTab({ tenantId }: { tenantId: string }) {
   return (
     <View style={{ flex: 1 }}>
       <View style={s.searchWrap}>
-        <TextInput style={s.searchInput} value={search} onChangeText={setSearch} placeholder="Search suppliers…" placeholderTextColor="#9CA3AF" />
+        <TextInput style={s.searchInput} value={search} onChangeText={setSearch} placeholder="Search suppliers…" placeholderTextColor="#94A3B8" />
       </View>
       <ScrollView style={{ flex: 1 }}>
         <View style={[s.card, { marginBottom: 100 }]}>
@@ -255,7 +255,7 @@ function SuppliersTab({ tenantId }: { tenantId: string }) {
                 {sup.email && <Text style={s.sub}>{sup.email}</Text>}
                 {sup.phone && <Text style={s.sub2}>{sup.phone}</Text>}
               </View>
-              <Text style={{ fontSize: 12, color: '#9CA3AF' }}>{sup.currency}</Text>
+              <Text style={{ fontSize: 12, color: '#94A3B8' }}>{sup.currency}</Text>
             </TouchableOpacity>
           ))}
         </View>
@@ -359,7 +359,7 @@ function ProductsTab({ tenantId }: { tenantId: string }) {
   return (
     <View style={{ flex: 1 }}>
       <View style={s.searchWrap}>
-        <TextInput style={s.searchInput} value={search} onChangeText={setSearch} placeholder="Search products…" placeholderTextColor="#9CA3AF" />
+        <TextInput style={s.searchInput} value={search} onChangeText={setSearch} placeholder="Search products…" placeholderTextColor="#94A3B8" />
       </View>
       <ScrollView style={{ flex: 1 }}>
         <View style={[s.card, { marginBottom: 100 }]}>
@@ -374,7 +374,7 @@ function ProductsTab({ tenantId }: { tenantId: string }) {
                 </View>
                 <View style={{ alignItems: 'flex-end' }}>
                   <Text style={s.amount}>{fmt(p.price ?? p.unit_price)}</Text>
-                  <Text style={[s.sub, { marginTop: 3, color: lowStock ? '#DC2626' : '#6B7280' }]}>Stock: {p.stock ?? '–'}</Text>
+                  <Text style={[s.sub, { marginTop: 3, color: lowStock ? '#DC2626' : '#64748B' }]}>Stock: {p.stock ?? '–'}</Text>
                   {lowStock && <Text style={{ fontSize: 10, color: '#DC2626', fontWeight: '700' }}>LOW</Text>}
                 </View>
               </TouchableOpacity>
@@ -486,7 +486,7 @@ function InventoryTab({ tenantId }: { tenantId: string }) {
             </View>
             <View style={{ alignItems: 'flex-end' }}>
               <Text style={{ fontSize: 16, fontWeight: '800', color: '#DC2626' }}>{p.stock}</Text>
-              <Text style={{ fontSize: 11, color: '#9CA3AF' }}>min: {p.reorderPoint}</Text>
+              <Text style={{ fontSize: 11, color: '#94A3B8' }}>min: {p.reorderPoint}</Text>
             </View>
           </View>
         ))}
@@ -564,14 +564,14 @@ function StockCountTab({ tenantId }: { tenantId: string }) {
                   onChangeText={v => setCountLines(cl => cl.map((l, j) => j === i ? { ...l, qty: v } : l))}
                   placeholder="0"
                   keyboardType="decimal-pad"
-                  placeholderTextColor="#9CA3AF"
+                  placeholderTextColor="#94A3B8"
                 />
               </View>
             ))}
           </View>
         </ScrollView>
-        <View style={{ flexDirection: 'row', padding: 16, gap: 10, backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#E5E7EB' }}>
-          <TouchableOpacity style={[s.actionBtn, { flex: 1, alignItems: 'center', backgroundColor: '#6B7280' }]} onPress={() => { setActiveCount(null); setCountLines([]); }}>
+        <View style={{ flexDirection: 'row', padding: 16, gap: 10, backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#E2E8F0' }}>
+          <TouchableOpacity style={[s.actionBtn, { flex: 1, alignItems: 'center', backgroundColor: '#64748B' }]} onPress={() => { setActiveCount(null); setCountLines([]); }}>
             <Text style={s.actionBtnTxt}>Cancel</Text>
           </TouchableOpacity>
           <TouchableOpacity style={[s.actionBtn, { flex: 2, alignItems: 'center', opacity: saving ? 0.5 : 1 }]} onPress={submitCount} disabled={saving}>
@@ -708,7 +708,7 @@ function ThreeWayMatchTab({ tenantId }: { tenantId: string }) {
   const CheckRow = ({ label, ok }: { label: string; ok: boolean | null }) => (
     <View style={[s.detailRow, s.border]}>
       <Text style={s.detailLabel}>{label}</Text>
-      <Text style={[s.detailValue, { color: ok === null ? '#9CA3AF' : ok ? '#16A34A' : '#DC2626' }]}>
+      <Text style={[s.detailValue, { color: ok === null ? '#94A3B8' : ok ? '#16A34A' : '#DC2626' }]}>
         {ok === null ? 'Skipped' : ok ? '✓ Matched' : '✕ Discrepancy'}
       </Text>
     </View>
@@ -769,8 +769,8 @@ function ScoreRow({ label, value, onChange }: { label: string; value: number; on
       <View style={{ flexDirection: 'row', gap: 6 }}>
         {[1, 2, 3, 4, 5].map(n => (
           <TouchableOpacity key={n} onPress={() => onChange(n)}
-            style={{ width: 30, height: 30, borderRadius: 6, justifyContent: 'center', alignItems: 'center', backgroundColor: value >= n ? GOLD : '#E5E7EB' }}>
-            <Text style={{ fontSize: 12, fontWeight: '700', color: value >= n ? '#fff' : '#6B7280' }}>{n}</Text>
+            style={{ width: 30, height: 30, borderRadius: 6, justifyContent: 'center', alignItems: 'center', backgroundColor: value >= n ? GOLD : '#E2E8F0' }}>
+            <Text style={{ fontSize: 12, fontWeight: '700', color: value >= n ? '#fff' : '#64748B' }}>{n}</Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -886,7 +886,7 @@ function ForecastTab() {
               <Text style={s.main}>{r.product}</Text>
               <Text style={s.sub}>{r.currentStock} on hand · {r.predictedDemand} predicted · {Math.round((r.confidence || 0) * 100)}% confidence</Text>
             </View>
-            <Text style={{ fontSize: 11, fontWeight: '700', color: STATUS_COLOR[r.status] || '#6B7280', textTransform: 'uppercase' }}>{r.status}</Text>
+            <Text style={{ fontSize: 11, fontWeight: '700', color: STATUS_COLOR[r.status] || '#64748B', textTransform: 'uppercase' }}>{r.status}</Text>
           </View>
         ))}
       </View>
@@ -916,35 +916,35 @@ export default function SupplyChainScreen() {
 
 const s = StyleSheet.create({
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 40 },
-  empty: { color: '#9CA3AF', fontSize: 14, textAlign: 'center', padding: 16 },
+  empty: { color: '#94A3B8', fontSize: 14, textAlign: 'center', padding: 16 },
   card: { backgroundColor: '#fff', borderRadius: 12, paddingHorizontal: 16, marginHorizontal: 16, marginTop: 8, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 4, elevation: 2 },
   row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12 },
   border: { borderBottomWidth: 1, borderBottomColor: '#F1F5F9' },
-  main: { fontSize: 14, fontWeight: '600', color: '#1F2937' },
-  sub: { fontSize: 12, color: '#6B7280', marginTop: 2 },
-  sub2: { fontSize: 11, color: '#9CA3AF', marginTop: 1 },
+  main: { fontSize: 14, fontWeight: '600', color: '#0F172A' },
+  sub: { fontSize: 12, color: '#64748B', marginTop: 2 },
+  sub2: { fontSize: 11, color: '#94A3B8', marginTop: 1 },
   amount: { fontSize: 14, fontWeight: '700', color: NAVY },
   sectionTitle: { fontSize: 13, fontWeight: '700', color: NAVY, marginHorizontal: 16, marginTop: 16, marginBottom: 4 },
   avatar: { width: 38, height: 38, borderRadius: 19, justifyContent: 'center', alignItems: 'center', marginRight: 12 },
   avatarTxt: { fontSize: 15, fontWeight: '700' },
-  modalHeader: { flexDirection: 'row', alignItems: 'center', padding: 16, borderBottomWidth: 1, borderBottomColor: '#E5E7EB', backgroundColor: '#fff' },
+  modalHeader: { flexDirection: 'row', alignItems: 'center', padding: 16, borderBottomWidth: 1, borderBottomColor: '#E2E8F0', backgroundColor: '#fff' },
   modalTitle: { flex: 1, fontSize: 17, fontWeight: '700', color: NAVY },
-  modalClose: { fontSize: 18, color: '#6B7280', padding: 4 },
+  modalClose: { fontSize: 18, color: '#64748B', padding: 4 },
   detailRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 12 },
-  detailLabel: { fontSize: 13, color: '#6B7280' },
-  detailValue: { fontSize: 13, fontWeight: '600', color: '#1F2937' },
+  detailLabel: { fontSize: 13, color: '#64748B' },
+  detailValue: { fontSize: 13, fontWeight: '600', color: '#0F172A' },
   actionRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, padding: 16 },
   actionBtn: { paddingHorizontal: 18, paddingVertical: 11, borderRadius: 10, backgroundColor: NAVY },
   actionBtnTxt: { color: '#fff', fontSize: 14, fontWeight: '700' },
-  lineItem: { backgroundColor: '#F8FAFC', borderRadius: 10, padding: 12, marginBottom: 10, borderWidth: 1, borderColor: '#E5E7EB' },
+  lineItem: { backgroundColor: '#F8FAFC', borderRadius: 10, padding: 12, marginBottom: 10, borderWidth: 1, borderColor: '#E2E8F0' },
   addLineBtn: { borderStyle: 'dashed', borderWidth: 1, borderColor: '#CBD5E1', borderRadius: 10, padding: 12, alignItems: 'center', marginBottom: 14 },
   addLineTxt: { color: NAVY, fontSize: 13, fontWeight: '600' },
-  chip: { paddingHorizontal: 14, paddingVertical: 7, borderRadius: 20, backgroundColor: '#E5E7EB' },
-  chipTxt: { fontSize: 13, fontWeight: '600', color: '#374151' },
+  chip: { paddingHorizontal: 14, paddingVertical: 7, borderRadius: 20, backgroundColor: '#E2E8F0' },
+  chipTxt: { fontSize: 13, fontWeight: '600', color: '#334155' },
   searchWrap: { paddingHorizontal: 16, paddingVertical: 10 },
-  searchInput: { backgroundColor: '#fff', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 10, fontSize: 14, color: '#111827', borderWidth: 1, borderColor: '#E5E7EB' },
-  progressBg: { height: 6, backgroundColor: '#E5E7EB', borderRadius: 3, width: '100%', marginTop: 8 },
+  searchInput: { backgroundColor: '#fff', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 10, fontSize: 14, color: '#0F172A', borderWidth: 1, borderColor: '#E2E8F0' },
+  progressBg: { height: 6, backgroundColor: '#E2E8F0', borderRadius: 3, width: '100%', marginTop: 8 },
   progressFill: { height: 6, borderRadius: 3 },
   alertDot: { width: 10, height: 10, borderRadius: 5, marginRight: 12 },
-  countInput: { width: 70, borderWidth: 1, borderColor: '#D1D5DB', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 8, fontSize: 14, textAlign: 'center', color: '#111827' },
+  countInput: { width: 70, borderWidth: 1, borderColor: '#CBD5E1', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 8, fontSize: 14, textAlign: 'center', color: '#0F172A' },
 });

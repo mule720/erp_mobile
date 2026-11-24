@@ -1,7 +1,7 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 
-const NAVY = '#1E3A5F';
+const NAVY = '#2563EB';
 
 interface Props { onPress: () => void; label?: string; }
 

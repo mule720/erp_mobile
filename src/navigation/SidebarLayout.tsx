@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import {
-  View, Text, TouchableOpacity, StyleSheet, Animated, Dimensions,
+  Image, View, Text, TouchableOpacity, StyleSheet, Animated, Dimensions,
   ScrollView, Platform, StatusBar, Modal, Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -34,6 +34,7 @@ import ManufacturingScreen from '../screens/ManufacturingScreen';
 import AllFeaturesScreen from '../screens/AllFeaturesScreen';
 import WebPageView from '../components/WebPageView';
 import ModulePagesSheet from '../components/ModulePagesSheet';
+import NotificationBell from '../components/NotificationBell';
 import { MODULE_GROUPS } from '../lib/webPages';
 
 const NAVY = COLORS.navy;
@@ -158,17 +159,18 @@ export default function SidebarLayout() {
             </View>
           </TouchableOpacity>
         ) : (
-          <View style={s.iconBtn}><Ionicons name="infinite" size={22} color="#374151" /></View>
+          <View style={s.iconBtn}><Ionicons name="infinite" size={22} color="#334155" /></View>
         )}
-        <Text style={s.pageTitle} numberOfLines={1}>{activeItem?.label || 'NetOn ERP Pro'}</Text>
+        <Text style={s.pageTitle} numberOfLines={1}>{activeItem?.label || 'Neton ERP Pro'}</Text>
+        <NotificationBell onOpenLink={(path, title) => setWebPage({ path, title })} />
         {!!MODULE_GROUPS[activeItem?.key || ''] && (
           <TouchableOpacity onPress={() => setMorePages(true)} style={s.iconBtn} activeOpacity={0.7} accessibilityLabel="All pages in this module">
-            <Ionicons name="apps-outline" size={22} color="#374151" />
+            <Ionicons name="apps-outline" size={22} color="#334155" />
           </TouchableOpacity>
         )}
         {visible.some(n => n.key === 'capture') && (
           <TouchableOpacity onPress={() => navigate('capture')} style={s.iconBtn} activeOpacity={0.7} accessibilityLabel="Capture a document">
-            <Ionicons name="scan-outline" size={22} color="#fff" />
+            <Ionicons name="scan-outline" size={22} color="#334155" />
           </TouchableOpacity>
         )}
         <TouchableOpacity onPress={() => setProfileOpen(true)} style={s.avatarBtn} activeOpacity={0.8}>
@@ -206,13 +208,13 @@ export default function SidebarLayout() {
       <Animated.View style={[s.drawer, { transform: [{ translateX: slideX }] }]}>
         {/* Brand header */}
         <View style={[s.brand, { paddingTop: PT + 16 }]}>
-          <View style={s.logo}><Ionicons name="layers" size={17} color={NAVY} /></View>
+          <Image source={require('../../assets/logo.png')} style={s.logo} resizeMode="contain" accessibilityLabel="Neton ERP Pro" />
           <View style={{ flex: 1, marginLeft: 12 }}>
-            <Text style={s.brandName}>NetOn ERP Pro</Text>
+            <Text style={s.brandName}>Neton ERP Pro</Text>
             <Text style={s.brandOrg} numberOfLines={1}>{tenant?.name}</Text>
           </View>
           <TouchableOpacity onPress={closeDrawer} style={{ padding: 6 }}>
-            <Ionicons name="close" size={18} color="rgba(255,255,255,0.5)" />
+            <Ionicons name="close" size={18} color={COLORS.subtle} />
           </TouchableOpacity>
         </View>
 
@@ -228,7 +230,7 @@ export default function SidebarLayout() {
                 onPress={() => navigate(item.key)}
                 activeOpacity={0.7}
               >
-                <Ionicons name={item.icon} size={18} color={isActive ? NAVY : '#6B7280'} style={s.navIcon} />
+                <Ionicons name={item.icon} size={18} color={isActive ? NAVY : '#64748B'} style={s.navIcon} />
                 <Text style={[s.navLabel, isActive && s.navLabelA]}>{item.label}</Text>
                 {isActive && <View style={s.activeDot} />}
               </TouchableOpacity>
@@ -261,24 +263,24 @@ export default function SidebarLayout() {
                 <Text style={s.avText}>{user?.firstName?.[0]?.toUpperCase() || 'U'}</Text>
               </View>
               <View style={{ marginLeft: 12 }}>
-                <Text style={{ fontSize: 14, fontWeight: '700', color: '#1F2937' }}>{user?.firstName} {user?.lastName}</Text>
-                <Text style={{ fontSize: 12, color: '#6B7280' }}>{user?.email}</Text>
-                <Text style={{ fontSize: 11, color: '#9CA3AF', marginTop: 1 }}>{tenant?.name}</Text>
+                <Text style={{ fontSize: 14, fontWeight: '700', color: '#0F172A' }}>{user?.firstName} {user?.lastName}</Text>
+                <Text style={{ fontSize: 12, color: '#64748B' }}>{user?.email}</Text>
+                <Text style={{ fontSize: 11, color: '#94A3B8', marginTop: 1 }}>{tenant?.name}</Text>
               </View>
             </View>
             <View style={{ borderTopWidth: 1, borderTopColor: '#F1F5F9', paddingTop: 10 }}>
-              <Text style={{ fontSize: 11, fontWeight: '700', color: '#6B7280', marginBottom: 6 }}>HOW TO MOVE AROUND</Text>
+              <Text style={{ fontSize: 11, fontWeight: '700', color: '#64748B', marginBottom: 6 }}>HOW TO MOVE AROUND</Text>
               <View style={{ flexDirection: 'row', gap: 8, marginBottom: 8 }}>
                 {([['dashboard', 'menu-outline', 'Hamburger button'], ['infinity', 'infinite', 'Infinity button']] as const).map(([m, icon, label]) => (
                   <TouchableOpacity key={m} onPress={() => { chooseMode(m); setProfileOpen(false); }} activeOpacity={0.8}
-                    style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 9, borderRadius: 10, borderWidth: 1, borderColor: navMode === m ? NAVY : '#E5E7EB', backgroundColor: navMode === m ? NAVY : '#fff' }}>
-                    <Ionicons name={icon} size={15} color={navMode === m ? '#fff' : '#374151'} />
-                    <Text style={{ fontSize: 12, fontWeight: '700', color: navMode === m ? '#fff' : '#374151' }}>{label}</Text>
+                    style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 9, borderRadius: 10, borderWidth: 1, borderColor: navMode === m ? NAVY : '#E2E8F0', backgroundColor: navMode === m ? NAVY : '#fff' }}>
+                    <Ionicons name={icon} size={15} color={navMode === m ? '#fff' : '#334155'} />
+                    <Text style={{ fontSize: 12, fontWeight: '700', color: navMode === m ? '#fff' : '#334155' }}>{label}</Text>
                   </TouchableOpacity>
                 ))}
               </View>
               <TouchableOpacity style={s.profileAction} onPress={() => { setProfileOpen(false); navigate('settings'); }} activeOpacity={0.7}>
-                <Ionicons name="options-outline" size={16} color="#374151" style={{ marginRight: 10 }} />
+                <Ionicons name="options-outline" size={16} color="#334155" style={{ marginRight: 10 }} />
                 <Text style={s.profileActionTxt}>Settings</Text>
               </TouchableOpacity>
               <TouchableOpacity style={s.profileAction} onPress={handleSignOut} activeOpacity={0.7}>
@@ -297,14 +299,14 @@ const s = StyleSheet.create({
   topBar: {
     flexDirection: 'row', alignItems: 'center',
     backgroundColor: '#fff', paddingHorizontal: 12, paddingBottom: 10,
-    borderBottomWidth: 1, borderBottomColor: '#E5E7EB',
+    borderBottomWidth: 1, borderBottomColor: '#E2E8F0',
     shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 2, elevation: 3,
     zIndex: 10,
   },
   iconBtn: { padding: 6 },
   ham: { gap: 4 },
-  line: { height: 2, width: 22, backgroundColor: '#374151', borderRadius: 2 },
-  pageTitle: { flex: 1, fontSize: 16, fontFamily: FONT.heading, color: '#111827', marginLeft: 10 },
+  line: { height: 2, width: 22, backgroundColor: '#334155', borderRadius: 2 },
+  pageTitle: { flex: 1, fontSize: 16, fontFamily: FONT.heading, color: '#0F172A', marginLeft: 10 },
   avatarBtn: { padding: 4 },
   avCircle: { width: 34, height: 34, borderRadius: 17, backgroundColor: NAVY, justifyContent: 'center', alignItems: 'center' },
   avText: { color: '#fff', fontSize: 13, fontFamily: FONT.heading },
@@ -315,15 +317,15 @@ const s = StyleSheet.create({
     position: 'absolute', top: 0, left: 0, bottom: 0, width: SIDEBAR_W,
     backgroundColor: '#fff', zIndex: 30,
     shadowColor: '#000', shadowOpacity: 0.18, shadowRadius: 16, elevation: 20,
-    borderRightWidth: 1, borderRightColor: '#E5E7EB',
+    borderRightWidth: 1, borderRightColor: '#E2E8F0',
   },
   brand: {
-    backgroundColor: NAVY, flexDirection: 'row', alignItems: 'center',
-    paddingHorizontal: 16, paddingBottom: 16,
+    backgroundColor: COLORS.surface, flexDirection: 'row', alignItems: 'center',
+    paddingHorizontal: 16, paddingBottom: 14, borderBottomWidth: 1, borderBottomColor: COLORS.border,
   },
-  logo: { width: 34, height: 34, borderRadius: RADIUS.sm, backgroundColor: GOLD, justifyContent: 'center', alignItems: 'center' },
-  brandName: { color: '#fff', fontSize: 14, fontFamily: FONT.display },
-  brandOrg: { color: 'rgba(255,255,255,0.5)', fontSize: 11, marginTop: 1, fontFamily: FONT.bodyRegular },
+  logo: { width: 34, height: 34 },
+  brandName: { color: COLORS.ink, fontSize: 14, fontFamily: FONT.display },
+  brandOrg: { color: COLORS.subtle, fontSize: 11, marginTop: 1, fontFamily: FONT.bodyRegular },
 
   navItem: {
     flexDirection: 'row', alignItems: 'center',
@@ -332,27 +334,27 @@ const s = StyleSheet.create({
   },
   navActive: { backgroundColor: '#EFF6FF' },
   navIcon: { width: 26 },
-  navLabel: { fontSize: 14, color: '#374151', fontFamily: FONT.bodyRegular, flex: 1 },
+  navLabel: { fontSize: 14, color: '#334155', fontFamily: FONT.bodyRegular, flex: 1 },
   navLabelA: { color: NAVY, fontFamily: FONT.heading },
   activeDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: GOLD },
 
   footer: {
     flexDirection: 'row', alignItems: 'center',
-    padding: 14, borderTopWidth: 1, borderTopColor: '#E5E7EB',
+    padding: 14, borderTopWidth: 1, borderTopColor: '#E2E8F0',
     backgroundColor: '#F8FAFC',
   },
   footerAv: { width: 34, height: 34, borderRadius: 17, backgroundColor: NAVY + '1A', justifyContent: 'center', alignItems: 'center' },
   footerAvTxt: { fontSize: 13, fontFamily: FONT.heading, color: NAVY },
-  footerName: { fontSize: 13, fontFamily: FONT.heading, color: '#1F2937' },
-  footerEmail: { fontSize: 11, color: '#9CA3AF', marginTop: 1, fontFamily: FONT.bodyRegular },
+  footerName: { fontSize: 13, fontFamily: FONT.heading, color: '#0F172A' },
+  footerEmail: { fontSize: 11, color: '#94A3B8', marginTop: 1, fontFamily: FONT.bodyRegular },
 
   profileOverlay: { flex: 1 },
   profileCard: {
     position: 'absolute', right: 12,
     backgroundColor: '#fff', borderRadius: RADIUS.lg, padding: 16, width: 260,
     shadowColor: '#000', shadowOpacity: 0.15, shadowRadius: 16, elevation: 12,
-    borderWidth: 1, borderColor: '#E5E7EB',
+    borderWidth: 1, borderColor: '#E2E8F0',
   },
   profileAction: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10 },
-  profileActionTxt: { fontSize: 14, color: '#374151', fontWeight: '500' },
+  profileActionTxt: { fontSize: 14, color: '#334155', fontWeight: '500' },
 });

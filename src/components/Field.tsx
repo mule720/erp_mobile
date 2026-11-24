@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 
-const NAVY = '#1E3A5F';
+const NAVY = '#2563EB';
 
 interface FieldProps {
   label: string;
@@ -22,7 +22,7 @@ export function Field({ label, value, onChangeText, placeholder, multiline, keyb
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder || ''}
-        placeholderTextColor="#9CA3AF"
+        placeholderTextColor="#94A3B8"
         multiline={multiline}
         keyboardType={keyboardType}
       />
@@ -67,22 +67,22 @@ export function Section({ title }: SectionProps) {
 
 const s = StyleSheet.create({
   wrap: { marginBottom: 14 },
-  label: { fontSize: 12, fontWeight: '600', color: '#374151', marginBottom: 6 },
+  label: { fontSize: 12, fontWeight: '600', color: '#334155', marginBottom: 6 },
   input: {
     backgroundColor: '#fff', borderRadius: 10, paddingHorizontal: 14,
-    paddingVertical: 11, fontSize: 14, color: '#111827',
-    borderWidth: 1, borderColor: '#E5E7EB',
+    paddingVertical: 11, fontSize: 14, color: '#0F172A',
+    borderWidth: 1, borderColor: '#E2E8F0',
   },
   chip: {
     paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20,
-    borderWidth: 1, borderColor: '#D1D5DB', backgroundColor: '#fff',
+    borderWidth: 1, borderColor: '#CBD5E1', backgroundColor: '#fff',
   },
   chipActive: { backgroundColor: NAVY, borderColor: NAVY },
-  chipTxt: { fontSize: 13, color: '#374151', fontWeight: '500' },
+  chipTxt: { fontSize: 13, color: '#334155', fontWeight: '500' },
   chipTxtActive: { color: '#fff', fontWeight: '600' },
   section: {
-    fontSize: 11, fontWeight: '700', color: '#6B7280', textTransform: 'uppercase',
+    fontSize: 11, fontWeight: '700', color: '#64748B', textTransform: 'uppercase',
     letterSpacing: 0.8, marginTop: 8, marginBottom: 10,
-    borderBottomWidth: 1, borderBottomColor: '#E5E7EB', paddingBottom: 6,
+    borderBottomWidth: 1, borderBottomColor: '#E2E8F0', paddingBottom: 6,
   },
 });

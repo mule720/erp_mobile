@@ -308,7 +308,7 @@ const s = StyleSheet.create({
   card: { backgroundColor: '#fff', borderRadius: RADIUS.lg, padding: 14, marginBottom: 12, ...SHADOW.card },
   h: { fontSize: 15, fontWeight: '800', color: COLORS.ink, marginBottom: 6 },
   p: { fontSize: 13, color: COLORS.subtle, lineHeight: 19 },
-  label: { fontSize: 12, fontWeight: '600', color: '#374151', marginBottom: 5 },
+  label: { fontSize: 12, fontWeight: '600', color: '#334155', marginBottom: 5 },
   hint: { fontSize: 11, color: COLORS.subtle },
   val: { fontSize: 13, fontWeight: '700', color: COLORS.ink },
   input: { backgroundColor: '#fff', borderRadius: 10, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: COLORS.ink, borderWidth: 1, borderColor: COLORS.border, marginBottom: 10 },
