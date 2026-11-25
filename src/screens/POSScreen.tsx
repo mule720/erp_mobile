@@ -1,15 +1,17 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  TextInput, Alert, ActivityIndicator, Modal, Platform,
+  TextInput, Alert, ActivityIndicator, Modal, Platform, Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { gql } from '../api/graphql';
 import { useAuth } from '../store/AuthContext';
 import BarcodeScannerModal from '../components/BarcodeScannerModal';
 import PosShiftBar from '../components/PosShiftBar';
+import { useRole } from '../store/RoleContext';
 import { matchCode, suggest } from '../lib/productCode';
 import { productByCode, setProductBarcode } from '../api/aiApi';
+import { getCompanyProfile, companyLines, CompanyProfile } from '../api/company';
 
 const NAVY = '#2563EB';
 const GOLD = '#0EA5E9';
@@ -17,12 +19,16 @@ const GREEN = '#16A34A';
 
 const fmt = (n: any) => new Intl.NumberFormat('en-ZM', { style: 'currency', currency: 'ZMW', maximumFractionDigits: 2 }).format(Number(n ?? 0));
 
-interface Product { id: string; name: string; sku: string; barcode?: string; unitPrice: number; stockLevel: number; category: string; }
+interface Product { id: string; name: string; sku: string; barcode?: string; unitPrice: number; stockLevel: number | null; category: string; kind?: string; unitCost?: number; }
 interface CartItem { product: Product; qty: number; price: number; }
 
 export default function POSScreen() {
   const { tenant } = useAuth();
   const tenantId = tenant?.id || '';
+  const role = useRole();
+  // the company's logo, name, address, contact and TPIN at the top of the receipt, as on the web
+  const [company, setCompany] = useState<CompanyProfile | null>(null);
+  useEffect(() => { getCompanyProfile(tenantId).then(setCompany); }, [tenantId]);
 
   const [products, setProducts] = useState<Product[]>([]);
   const [filtered, setFiltered] = useState<Product[]>([]);
@@ -43,18 +49,25 @@ export default function POSScreen() {
 
   const load = useCallback(async () => {
     try {
-      const d = await gql<any>(`{ supplyChainProducts }`);
-      const raw = d?.supplyChainProducts || [];
-      const prods = raw
-        .filter((p: any) => p.is_active !== false && p.isActive !== false)
-        .map((p: any) => ({
-          id: p.id, name: p.name, sku: p.sku || '',
-          barcode: p.barcode || undefined,
-          unitPrice: p.unit_price ?? p.unitPrice ?? p.price ?? 0,
-          stockLevel: p.stock ?? p.stock_level ?? p.stockLevel ?? null,
-          category: p.category || '',
+      // The same list the web till uses: what can be sold NOW. A made-to-order item (tea, coffee, a pie) is counted from its ingredients
+      // and from the extras each sale uses up (cup, lid, straw, box); things that cannot be sold are not offered.
+      let prods: Product[];
+      try {
+        const c = await gql<any>(`query($t:UUID!,$b:UUID){ posCatalogue(tenantId:$t, branchId:$b, limit:500) }`, { t: tenantId, b: role.branchId || null });
+        prods = (c?.posCatalogue || []).map((p: any) => ({
+          id: p.id, name: p.name, sku: p.sku || '', barcode: p.barcode || undefined, unitPrice: Number(p.sellingPrice || 0),
+          stockLevel: p.available ?? null, category: p.category || '', kind: p.kind, unitCost: p.unitCost,
         }));
-      setProducts(prods); setFiltered(prods);
+      } catch {
+        const d = await gql<any>(`{ supplyChainProducts }`);
+        prods = (d?.supplyChainProducts || [])
+          .filter((p: any) => p.is_active !== false && p.isActive !== false)
+          .map((p: any) => ({
+            id: p.id, name: p.name, sku: p.sku || '', barcode: p.barcode || undefined,
+            unitPrice: p.unit_price ?? p.unitPrice ?? p.price ?? 0, stockLevel: p.stock ?? p.stock_level ?? p.stockLevel ?? null, category: p.category || '',
+          }));
+      }
+      setProducts(prods); setFiltered(prods.filter(p => p.stockLevel === null || p.stockLevel > 0));
     } catch {} finally { setLoading(false); }
   }, [tenantId]);
 
@@ -63,7 +76,7 @@ export default function POSScreen() {
   const categories = ['All', ...Array.from(new Set(products.map(p => p.category).filter(Boolean)))];
 
   useEffect(() => {
-    let list = products;
+    let list = products.filter(p => p.stockLevel === null || p.stockLevel > 0);      // used-up items are not offered, as on the web
     if (activeCategory !== 'All') list = list.filter(p => p.category === activeCategory);
     if (search) {
       const q = search.toLowerCase();
@@ -135,7 +148,9 @@ export default function POSScreen() {
     setProcessing(true);
     try {
       const today = new Date().toISOString().slice(0, 10);
+      // productId is what makes posting the sale take the item (or a made item's ingredients and extras) out of stock and book the cost
       const lines = JSON.stringify(cart.map(i => ({
+        productId: i.product.id,
         description: i.product.name,
         quantity: i.qty,
         unitPrice: i.price,
@@ -175,6 +190,13 @@ export default function POSScreen() {
             <Text style={s.receiptNum}>{lastReceipt.receiptNumber}</Text>
           </View>
           <View style={s.receiptBody}>
+            {company && (company.name || company.logo) && (
+              <View style={s.coBlock}>
+                {!!company.logo && <Image source={{ uri: company.logo }} style={s.coLogo} resizeMode="contain" />}
+                <Text style={s.coName}>{company.name}</Text>
+                {companyLines(company).map((l, i) => <Text key={i} style={s.coLine}>{l}</Text>)}
+              </View>
+            )}
             {lastReceipt.items.map((item: CartItem) => (
               <View key={item.product.id} style={s.receiptRow}>
                 <Text style={s.receiptItem}>{item.product.name} × {item.qty}</Text>
@@ -255,7 +277,7 @@ export default function POSScreen() {
               <Text style={s.productPrice}>{fmt(p.unitPrice)}</Text>
               {p.stockLevel != null && (
                 <Text style={[s.productStock, p.stockLevel <= 5 && { color: '#DC2626' }]}>
-                  {outOfStock ? 'Out of stock' : `Stock: ${p.stockLevel}`}
+                  {outOfStock ? 'Out of stock' : p.kind === 'made' ? `Can make: ${p.stockLevel}` : `Stock: ${p.stockLevel}`}
                 </Text>
               )}
               {inCart && (
@@ -491,6 +513,10 @@ const s = StyleSheet.create({
   floatingCartAmt: { color: '#FFFFFF', fontSize: 16, fontWeight: '900' },
 
   receiptCard: { backgroundColor: '#fff', borderRadius: 20, margin: 16, marginTop: 32, overflow: 'hidden', shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 10, elevation: 5 },
+  coBlock: { alignItems: 'center', paddingBottom: 12, marginBottom: 10, borderBottomWidth: 1, borderBottomColor: '#E2E8F0' },
+  coLogo: { width: 120, height: 48, marginBottom: 6 },
+  coName: { fontSize: 15, fontWeight: '700', color: '#0F172A', textAlign: 'center' },
+  coLine: { fontSize: 11, color: '#64748B', textAlign: 'center', marginTop: 1 },
   receiptHeader: { backgroundColor: GREEN, padding: 28, alignItems: 'center' },
   receiptTick: { fontSize: 36, color: '#fff' },
   receiptTitle: { fontSize: 18, fontWeight: '700', color: '#fff', marginTop: 8 },
