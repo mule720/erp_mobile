@@ -12,7 +12,7 @@ import {
   Inter_800ExtraBold,
 } from '@expo-google-fonts/inter';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { AuthProvider } from './src/store/AuthContext';
+import { AuthProvider, useAuth } from './src/store/AuthContext';
 import { RoleProvider } from './src/store/RoleContext';
 import { ThemeProvider, useThemeMode } from './src/store/ThemeContext';
 import { ConfirmProvider } from './src/store/ConfirmContext';
@@ -20,6 +20,12 @@ import AppNavigator from './src/navigation/AppNavigator';
 import { COLORS } from './src/theme';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
+
+/** Everything under it starts again whenever the sign-in is swapped (an accounting firm person going into, or back out of, a client company). */
+function SessionBoundary({ children }: { children: React.ReactNode }) {
+  const { sessionKey } = useAuth();
+  return <React.Fragment key={sessionKey}>{children}</React.Fragment>;
+}
 
 function ThemedStatusBar() {
   const { dark } = useThemeMode();
@@ -51,12 +57,14 @@ export default function App() {
     <SafeAreaProvider>
       <ThemeProvider>
         <AuthProvider>
-          <RoleProvider>
-            <ConfirmProvider>
-              <AppNavigator />
-              <ThemedStatusBar />
-            </ConfirmProvider>
-          </RoleProvider>
+          <SessionBoundary>
+            <RoleProvider>
+              <ConfirmProvider>
+                <AppNavigator />
+                <ThemedStatusBar />
+              </ConfirmProvider>
+            </RoleProvider>
+          </SessionBoundary>
         </AuthProvider>
       </ThemeProvider>
     </SafeAreaProvider>

@@ -39,6 +39,9 @@ import WebPageView from '../components/WebPageView';
 import ModulePagesSheet from '../components/ModulePagesSheet';
 import NotificationBell from '../components/NotificationBell';
 import TierBanner from '../components/TierBanner';
+import FirmSessionBanner from '../components/FirmSessionBanner';
+import FirmClientsScreen from '../screens/FirmClientsScreen';
+import AccountantsScreen from '../screens/AccountantsScreen';
 import { MODULE_GROUPS } from '../lib/webPages';
 
 const NAVY = COLORS.navy;
@@ -56,7 +59,8 @@ interface NavItem {
 
 // A business on the two base plans (Sell: point of sale and inventory; Books: accounting) only sees the parts it has. The other plans and
 // older businesses see everything, as before. Each menu item shows when ANY of its module codes is switched on.
-const TWO_PLANS = ['neton_sell_lite', 'neton_sell', 'neton_books'];
+// Sell, Books, their tiers (neton_sell_t2 ... neton_books_t5) and the phone-only Sell Lite
+const isTwoPlan = (plan: string | null) => !!plan && /^neton_(sell|books)(_t[2-5])?$|^neton_sell_lite$/.test(plan);
 const NEEDS_MODULE: Record<string, string[]> = {
   sales: ['crm', 'sales', 'finance', 'accounting'], pos: ['pos'], purchasing: ['supply_chain'], inventory: ['supply_chain'], finance: ['finance', 'accounting'],
   crm: ['sales', 'crm_sales_pro', 'crm'], people: ['human_resources', 'hr_self_service', 'payroll', 'hr'], fixed_assets: ['fixed_assets'],
@@ -81,6 +85,8 @@ const NAV: NavItem[] = [
   { key: 'capture',      label: 'Capture a document', icon: 'scan-outline',    component: CaptureDocumentScreen, roleCheck: r => r.isAdmin || r.isAccountant || r.hasPermission('supply_chain.view_purchase_orders') },
   { key: 'ai_assistant', label: 'NetOn AI',       icon: 'sparkles-outline',    component: AIAssistantScreen },
   { key: 'features',     label: 'All features',   icon: 'apps-outline',        component: AllFeaturesScreen },
+  { key: 'firm_clients', label: 'Client companies', icon: 'briefcase-outline',   component: FirmClientsScreen, roleCheck: r => r.isAdmin || r.isAccountant, module: 'multi_company' },
+  { key: 'accountants',  label: 'Accountants',    icon: 'shield-checkmark-outline', component: AccountantsScreen, roleCheck: r => r.isAdmin },
   { key: 'setup',        label: 'Setup & Import', icon: 'settings-outline',    component: SetupScreen,       roleCheck: r => r.isAdmin },
   { key: 'settings',     label: 'Settings',       icon: 'options-outline',     component: SettingsScreen },
   { key: 'plan_advisor', label: 'AI setup help',  icon: 'sparkles-outline',      component: SetupAdvisorScreen, roleCheck: r => r.isAdmin },
@@ -131,7 +137,7 @@ export default function SidebarLayout() {
 
   const navigate = (key: string) => { setActiveKey(key); closeDrawer(); };
 
-  const twoPlan = !!plan && TWO_PLANS.includes(plan) && modules !== null;
+  const twoPlan = isTwoPlan(plan) && modules !== null;
   const hasPart = (key: string) => !twoPlan || !NEEDS_MODULE[key] || NEEDS_MODULE[key].some(c => [...(modules as string[]), ...branchModules].includes(c));
   const visible = NAV.filter(item => (!item.roleCheck || item.roleCheck(role)) && (!item.module || modules === null || modules.includes(item.module)) && hasPart(item.key));
   const activeItem = visible.find(n => n.key === activeKey) || visible[0];
@@ -181,6 +187,7 @@ export default function SidebarLayout() {
       </View>
 
       {/* ─── Active screen ────────────────────────────────────────── */}
+      <FirmSessionBanner />
       <TierBanner />
       <View style={{ flex: 1 }}>
         <ActiveScreen onNavigate={navigate} onOpenWeb={(path: string, title: string) => setWebPage({ path, title })} />
