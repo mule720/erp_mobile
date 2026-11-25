@@ -166,12 +166,15 @@ export default function POSScreen() {
       const invoiceId = invoiceResult.invoice?.id;
       const invoiceNumber = invoiceResult.invoice?.invoiceNumber || 'POS-SALE';
       // 2. Post invoice
-      await gql<any>(`mutation($id:UUID!){postSalesInvoice(invoiceId:$id,paymentMode:"cash"){ok error}}`, { id: invoiceId });
+      // The sale must be posted (revenue, VAT, stock and cost of sales) BEFORE the money is recorded; if posting fails, stop here
+      const posted = await gql<any>(`mutation($id:UUID!,$m:String!){postSalesInvoice(invoiceId:$id,paymentMode:$m){ok error}}`, { id: invoiceId, m: payMethod });
+      if (!posted?.postSalesInvoice?.ok) throw new Error(posted?.postSalesInvoice?.error || 'The sale could not be posted. Nothing was charged.');
       // 3. Record payment
-      await gql<any>(
+      const paid = await gql<any>(
         `mutation($id:UUID!,$a:Decimal!,$m:String!,$r:String){recordCashSaleReceipt(invoiceId:$id,amount:$a,paymentMethod:$m,reference:$r){ok error}}`,
         { id: invoiceId, a: total.toFixed(2), m: payMethod, r: reference || undefined }
       );
+      if (!paid?.recordCashSaleReceipt?.ok) throw new Error(paid?.recordCashSaleReceipt?.error || 'The payment could not be recorded.');
       setLastReceipt({ receiptNumber: invoiceNumber, items: [...cart], subtotal, tax, total, method: payMethod, change });
       setCart([]); setShowPayment(false); setCashReceived(''); setReference('');
     } catch (e: any) { Alert.alert('Error', e.message); } finally { setProcessing(false); }
