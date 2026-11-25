@@ -38,6 +38,7 @@ import AllFeaturesScreen from '../screens/AllFeaturesScreen';
 import WebPageView from '../components/WebPageView';
 import ModulePagesSheet from '../components/ModulePagesSheet';
 import NotificationBell from '../components/NotificationBell';
+import TierBanner from '../components/TierBanner';
 import { MODULE_GROUPS } from '../lib/webPages';
 
 const NAVY = COLORS.navy;
@@ -180,6 +181,7 @@ export default function SidebarLayout() {
       </View>
 
       {/* ─── Active screen ────────────────────────────────────────── */}
+      <TierBanner />
       <View style={{ flex: 1 }}>
         <ActiveScreen onNavigate={navigate} onOpenWeb={(path: string, title: string) => setWebPage({ path, title })} />
       </View>
