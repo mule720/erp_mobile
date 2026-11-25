@@ -64,7 +64,7 @@ export default function RegisterScreen({ navigation }: any) {
   const [plan, setPlan] = useState<MobilePlan | null>(null);
   const [planLoading, setPlanLoading] = useState(true);
   // yearly (the plan's own price) or monthly, when the plan offers both
-  const [cycle, setCycle] = useState<'yearly' | 'monthly'>('yearly');
+  const [cycle, setCycle] = useState<'yearly' | 'monthly'>('monthly');
   const [loading, setLoading] = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);   // the eye on the two password boxes
@@ -164,16 +164,16 @@ export default function RegisterScreen({ navigation }: any) {
               </View>
               {plan.billingCycle?.toUpperCase() === 'YEARLY' && !!plan.monthlyPrice && (
                 <View style={s.cycleRow}>
-                  {(['yearly', 'monthly'] as const).map((c) => (
+                  {(['monthly', 'yearly'] as const).map((c) => (
                     <TouchableOpacity key={c} onPress={() => setCycle(c)} activeOpacity={0.8}
                       style={[s.cycleBtn, cycle === c && s.cycleBtnOn]}>
-                      <Text style={[s.cycleText, cycle === c && s.cycleTextOn]}>{c === 'yearly' ? 'Pay yearly' : 'Pay monthly'}</Text>
+                      <Text style={[s.cycleText, cycle === c && s.cycleTextOn]}>{c === 'yearly' ? 'Pay yearly (save)' : 'Pay monthly'}</Text>
                     </TouchableOpacity>
                   ))}
                 </View>
               )}
               {plan.billingCycle?.toUpperCase() === 'YEARLY' && cycle === 'yearly' && (
-                <Text style={s.planDesc}>That is K{Math.round(Number(plan.basePrice) / 12).toLocaleString()} a month, paid once a year.</Text>
+                <Text style={s.planDesc}>That is K{Math.round(Number(plan.basePrice) / 12).toLocaleString()} a month, paid once a year{Number(plan.monthlyPrice) * 12 > Number(plan.basePrice) ? ` — you save K${Math.round(Number(plan.monthlyPrice) * 12 - Number(plan.basePrice)).toLocaleString()} a year.` : '.'}</Text>
               )}
               <Text style={s.planDesc}>{plan.description}</Text>
               <View style={s.planTrialRow}>

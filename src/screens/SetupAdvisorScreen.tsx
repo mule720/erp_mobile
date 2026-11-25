@@ -6,7 +6,7 @@ import { gql } from '../api/graphql';
 import { useConfirm } from '../store/ConfirmContext';
 import { COLORS, RADIUS, SHADOW } from '../theme';
 
-interface Line { code: string; kind: string; name: string; reason: string; addedBecauseNeeded: boolean; perMonth: number; perYear: number }
+interface Line { code: string; kind: string; name: string; reason: string; addedBecauseNeeded: boolean; perMonth: number; perYear: number; billedMonthlyPrice?: number }
 interface Suggestion {
   ok: boolean; error?: string; source: 'ai' | 'rules'; summary: string; planCode: string; billingCycle: 'yearly' | 'monthly';
   modules: string[]; aiAssistant: boolean; lines: Line[]; totalPerMonth: number; totalPerYear: number; note: string;
@@ -17,7 +17,7 @@ const kw = (n: number) => `K${Math.round(n).toLocaleString()}`;
 export default function SetupAdvisorScreen() {
   const { tenant } = useAuth();
   const [about, setAbout] = useState('');
-  const [cycle, setCycle] = useState<'yearly' | 'monthly'>('yearly');
+  const [cycle, setCycle] = useState<'yearly' | 'monthly'>('monthly');
   const [busy, setBusy] = useState(false);
   const [s, setS] = useState<Suggestion | null>(null);
   const [done, setDone] = useState('');
@@ -64,9 +64,9 @@ export default function SetupAdvisorScreen() {
           placeholderTextColor={COLORS.faint}
         />
         <View style={st.row}>
-          {(['yearly', 'monthly'] as const).map(c => (
+          {(['monthly', 'yearly'] as const).map(c => (
             <TouchableOpacity key={c} onPress={() => setCycle(c)} style={[st.pill, cycle === c && st.pillOn]}>
-              <Text style={[st.pillTxt, cycle === c && st.pillTxtOn]}>{c === 'yearly' ? 'Pay yearly' : 'Pay monthly'}</Text>
+              <Text style={[st.pillTxt, cycle === c && st.pillTxtOn]}>{c === 'yearly' ? 'Pay yearly (save)' : 'Pay monthly'}</Text>
             </TouchableOpacity>
           ))}
         </View>
@@ -93,6 +93,7 @@ export default function SetupAdvisorScreen() {
             <Text style={st.totalTxt}>Total {s.source === 'ai' ? '(suggested by AI)' : '(from your description)'}</Text>
             <Text style={st.totalTxt}>{s.billingCycle === 'yearly' ? `${kw(s.totalPerYear)} a year` : `${kw(s.totalPerMonth)} a month`}</Text>
           </View>
+          {s.billingCycle === 'yearly' && (() => { const save = s.lines.reduce((a, l) => a + (l.billedMonthlyPrice || 0), 0) * 12 - s.totalPerYear; return save > 0 ? <Text style={[st.note, { color: '#15803D', fontFamily: undefined, fontWeight: '700' }]}>Paying yearly saves you {kw(save)} a year compared with paying monthly.</Text> : null; })()}
           <Text style={st.note}>{s.note}</Text>
           <View style={st.row}>
             <TouchableOpacity style={[st.btn, { flex: 1 }, busy && { opacity: 0.5 }]} disabled={busy} onPress={authorise}>
